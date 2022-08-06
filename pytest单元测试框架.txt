@@ -1,0 +1,112 @@
+验证是否安装成功
+命令行模式: pytest --version
+
+插件
+pytest-html 生成html格式测试报告
+pytest-xdist 分布式执行，多cpu并发
+pytest-ordering 改变测试用例执行顺序
+pytest-rerunfailures 失败后重跑
+allure-pytest allure测试报告
+
+默认测试用例规则
+1. module: test_.*\.py .*_test\.py
+2. class: Test.* 不能有init方法
+3. function: test.*
+
+运行方式
+1.主函数模式
+    1.1 运行所有 pytest.main()
+    1.2 指定模块运行 pytest.main(['模块名'.py])
+    1.3 指定目录运行 pytest.main(['目录名'])
+    1.4 通过nodeid指定用例执行 pytest.main(['目录名/模块名.py::类名::方法名'])
+                            pytest.main(['目录名/模块名.py::函数名'])
+2.命令行模式
+    2.1 运行所有 pytest
+    2.2 指定模块运行 pytest '模块名'.py
+    2.3 指定目录运行 pytest '目录名'
+    2.4 通过nodeid指定用例执行 pytest '目录名/模块名.py::类名::方法名'
+                            pytest '目录名/模块名.py::函数名'
+3.读取pytest.ini配置文件运行
+3.1 位置: 放在项目根目录
+3.2 编码: 必须是ANSI编码格式
+3.3 作用: 改变pytest默认的行为
+3.4 运行机制: 主函数模式和命令行模式运行都会读取这个配置文件
+
+参数详解:
+    -s: 输出调试信息，包括print打印的信息
+    -v: 输出详细信息
+    -vs: 输出详细信息，包括调试信息和print打印的信息
+    -n: 支持多线程或者分布式运行测试用例  需安装插件pytest-xdist
+        如: pytest.main(['-n=2']) 第一个线程执行用例1,3,5 第二个线程执行用例2,4
+        pytest -n 2
+    --reruns 测试用例失败重跑  需安装插件pytest-rerunfailures
+        如: pytest.main(['--reruns=2']) 执行失败后重跑两次 共跑三次
+        pytest --reruns 2
+    -x: 只要一个用例报错，测试停止
+    --maxfail: 出现两个用例失败就停止
+    -k: 根据测试用例的部分字符串指定测试用例
+    --html 报告路径/报告名.html: html测试报告
+    -m 分组执行
+
+默认执行顺序
+从上到下顺序执行
+改变执行顺序: @pytest.mark.run()
+    如: @pytest.mark.run(order=1) 第一个执行 未装饰器的按顺序执行，先执行标记 需安装插件pytest-ordering
+
+分组执行(冒烟、分模块、分api和web):
+    自定义标记:
+    定义标记: pytest.ini文件 markers: smoke:冒烟用例 usermanage:用户管理模块
+    使用标记: @pytest.mark.smoke
+    执行标记: pytest -m "smoke"
+    执行多个标记: pytest -m "smoke or usermanage"
+
+跳过测试用例
+无条件跳过: @pytest.mark.skip()
+    如: @pytest.mark.skip(reason="跳过原因")
+有条件跳过: 条件满足则跳过: @pytest.mark.skipif(是否满足条件，reason="跳过原因")
+        首先需要设置条件
+
+生成html测试报告
+配置文件方式 addopds = --html 报告路径/报告名.html
+
+前后置(固件、夹具)的处理
+1. setup/teardown,setup_class/teardown_class
+用处: web自动化打开/关闭浏览器等
+setup/teardown写在类中，每个用例的前后都会执行一次
+setup_class/teardown_class 写在类中，在类中所有用例执行之前/之后执行一次 如获取token 销毁token 创建数据库连接,销毁数据库连接
+创建接口请求对象 销毁接口请求对象 创建日志对象 销毁日志对象
+2.使用@pytest.fixture()装饰器实现部分用例的前后置
+参数:
+    scope: 被@pytest.fixture标记方法的作用域 function(默认) class module package/session
+    params: 参数化(执行list [],tuple (),字典列表 [{},{}],字典元组({},{}))  参数化有几个值被修饰扥用例执行几次
+    autouse: 自动执行 默认是False autouse=True
+    ids: 当使用params参数化时,给每一个值设置一个变量名。意义不大。
+    name: 给被@pytest.fixture标记方法标记的方法取一个别名  取了别名后原来的名称就用不了了。
+    加yiled分隔实现后置
+    参数化时 return request.param 或 yield request.param
+3.通过conftest.py和@pytest.fixture()结合使用实现全局的前后置应用
+    如: 项目的全局登录,模块的全局处理[处理相同的操作]
+conftest.py文件是单独存放的一个夹具配置文件,名称不可更改
+可以在不同的py文件中使用同一个fixture函数
+原则上conftest.py文件需要和运行的用例放在同一层，也可以放在其上层目录中
+不需要做任何的import导入操作
+上级目录和同级目录均可以有conftest文件,且均可被执行
+4.总结
+setup/teardown,setup_class/teardown_class 作用域所有的用例或所有的类
+@pytest.fixture() 既可以部分也可以全部前后置
+conftest.py与@pytest.fixture()结合使用，作用于全局的前后置。
+
+断言
+assert 1==2
+
+pytest结合allure-pytest插件生成allure测试报告
+下载、解压、配置path路径
+官网地址: https://github.com/allure-framework/allure2/releases
+1.验证是否安装成功 allure --version
+2.生成json格式的临时报告  --alluredir 路径  如: --alluredir ./temp
+3.生成allure报告
+os.system('allure generate ./temp -o ./report --clean')
+generate后加临时json报告目录
+-o后加报告目录 output
+--clean 清除上次生成的报告(报告目录下)重新生成一次
+

@@ -1,0 +1,79 @@
+# http://httpbin.org
+-
+  name: 获取本机ip
+  base_url: http://httpbin.org
+  request:
+    url: /ip      # 完整url为base_url+url
+    method: GET
+  validata: null
+-
+  name: 获取user-agent
+  base_url: null
+  request:
+    url: http://httpbin.org/user-agent
+    method: GET
+  validata: null
+-
+  name: get请求
+  base_url: "{{base_url}}"  # 从配置文件读取base_url
+  request:
+    url: /get
+    method: GET
+    params:
+      user: "{{generate_userinfo('username')}}"   # 调用python函数生成测试数据
+      ssn: "{{generate_userinfo('ssn')}}"
+  extract:
+    user: $..user   # 提取响应中的数据，用于接口关联。
+    ssn: $..ssn     # 提取方式正则提取，json提取，json+正则提取。
+    # json提取如: $..token 正则提取如: token=(.*?) json+正则提取如: $..data>token=(.*?)
+  validata: null
+-
+  name: post请求-data传参
+  base_url: "{{base_url}}"
+  request:
+    url: /post
+    method: POST
+    data:
+      user: "${user}"   # 获取从响应中提取的数据
+      ssn: "${ssn}"
+  validata:
+    equal:        # 相等断言
+      status_code: 200
+      user: "${user}"   # 如果相等断言的是个列表时，可写成列表形式
+      ssn: "${ssn}"
+    contain:    # 包含断言
+      - "${user}"
+      - "${ssn}"
+-
+  name: post请求-json传参
+  base_url: "{{base_url}}"
+  request:
+    url: /post
+    method: POST
+    json:
+      user: "${user}"
+      ssn: "${ssn}"
+  validata:
+    equal: # 相等断言
+      status_code: 200
+-
+  name: 设置cookie
+  base_url: "{{base_url}}"
+  request:
+    url: /cookies/set
+    method: GET
+    params:
+      foo1: "{{generate_string(15)}}"
+      foo2: bar
+  validata:
+    equal: # 相等断言
+      status_code: 200
+-
+  name: 获取cookie
+  base_url: "{{base_url}}"
+  request:
+    url: /cookies
+    method: GET
+  validata:
+    equal: # 相等断言
+      status_code: 200

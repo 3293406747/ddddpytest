@@ -1,0 +1,22 @@
+# 数据库配置
+mysql:
+  host: 127.0.0.1
+  port: 3306
+  user: root
+  password: "111111"
+  db: faker
+
+# logger配置
+logger:
+  sink: ./log/logger.log
+  level: DEBUG
+  format: <green>{time:YYYY-MM-DD HH:mm:ss}</green>[<level>{level}</level>]<level>{message}</level>
+  rotation: "10 MB"
+
+# 环境配置
+base_url: http://httpbin.org
+
+dynamic_load:
+  - generate_userinfo
+  - generate_string
+  - generate_string2
