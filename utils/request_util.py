@@ -84,6 +84,7 @@ def extract_variable(string,case_info,start=None):
 			write_extract(target)
 
 def assertion(caseinfo,string):
+	""" 响应断言 """
 	validata = caseinfo["validata"]
 	if isinstance(validata,dict):
 		for key,value in validata.items():
