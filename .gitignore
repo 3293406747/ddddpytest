@@ -1,3 +1,13 @@
 .pytest_cache
 .idea
-.gitignore
+log
+report
+temp
+*.pyc
+*.log
+*.html
+*.json
+*.js
+*.css
+
+
