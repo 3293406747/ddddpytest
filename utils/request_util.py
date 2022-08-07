@@ -18,7 +18,7 @@ def render_template(data):
 	data = json.dumps(data) if data and isinstance(data,dict) else data
 	extract = read_extract()
 	# extract.yaml文件可能为空，为空时不渲染用例
-	if extract:
+	if extract and data:
 		temp = Template(data).render(**extract)
 		response = yaml.load(stream=temp, Loader=yaml.FullLoader)
 		return response

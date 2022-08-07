@@ -1,0 +1,8 @@
+*.pyc
+.pytest_cache
+log
+report
+.idea
+temp
+*.html
+*.json
