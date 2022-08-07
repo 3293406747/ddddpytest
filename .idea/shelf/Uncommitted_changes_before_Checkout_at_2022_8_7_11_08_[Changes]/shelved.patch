@@ -1,0 +1,19 @@
+Index: .gitignore
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>.pytest_cache\r\n.idea\r\nlog\r\nreport\r\ntemp\r\n*.pyc\r\n*.log\r\n*.html\r\n*.json\r\n*.js\r\n*.css\r\n\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.gitignore b/.gitignore
+--- a/.gitignore	(revision 8b2b19053ea1f2350ca9221938688b9544c7aa88)
++++ b/.gitignore	(date 1659840748538)
+@@ -9,5 +9,8 @@
+ *.json
+ *.js
+ *.css
++.gitignore
++*.iml
++__pycache__
+ 
+ 
