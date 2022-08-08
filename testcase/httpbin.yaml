@@ -77,3 +77,26 @@
   validata:
     equal: # 相等断言
       status_code: 200
+-
+  name: Authorization bearer鉴权
+  base_url: "{{base_url}}"
+  request:
+    url: /bearer
+    method: GET
+    headers:
+      Authorization: "Bearer aaa"
+  validata:
+    equal:
+      status_code: 200
+      token: aaa
+-
+  name: Authorization basic鉴权
+  base_url: "{{base_url}}"
+  request:
+    url: /basic-auth/admin/123456
+    method: GET
+    headers:
+      Authorization: "{{basic_auth('admin','123456')}}"
+  validata:
+    equal:
+      status_code: 200

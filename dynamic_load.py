@@ -1,3 +1,4 @@
+import base64
 import random
 import re
 import string
@@ -54,3 +55,7 @@ def generate_string2(length: int) -> str:
 	random.shuffle(all_arry)
 	random_string = ''.join(all_arry)
 	return random_string
+
+def basic_auth(user,passwd):
+	auth = "Basic " + base64.b64encode(":".join([user,passwd]).encode()).decode()
+	return auth

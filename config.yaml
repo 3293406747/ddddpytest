@@ -20,3 +20,4 @@ dynamic_load:
   - generate_userinfo
   - generate_string
   - generate_string2
+  - basic_auth
