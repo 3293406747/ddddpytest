@@ -1,5 +1,8 @@
 import json
+import os
 import re
+import time
+
 import jsonpath
 import requests
 import yaml
@@ -10,6 +13,8 @@ from mako.template import Template
 
 __all__ = ["auto_send_request", "send_request", "extract_variable"]
 
+base_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+data_path = os.path.join(base_path,"data")
 session = requests.session()
 
 
@@ -42,6 +47,8 @@ def send_request(method,url,base_url=None,caseinfo=None,start=None,**kwargs):
 		url = url
 	logger.info(f"请求url:{url},请求方法:{method}")
 	response = session.request(method=method,url=url,**kwargs)
+	type_ = ["image/jpeg", "image/png", "application/pdf"]
+	download(response,type_)
 	if caseinfo:
 		extract_variable(response, caseinfo, start=start)
 		new_validata = render_template(caseinfo["validata"])
@@ -130,4 +137,20 @@ def assertion(caseinfo,string):
 						message = f"{x}:断言{'通过' if temp.find(x) != -1 else '失败'}"
 						seq.append(message)
 					logger.info(",".join(seq))
+
+def download(response,target):
+	if response.headers.get("Content-Type"):
+		tp = target.pop()
+		if tp in response.headers["Content-Type"]:
+			if not os.path.exists(data_path):
+				os.mkdir(data_path)
+			file = os.path.join(data_path,str("%.0f"%time.time())+".%s") % tp.split("/")[1]
+			with open(file=file,mode="wb") as f:
+				f.write(response.content)
+				logger.info(f"{tp.split('/')[1]}格式文件{file}下载成功")
+			return None
+		elif not target:
+			return None
+		else:
+			return download(response,target)
 

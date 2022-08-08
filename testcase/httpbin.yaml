@@ -100,3 +100,17 @@
   validata:
     equal:
       status_code: 200
+-
+  name: png图片下载
+  base_url: "{{base_url}}"
+  request:
+    url: /image/png
+    method: GET
+  validata: null
+-
+  name: jpeg图片下载
+  base_url: "{{base_url}}"
+  request:
+    url: /image/jpeg
+    method: GET
+  validata: null
