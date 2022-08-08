@@ -2,7 +2,6 @@ import json
 import os
 import re
 import time
-
 import jsonpath
 import requests
 import yaml
@@ -139,6 +138,7 @@ def assertion(caseinfo,string):
 					logger.info(",".join(seq))
 
 def download(response,target):
+	""" 文件下载 """
 	if response.headers.get("Content-Type"):
 		tp = target.pop()
 		if tp in response.headers["Content-Type"]:
