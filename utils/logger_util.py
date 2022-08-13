@@ -1,5 +1,4 @@
 import sys
-
 from loguru import logger
 from utils.yaml_util import read_config
 

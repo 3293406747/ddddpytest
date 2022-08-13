@@ -1,4 +1,3 @@
-import traceback
 import pymysql
 from utils.logger_util import logger
 from utils.yaml_util import read_config

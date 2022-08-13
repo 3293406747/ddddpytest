@@ -3,7 +3,6 @@ import os
 import re
 import time
 import jsonpath
-import pytest
 import requests
 import yaml
 from utils.logger_util import logger
