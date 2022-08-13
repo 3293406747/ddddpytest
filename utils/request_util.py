@@ -3,6 +3,7 @@ import os
 import re
 import time
 import jsonpath
+import pytest
 import requests
 import yaml
 from utils.logger_util import logger
@@ -17,7 +18,6 @@ data_path = os.path.join(base_path,"data")
 session = requests.session()
 
 
-@logger.catch()
 def render_template(data):
 	""" 渲染用例 """
 	data = json.dumps(data) if data and isinstance(data,dict) else data
@@ -30,7 +30,6 @@ def render_template(data):
 	else:
 		return None
 
-@logger.catch()
 def send_request(method,url,base_url=None,caseinfo=None,start=None,**kwargs):
 	""" 发送同一个session请求 """
 	method = str(method).lower()
@@ -63,7 +62,6 @@ def send_request(method,url,base_url=None,caseinfo=None,start=None,**kwargs):
 		logger.info(f"{'接口请求结束':-^20}\n")
 	return response
 
-@logger.catch()
 def auto_send_request(caseinfo,start=None):
 	""" 获取用例自动发送请求 """
 	url = caseinfo["request"].pop("url")
@@ -75,7 +73,6 @@ def auto_send_request(caseinfo,start=None):
 	response = send_request(method=method,url=url,base_url=base_url,caseinfo=caseinfo,start=start,**caseinfo["request"])
 	return response
 
-@logger.catch()
 def extract_variable(string,case_info,start=None):
 	""" 接口关联:提取响应中的内容 """
 	if "extract" in case_info.keys():
@@ -99,7 +96,6 @@ def extract_variable(string,case_info,start=None):
 			target = {key: response}
 			write_extract(target)
 
-@logger.catch()
 def assertion(caseinfo,string):
 	""" 响应断言 """
 	validata = caseinfo["validata"]
@@ -111,13 +107,10 @@ def assertion(caseinfo,string):
 					for i,j in value.items():
 						if i == "status_code":
 							# 响应状态断言
-							logger.info(f"预期结果:{j}")
-							logger.info(f"实际结果:{string.status_code}")
-							try:
-								assert j == string.status_code
-								logger.info(f"相等断言:断言通过")
-							except AssertionError:
-								raise AssertionError("相等断言:断言失败") from None
+							logger.info(f"预期结果状态码:{j}")
+							logger.info(f"实际结果状态码:{string.status_code}")
+							logger.info(f"相等断言:断言{'通过' if j == string.status_code else '失败'}")
+							assert j == string.status_code, f"断言失败，预期结果状态码{j}不等于实际结果状态码{string.status_code}"
 						else:
 							# 响应结果断言
 							results = jsonpath.jsonpath(string.json(),"$..%s"%i)
@@ -128,13 +121,13 @@ def assertion(caseinfo,string):
 										logger.info(f"预期结果:{j}")
 										logger.info(f"实际结果:{x}")
 										logger.info(f"相等断言:断言{'通过' if x == j else '失败'}")
-										assert x == j
+										assert x == j,f"断言失败，预期结果{j}不等于实际结果{x}"
 								elif isinstance(j,list):
 									# 结果是个列表
 									logger.info(f"预期结果:{j}")
 									logger.info(f"实际结果:{results}")
 									seq = list(map(lambda a,b: True if a == b else False,j,results))
-									assert all(seq)
+									assert all(seq),f"断言失败，预期结果{j}不等于实际结果{results}"
 									logger.info(f"相等断言:断言{'通过' if all(seq) else '失败'}")
 								else:
 									raise Exception(f"validata中{i}只能是字符串或列表") from None
@@ -146,18 +139,18 @@ def assertion(caseinfo,string):
 					if isinstance(data,dict):
 						temp = json.dumps(data,ensure_ascii=False)
 				except TypeError:
+					string.encoding = "utf-8"
 					data = string.text
 					if isinstance(data,str):
 						temp = data
 				finally:
 					seq = []
 					for x in validata["contain"]:
-						assert temp.find(x) != -1
+						assert temp.find(x) != -1,f"断言失败，响应结果中未找到{x}"
 						message = f"{x+'找到，断言通过' if temp.find(x) != -1 else x+'未找到，断言失败'}"
 						seq.append(message)
 					logger.info("包含断言:"+",".join(seq))
 
-@logger.catch()
 def download(response,target):
 	""" 文件下载 """
 	if response.headers.get("Content-Type"):

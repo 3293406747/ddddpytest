@@ -4,10 +4,8 @@ import re
 import string
 from faker import Faker
 from utils.logger_util import logger
-from utils.mysql_util import Mysql
 
 
-@logger.catch()
 def generate_userinfo(key):
 	""" 生成随机用户信息 """
 	faker = Faker(locale='zh-CN')
@@ -29,7 +27,6 @@ def generate_userinfo(key):
 	}
 	return info[key]
 
-@logger.catch()
 def generate_string(length: int) -> str:
 	""" 生成指定长度的字母数字组合的字符串 """
 	if length < 2 or not isinstance(length, int):
@@ -43,7 +40,6 @@ def generate_string(length: int) -> str:
 	random_string = ''.join(all_arry)
 	return random_string
 
-@logger.catch()
 def generate_string2(length: int) -> str:
 	""" 生成指定长度的字母数字组合的字符串 """
 	if length < 2 or not isinstance(length, int):
