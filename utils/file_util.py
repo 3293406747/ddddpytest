@@ -15,12 +15,13 @@ class File:
 		self.file_path = ""
 		self.exp = ""
 
+	@logger.catch()
 	def _pre_able(self, action: str) -> None:
 		""" 校验文件是否存在，校验文件格式是否正确。"""
 		fileable = os.path.exists(self.file_path)
 		reformat = re.findall(self.exp, self.file_path)
 		if not fileable or not reformat:
-			raise Exception("您需要%s的文件在data目录下不存在或文件格式错误" % action)
+			raise Exception("您需要%s的文件在data目录下不存在或文件格式错误" % action) from None
 
 	@logger.catch()
 	def delete(self, filename: str) -> None:
@@ -38,6 +39,7 @@ class Text(File):
 		super().__init__()
 		self.exp = r"^.*?\.te?xt$"
 
+	@logger.catch()
 	def _write(self, obj: Union[list, str], mode: str, start="") -> None:
 		"""
 		写入文件
@@ -77,7 +79,7 @@ class Text(File):
 		fileable = os.path.exists(self.file_path)
 		reformat = re.findall(self.exp, self.file_path)
 		if fileable or not reformat:
-			raise FileNotFoundError("要写入的文件已存在或文件格式错误")
+			raise FileNotFoundError("要写入的文件已存在或文件格式错误") from None
 		self._write(obj, "w")
 		logger.success("文本已成功写入文件%s中" % filename)
 
@@ -117,7 +119,7 @@ class Json(File):
 		fileable = os.path.exists(self.file_path)
 		reformat = re.findall(self.exp, self.file_path)
 		if fileable or not reformat:
-			raise FileNotFoundError("要写入的文件已存在或文件格式错误")
+			raise FileNotFoundError("要写入的文件已存在或文件格式错误") from None
 		else:
 			with open(self.file_path, "w", encoding="utf-8") as f:
 				json.dump(target, f, indent=4, ensure_ascii=False)
@@ -166,7 +168,7 @@ class Csv(File):
 		fileable = os.path.exists(self.file_path)
 		reformat = re.findall(self.exp, self.file_path)
 		if not fileable or not reformat:
-			raise FileNotFoundError("要写入的文件不存在或文件格式错误")
+			raise FileNotFoundError("要写入的文件不存在或文件格式错误") from None
 		else:
 			p = pd.DataFrame(obj)
 			p.to_csv(self.file_path, mode='a', index=False, header=False)
@@ -184,7 +186,7 @@ class Csv(File):
 		fileable = os.path.exists(self.file_path)
 		reformat = re.findall(self.exp, self.file_path)
 		if fileable or not reformat:
-			raise FileNotFoundError("要写入的文件已存在或文件格式错误")
+			raise FileNotFoundError("要写入的文件已存在或文件格式错误") from None
 		else:
 			p = pd.DataFrame(obj)
 			p.to_csv(self.file_path, mode='w', index=False, header=True)

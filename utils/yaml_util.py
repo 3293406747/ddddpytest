@@ -29,9 +29,9 @@ def analyze_testcase_format(caseinfo):
 			if x == "request":
 				for y in second_index:
 					if y not in dict(caseinfo)["request"].keys():
-						raise Exception("yaml用例在request一级关键字下必须包括两个二级关键字:method,url")
+						raise Exception("yaml用例在request一级关键字下必须包括两个二级关键字:method,url") from None
 		else:
-			raise Exception("yaml用例必须有的四个一级关键字: name,base_url,request,validata")
+			raise Exception("yaml用例必须有的四个一级关键字: name,base_url,request,validata") from None
 
 
 def dynamic_load(filename):

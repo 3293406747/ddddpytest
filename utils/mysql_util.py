@@ -1,3 +1,4 @@
+import traceback
 import pymysql
 from utils.logger_util import logger
 from utils.yaml_util import read_config
@@ -22,7 +23,7 @@ class Mysql:
 			self.cursor = self.conn.cursor(cursor=pymysql.cursors.DictCursor)
 			logger.info(f"数据库连接成功，地址:{host},端口:{port},用户:{user},密码{password},连接库:{db}")
 		except Exception as why:
-			raise Exception(f"数据库连接失败，连接失败原因:{why}")
+			raise Exception(f"数据库连接失败，连接失败原因:{why}") from None
 
 	@logger.catch()
 	def select(self, sql):
@@ -75,11 +76,11 @@ class Mysql:
 			try:
 				self.cursor.close()
 			except Exception as why:
-				raise Exception(f"cursor关闭失败，关闭失败原因:{why}")
+				raise Exception(f"cursor关闭失败，关闭失败原因:{why}") from None
 		if hasattr(Mysql, "conn") and self.conn:
 			try:
 				self.conn.close()
 			except Exception as why:
-				raise Exception(f"conn关闭失败，关闭失败原因:{why}")
+				raise Exception(f"conn关闭失败，关闭失败原因:{why}") from None
 
 

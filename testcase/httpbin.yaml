@@ -38,7 +38,7 @@
       ssn: "${ssn}"
   validata:
     equal:        # 相等断言
-      status_code: 200
+      status_code: 201
       user: "${user}"   # 如果相等断言的是个列表时，可写成列表形式
       ssn: "${ssn}"
     contain:    # 包含断言

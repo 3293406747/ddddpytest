@@ -4,6 +4,7 @@ import re
 import string
 from faker import Faker
 from utils.logger_util import logger
+from utils.mysql_util import Mysql
 
 
 @logger.catch()

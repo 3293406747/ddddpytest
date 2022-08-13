@@ -17,6 +17,7 @@ data_path = os.path.join(base_path,"data")
 session = requests.session()
 
 
+@logger.catch()
 def render_template(data):
 	""" 渲染用例 """
 	data = json.dumps(data) if data and isinstance(data,dict) else data
@@ -29,6 +30,7 @@ def render_template(data):
 	else:
 		return None
 
+@logger.catch()
 def send_request(method,url,base_url=None,caseinfo=None,start=None,**kwargs):
 	""" 发送同一个session请求 """
 	method = str(method).lower()
@@ -44,7 +46,12 @@ def send_request(method,url,base_url=None,caseinfo=None,start=None,**kwargs):
 		url = base_url + url
 	else:
 		url = url
-	logger.info(f"请求url:{url},请求方法:{method}")
+	logger.info(f"{'接口请求开始':-^20}")
+	if caseinfo:
+		logger.info(f"请求名称:{caseinfo['name']}")
+	logger.info(f"请求url:{url}")
+	logger.info(f"请求方法:{method}")
+	logger.info(f"请求参数:{kwargs}")
 	response = session.request(method=method,url=url,**kwargs)
 	type_ = ["image/jpeg", "image/png", "application/pdf"]
 	download(response,type_)
@@ -53,8 +60,10 @@ def send_request(method,url,base_url=None,caseinfo=None,start=None,**kwargs):
 		new_validata = render_template(caseinfo["validata"])
 		caseinfo["validata"] = new_validata if new_validata else caseinfo["validata"]
 		assertion(caseinfo,response)
+		logger.info(f"{'接口请求结束':-^20}\n")
 	return response
 
+@logger.catch()
 def auto_send_request(caseinfo,start=None):
 	""" 获取用例自动发送请求 """
 	url = caseinfo["request"].pop("url")
@@ -66,6 +75,7 @@ def auto_send_request(caseinfo,start=None):
 	response = send_request(method=method,url=url,base_url=base_url,caseinfo=caseinfo,start=start,**caseinfo["request"])
 	return response
 
+@logger.catch()
 def extract_variable(string,case_info,start=None):
 	""" 接口关联:提取响应中的内容 """
 	if "extract" in case_info.keys():
@@ -83,12 +93,13 @@ def extract_variable(string,case_info,start=None):
 				# json提取器
 				response = jsonpath.jsonpath(string.json(),value)[0]
 			else:
-				raise Exception("提取器表达式错误")
+				raise Exception("提取器表达式错误") from None
 			if start:
 				response = start + response
 			target = {key: response}
 			write_extract(target)
 
+@logger.catch()
 def assertion(caseinfo,string):
 	""" 响应断言 """
 	validata = caseinfo["validata"]
@@ -100,8 +111,13 @@ def assertion(caseinfo,string):
 					for i,j in value.items():
 						if i == "status_code":
 							# 响应状态断言
-							assert j == string.status_code
-							logger.info(f"{i}:断言{'通过'if j == string.status_code else '失败'}")
+							logger.info(f"预期结果:{j}")
+							logger.info(f"实际结果:{string.status_code}")
+							try:
+								assert j == string.status_code
+								logger.info(f"相等断言:断言通过")
+							except AssertionError:
+								raise AssertionError("相等断言:断言失败") from None
 						else:
 							# 响应结果断言
 							results = jsonpath.jsonpath(string.json(),"$..%s"%i)
@@ -109,17 +125,21 @@ def assertion(caseinfo,string):
 								if isinstance(j,str):
 									# 结果是个字符串
 									for x in results:
+										logger.info(f"预期结果:{j}")
+										logger.info(f"实际结果:{x}")
+										logger.info(f"相等断言:断言{'通过' if x == j else '失败'}")
 										assert x == j
-										logger.info(f"{i}:断言{'通过' if x == j else '失败'}")
 								elif isinstance(j,list):
 									# 结果是个列表
+									logger.info(f"预期结果:{j}")
+									logger.info(f"实际结果:{results}")
 									seq = list(map(lambda a,b: True if a == b else False,j,results))
 									assert all(seq)
-									logger.info(f"{i}:断言{'通过' if all(seq) else '失败'}")
+									logger.info(f"相等断言:断言{'通过' if all(seq) else '失败'}")
 								else:
-									raise Exception(f"validata中{i}只能是字符串或列表")
+									raise Exception(f"validata中{i}只能是字符串或列表") from None
 							else:
-								raise Exception(f"在响应中未找到{i}")
+								raise Exception(f"在响应中未找到{i}") from None
 			elif key == "contain":
 				try:
 					data = string.json()
@@ -133,10 +153,11 @@ def assertion(caseinfo,string):
 					seq = []
 					for x in validata["contain"]:
 						assert temp.find(x) != -1
-						message = f"{x}:断言{'通过' if temp.find(x) != -1 else '失败'}"
+						message = f"{x+'找到，断言通过' if temp.find(x) != -1 else x+'未找到，断言失败'}"
 						seq.append(message)
-					logger.info(",".join(seq))
+					logger.info("包含断言:"+",".join(seq))
 
+@logger.catch()
 def download(response,target):
 	""" 文件下载 """
 	if response.headers.get("Content-Type"):
@@ -144,10 +165,10 @@ def download(response,target):
 		if tp in response.headers["Content-Type"]:
 			if not os.path.exists(data_path):
 				os.mkdir(data_path)
-			file = os.path.join(data_path,str("%.0f"%time.time())+".%s") % tp.split("/")[1]
+			file = os.path.join(data_path,str(int(time.time()))+".%s") % tp.split("/")[1]
 			with open(file=file,mode="wb") as f:
 				f.write(response.content)
-				logger.info(f"{tp.split('/')[1]}格式文件{file}下载成功")
+				logger.info(f"{tp.split('/')[1]}格式文件下载成功，文件下载路径:{file}")
 			return None
 		elif not target:
 			return None
