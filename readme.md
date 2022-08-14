@@ -11,6 +11,20 @@
 采用统一请求封装，会自动进行cookie关联。实现自动发送请求,自动接口关联包括token全局关联,自动对响应断言。
 编写完测试用例和执行脚本后，会自动生成测试报告和日志。
 
+## 更新内容
+
+1. 优化allure报告展示
+
+![allure2](img/allure2.png)
+
+2. 优化日志展示
+
+控制台日志
+![console_log](img/console_log.png)
+
+文件日志
+![file_log](img/file_log.png)
+
 ## 三件事
 
 1. 本人的运行环境为win11+python3.10，向下兼容其它python版本应该是没问题的。
@@ -32,7 +46,7 @@ pytest
 
 ## 项目使用
 
-![use_script](img/use_script.jpg)
+![use_script](img/use_script.png)
 
 ### yaml测试用例格式示例
 
@@ -55,7 +69,7 @@ pytest
 ## 测试报告效果展示
 
 **注意**: 运行`all_run.py`或与jenkins持续集成时才能在report模块下生成allure测试报告。
-temp模块生成的是临时的测试报告，一般不需要删除。
+temp模块生成的是临时的测试报告。
 
 ![allure](img/allure.png)
 

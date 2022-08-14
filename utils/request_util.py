@@ -2,6 +2,7 @@ import json
 import os
 import re
 import time
+import allure
 import jsonpath
 import requests
 import yaml
@@ -50,7 +51,18 @@ def send_request(method,url,base_url=None,caseinfo=None,start=None,**kwargs):
 	logger.info(f"请求url:{url}")
 	logger.info(f"请求方法:{method}")
 	logger.info(f"请求参数:{kwargs}")
+	allure.attach(body=url, name="请求url:", attachment_type=allure.attachment_type.TEXT)
+	allure.attach(body=method, name="请求方式:", attachment_type=allure.attachment_type.TEXT)
+	allure.attach(body=json.dumps(kwargs,ensure_ascii=False), name="请求参数:", attachment_type=allure.attachment_type.TEXT)
 	response = session.request(method=method,url=url,**kwargs)
+	allure.attach(body=str(response.status_code), name="响应状态码:", attachment_type=allure.attachment_type.TEXT)
+	try:
+		data = json.dumps(response.json(),ensure_ascii=False)
+	except Exception:
+		response.encoding = "utf-8"
+		data = response.text
+	finally:
+		allure.attach(body=data, name="响应数据:", attachment_type=allure.attachment_type.TEXT)
 	type_ = ["image/jpeg", "image/png", "application/pdf"]
 	download(response,type_)
 	if caseinfo:
@@ -160,7 +172,14 @@ def download(response,target):
 			file = os.path.join(data_path,str(int(time.time()))+".%s") % tp.split("/")[1]
 			with open(file=file,mode="wb") as f:
 				f.write(response.content)
-				logger.info(f"{tp.split('/')[1]}格式文件下载成功，文件下载路径:{file}")
+			logger.info(f"{tp.split('/')[1]}格式文件下载成功，文件下载路径:{file}")
+			with open(file,mode="rb") as f:
+				if tp == "image/jpeg":
+					allure.attach(body=f.read(),name="jpeg图片",attachment_type=allure.attachment_type.JPG)
+				elif tp == "image/png":
+					allure.attach(body=f.read(), name="png图片", attachment_type=allure.attachment_type.PNG)
+				elif tp == "application/pdf":
+					allure.attach(body=f.read(), name="pdf", attachment_type=allure.attachment_type.PDF)
 			return None
 		elif not target:
 			return None

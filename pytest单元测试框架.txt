@@ -109,4 +109,7 @@ os.system('allure generate ./temp -o ./report --clean')
 generate后加临时json报告目录
 -o后加报告目录 output
 --clean 清除上次生成的报告(报告目录下)重新生成一次
+4.allure报告发给其他人(同一个局域网)
+    4.1 allure open ./reports/allures
+    4.2 浏览器访问生成的链接地址
 

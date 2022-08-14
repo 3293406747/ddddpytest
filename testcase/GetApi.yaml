@@ -1,4 +1,5 @@
 # http://httpbin.org
+# 测试get请求
 -
   name: 获取本机ip
   base_url: http://httpbin.org
@@ -27,35 +28,6 @@
     ssn: $..ssn     # 提取方式正则提取，json提取，json+正则提取。
     # json提取如: $..token 正则提取如: token=(.*?) json+正则提取如: $..data>token=(.*?)
   validata: null
--
-  name: post请求-data传参
-  base_url: "{{base_url}}"
-  request:
-    url: /post
-    method: POST
-    data:
-      user: "${user}"   # 获取从响应中提取的数据
-      ssn: "${ssn}"
-  validata:
-    equal:        # 相等断言
-      status_code: 200
-      user: "${user}"   # 如果相等断言的是个列表时，可写成列表形式
-      ssn: "${ssn}"
-    contain:    # 包含断言
-      - "${user}"
-      - "${ssn}"
--
-  name: post请求-json传参
-  base_url: "{{base_url}}"
-  request:
-    url: /post
-    method: POST
-    json:
-      user: "${user}"
-      ssn: "${ssn}"
-  validata:
-    equal: # 相等断言
-      status_code: 200
 -
   name: 设置cookie
   base_url: "{{base_url}}"
