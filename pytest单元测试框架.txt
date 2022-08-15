@@ -112,8 +112,8 @@ generate后加临时json报告目录
 4.allure报告发给其他人(同一个局域网)
     4.1 allure open ./reports/allures
     4.2 浏览器访问生成的链接地址
-5.log定制
-5.1.+\allure-${version}\config下的allure.yml配置文件，加入自定义logo插件。
+5.logo定制
+    5.1.+\allure-${version}\config下的allure.yml配置文件，加入自定义logo插件。
 '''
 plugins:
   - junit-xml-plugin
@@ -127,7 +127,7 @@ plugins:
   - xray-plugin
   - custom-logo-plugin
 '''
-5.2 修改插件里面的图片和样式
+    5.2 修改插件里面的图片和样式
 '''
 .side-nav__brand {
   background: url('gxyf.png') no-repeat left center !important;
