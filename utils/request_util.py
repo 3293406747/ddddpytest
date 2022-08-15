@@ -116,51 +116,51 @@ def assertion(caseinfo,string):
 				# 相等断言
 				if isinstance(value,dict):
 					for i,j in value.items():
-						if i == "status_code":
-							# 响应状态断言
-							logger.info(f"预期结果状态码:{j}")
-							logger.info(f"实际结果状态码:{string.status_code}")
-							logger.info(f"相等断言:断言{'通过' if j == string.status_code else '失败'}")
-							assert j == string.status_code, f"断言失败，预期结果状态码{j}不等于实际结果状态码{string.status_code}"
-						else:
-							# 响应结果断言
-							results = jsonpath.jsonpath(string.json(),"$..%s"%i)
-							if results:
-								if isinstance(j,str):
-									# 结果是个字符串
-									for x in results:
-										logger.info(f"预期结果:{j}")
-										logger.info(f"实际结果:{x}")
-										logger.info(f"相等断言:断言{'通过' if x == j else '失败'}")
-										assert x == j,f"断言失败，预期结果{j}不等于实际结果{x}"
-								elif isinstance(j,list):
-									# 结果是个列表
-									logger.info(f"预期结果:{j}")
-									logger.info(f"实际结果:{results}")
-									seq = list(map(lambda a,b: True if a == b else False,j,results))
-									assert all(seq),f"断言失败，预期结果{j}不等于实际结果{results}"
-									logger.info(f"相等断言:断言{'通过' if all(seq) else '失败'}")
-								else:
-									raise Exception(f"validata中{i}只能是字符串或列表") from None
+						if j:
+							if i == "status_code":
+								# 响应状态断言
+								logger.info(f"预期结果状态码:{j}")
+								logger.info(f"实际结果状态码:{string.status_code}")
+								logger.info(f"相等断言:断言{'通过' if j == string.status_code else '失败'}")
+								assert j == string.status_code, f"断言失败，预期结果状态码{j}不等于实际结果状态码{string.status_code}"
 							else:
-								raise Exception(f"在响应中未找到{i}") from None
+								# 响应结果断言
+								results = jsonpath.jsonpath(string.json(),"$..%s"%i)
+								if results:
+									if isinstance(j,str):
+										# 结果是个字符串
+										for x in results:
+											logger.info(f"预期结果:{j}")
+											logger.info(f"实际结果:{x}")
+											logger.info(f"相等断言:断言{'通过' if x == j else '失败'}")
+											assert x == j,f"断言失败，预期结果{j}不等于实际结果{x}"
+									elif isinstance(j,list):
+										# 结果是个列表
+										logger.info(f"预期结果:{j}")
+										logger.info(f"实际结果:{results}")
+										seq = list(map(lambda a,b: True if a == b else False,j,results))
+										assert all(seq),f"断言失败，预期结果{j}不等于实际结果{results}"
+										logger.info(f"相等断言:断言{'通过' if all(seq) else '失败'}")
+									else:
+										raise Exception(f"validata中{i}只能是字符串或列表") from None
+								else:
+									raise Exception(f"在响应中未找到{i}") from None
 			elif key == "contain":
 				try:
-					data = string.json()
-					if isinstance(data,dict):
-						temp = json.dumps(data,ensure_ascii=False)
+					data:dict = string.json()
+					temp:str = json.dumps(data,ensure_ascii=False)
 				except TypeError:
 					string.encoding = "utf-8"
-					data = string.text
-					if isinstance(data,str):
-						temp = data
+					data:str = string.text
+					temp:str = data
 				finally:
-					seq = []
-					for x in validata["contain"]:
-						assert temp.find(x) != -1,f"断言失败，响应结果中未找到{x}"
-						message = f"{x+'找到，断言通过' if temp.find(x) != -1 else x+'未找到，断言失败'}"
-						seq.append(message)
-					logger.info("包含断言:"+",".join(seq))
+					if validata["contain"]:
+						seq = []
+						for x in validata["contain"]:
+							assert temp.find(x) != -1,f"断言失败，响应结果中未找到{x}"
+							message = f"{x+'找到，断言通过' if temp.find(x) != -1 else x+'未找到，断言失败'}"
+							seq.append(message)
+						logger.info("包含断言:"+",".join(seq))
 
 def download(response,target):
 	""" 文件下载 """
