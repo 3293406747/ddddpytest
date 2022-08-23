@@ -40,7 +40,7 @@ def dynamic_load(filename):
 	module = __import__("dynamic_load", fromlist=True)
 	for func in read_config()["dynamic_load"]:
 		env.globals[func] = getattr(module, func)
-	temp = env.get_template("/testcase/" + filename).render(base_url=read_config()["base_url"])
+	temp = env.get_template(os.path.join("testcase",filename).replace("\\","/")).render(base_url=read_config()["base_url"])
 	load_yaml_text = yaml.load(stream=temp, Loader=yaml.FullLoader)
 	return load_yaml_text
 
