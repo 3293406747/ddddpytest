@@ -9,6 +9,8 @@
     data:
       user: "${user}"   # 获取从响应中提取的数据
       ssn: "${ssn}"
+    files:        # 文件上传
+      image: C:\Users\86159\Desktop\test.png
   validata:
     equal:        # 相等断言
       status_code: 200
