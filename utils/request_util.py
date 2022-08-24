@@ -149,7 +149,7 @@ def assertion(caseinfo,string):
 				try:
 					data:dict = string.json()
 					temp:str = json.dumps(data,ensure_ascii=False)
-				except TypeError:
+				except Exception:
 					string.encoding = "utf-8"
 					data:str = string.text
 					temp:str = data

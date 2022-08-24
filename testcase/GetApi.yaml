@@ -86,3 +86,17 @@
     url: /image/jpeg
     method: GET
   validata: null
+-
+  name: 获取html响应
+  base_url: "{{base_url}}"
+  request:
+    url: /html
+    method: GET
+  extract:
+    who: "Availing (.*?) of the mild"
+  validata:
+    equal:
+      status_code: 200
+    contain:
+      - himself
+      - Availing himself of the mild
