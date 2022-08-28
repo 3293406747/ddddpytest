@@ -56,7 +56,6 @@ def send_request(method, url, base_url=None, files=None, caseinfo=None, start=No
 	allure.attach(body=method, name="请求方式:", attachment_type=allure.attachment_type.TEXT)
 	allure.attach(body=json.dumps(kwargs, ensure_ascii=False), name="请求参数:",
 				  attachment_type=allure.attachment_type.TEXT)
-	# todo xxxx
 	if files:
 		allure.attach(body=json.dumps(files, ensure_ascii=False), name="文件上传:",
 					  attachment_type=allure.attachment_type.TEXT)
