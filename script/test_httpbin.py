@@ -1,7 +1,7 @@
 import allure
 import pytest
-from utils.request_util import auto_send_request
-from utils.yaml_util import read_testcase
+from common.request import auto_send_request
+from common.yaml import read_testcase
 
 @allure.epic("ddddpytest接口自动化测试项目")		# 项目名称
 @allure.feature("httpbin接口自动化测试")			# 模块名称

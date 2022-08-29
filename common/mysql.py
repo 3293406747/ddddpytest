@@ -1,6 +1,6 @@
 import pymysql
-from utils.logger_util import logger
-from utils.yaml_util import read_config
+from common.logger import logger
+from common.yaml import read_config
 
 mysql_text = read_config()["mysql"]
 

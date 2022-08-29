@@ -3,7 +3,6 @@ import random
 import re
 import string
 from faker import Faker
-from utils.logger_util import logger
 
 
 def generate_userinfo(key):

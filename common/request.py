@@ -6,8 +6,8 @@ import allure
 import jsonpath
 import requests
 import yaml
-from utils.logger_util import logger
-from utils.yaml_util import read_extract, write_extract
+from common.logger import logger
+from common.yaml import read_extract, write_extract
 from mako.template import Template
 
 __all__ = ["auto_send_request", "send_request", "extract_variable"]

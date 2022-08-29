@@ -1,12 +1,13 @@
 import sys
 from loguru import logger
-from utils.yaml_util import read_config
+from common.yaml import read_config
 
 
 logger_text = read_config()["logger"]
 
 logger.remove()
 
+# 控制台日志
 logger.add(
 	sink=sys.stderr,
 	level=logger_text["level"],
@@ -15,6 +16,7 @@ logger.add(
 	diagnose=False
 )
 
+# 文件日志
 logger.add(
 	sink=logger_text["sink"],
 	level=logger_text["level"],
@@ -24,4 +26,4 @@ logger.add(
 	diagnose=False
 )
 
-logger.info("logger启动成功")
+# logger.info("logger启动成功")
