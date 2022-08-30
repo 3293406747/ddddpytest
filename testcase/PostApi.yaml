@@ -26,8 +26,9 @@
     url: /post
     method: POST
     json:
-      user: "${user}"
+      user: 张红霞
       ssn: "${ssn}"
   validata:
     equal: # 相等断言
       status_code: 200
+      user: "{{sql_select('select name from user_information where name = \"张红霞\"','name')}}"

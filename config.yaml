@@ -16,8 +16,10 @@ logger:
 # 环境配置
 base_url: http://httpbin.org
 
+# 需要热加载的函数
 dynamic_load:
   - generate_userinfo
   - generate_string
   - generate_string2
   - basic_auth
+  - sql_select

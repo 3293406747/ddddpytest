@@ -3,6 +3,7 @@ import random
 import re
 import string
 from faker import Faker
+from common.mysql import Mysql
 
 
 def generate_userinfo(key):
@@ -53,5 +54,11 @@ def generate_string2(length: int) -> str:
 	return random_string
 
 def basic_auth(user,passwd):
+	""" 示例代码中处理base64加密鉴权的方法 """
 	auth = "Basic " + base64.b64encode(":".join([user,passwd]).encode()).decode()
 	return auth
+
+def sql_select(sql:str,name:str,index=0):
+	""" 数据库查询 """
+	res = Mysql().select(sql=sql)
+	return res[index][name]
