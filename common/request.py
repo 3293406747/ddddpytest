@@ -1,5 +1,4 @@
 import json
-import os
 import re
 import time
 import allure
@@ -9,11 +8,11 @@ import yaml
 from common.logger import logger
 from common.yaml import read_extract, write_extract
 from mako.template import Template
+from pathlib import Path
 
 __all__ = ["auto_send_request", "send_request", "extract_variable"]
 
-base_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-data_path = os.path.join(base_path, "data")
+path = Path(__file__).resolve()
 session = requests.session()
 
 
@@ -180,9 +179,8 @@ def download(response, target):
 	if response.headers.get("Content-Type"):
 		tp = target.pop()
 		if tp in response.headers["Content-Type"]:
-			if not os.path.exists(data_path):
-				os.mkdir(data_path)
-			file = os.path.join(data_path, str(int(time.time())) + ".%s") % tp.split("/")[1]
+			path.parent.parent.joinpath('data').mkdir(parents=True,exist_ok=True)
+			file = Path(path.parent.parent,'data',(str(int(time.time())) + ".%s") % tp.split("/")[1])
 			with open(file=file, mode="wb") as f:
 				f.write(response.content)
 			logger.info(f"{tp.split('/')[1]}格式文件下载成功，文件下载路径:{file}")

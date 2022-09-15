@@ -3,6 +3,7 @@ import pytest
 from common.request import auto_send_request
 from common.yaml import read_testcase
 
+
 @allure.epic("ddddpytest接口自动化测试项目")		# 项目名称
 @allure.feature("httpbin接口自动化测试")			# 模块名称
 class TestHttpbin:
@@ -11,7 +12,7 @@ class TestHttpbin:
 	@allure.link(url="http://httpbin.org",name="接口文档地址")
 	@allure.story("get接口")			# 接口名称
 	@pytest.mark.parametrize("testcase",read_testcase("GetApi.yaml"))		# 读取用例文件
-	def test_getapi(self,testcase):
+	def test_getapi(self, testcase):
 		allure.dynamic.title(testcase["name"])		# 用例名称
 		allure.dynamic.description("无")			# 用例描述
 		auto_send_request(testcase)					# 发送请求、接口关联、断言、热加载、下载文件
