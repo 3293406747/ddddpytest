@@ -22,4 +22,3 @@ dynamic_load:
   - generate_string
   - generate_string2
   - basic_auth
-  - sql_select
