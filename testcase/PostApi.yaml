@@ -31,6 +31,6 @@
   validata:
     equal: # 相等断言
       status_code: 200
-      user: "select name from user_information where name = '张红霞'"
+      user: "select name from user where name = '张红霞'"
     contain:
-      - "select name from user_information where name = '张红霞'"
+      - "select name from user where name = '张红霞'"

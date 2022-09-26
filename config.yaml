@@ -4,7 +4,7 @@ mysql:
   port: 3306
   user: root
   password: "111111"
-  db: faker
+  db: test_db
 
 # logger配置
 logger:

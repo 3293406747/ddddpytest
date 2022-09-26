@@ -25,6 +25,8 @@ pip3 install -r requirements.txt
 ```
 下载并配置allure2，下载安装教程如下：https://blog.csdn.net/lixiaomei0623/article/details/120185069
 
+在**config.yaml**文件中配置数据库参数为自己的数据库参数，运行**user.sql**文件初始化数据库。
+
 之后运行**main.py**文件，或在命令行窗口cd到根目录后执行命令：
 ```
 pytest

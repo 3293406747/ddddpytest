@@ -23,4 +23,6 @@
 注意：编写完成后需要在config.yaml文件中添加编写的函数名，在yaml文件中调用时若函数的参数为
 字符串，则需要在调用时加单引号。
 如： {{func('target')}}
+6.validata中数据库断言不采用热加载的方式，直接写sql语句。
+如：select name from user_information where name = '张红霞'
 6.注意：yaml文件所有动态参数必须加双引号。
