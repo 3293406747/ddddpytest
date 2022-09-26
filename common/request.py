@@ -6,7 +6,8 @@ import jsonpath
 import requests
 import yaml
 from common.logger import logger
-from common.yaml import read_extract, write_extract
+from common.mysql import Mysql
+from common.yaml_ import read_extract, write_extract
 from mako.template import Template
 from pathlib import Path
 
@@ -75,6 +76,22 @@ def send_request(method, url, base_url=None, files=None, caseinfo=None, start=No
 		extract_variable(response, caseinfo, start=start)
 		new_validata = render_template(caseinfo["validata"])
 		caseinfo["validata"] = new_validata if new_validata else caseinfo["validata"]
+		if caseinfo["validata"]:
+			p = r'select\s*(.*?)\sfrom'
+			if caseinfo["validata"].get('equal'):
+				for k,v in caseinfo["validata"]["equal"].items():
+					if re.match(p,str(v)):
+						res = Mysql().select(sql=v)
+						key = re.match(p, v).group(1)
+						caseinfo["validata"]["equal"][k] = res[0][key]
+			if caseinfo["validata"].get('contain'):
+				num = 0
+				for i in caseinfo["validata"]['contain']:
+					if re.match(p, str(i)):
+						res = Mysql().select(sql=i)
+						key = re.match(p, i).group(1)
+						caseinfo["validata"]['contain'][num] = res[0][key]
+						num += 1
 		assertion(caseinfo, response)
 		logger.info(f"{'接口请求结束':-^20}\n")
 	return response

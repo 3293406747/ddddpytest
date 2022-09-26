@@ -6,3 +6,5 @@ pytest~=7.1.1
 jsonpath~=0.82
 Mako~=1.2.1
 Faker~=13.12.1
+PyMySQL~=1.0.2
+pandas~=1.4.3

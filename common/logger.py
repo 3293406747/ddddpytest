@@ -1,6 +1,6 @@
 import sys
 from loguru import logger
-from common.yaml import read_config
+from common.yaml_ import read_config
 
 
 logger_text = read_config()["logger"]

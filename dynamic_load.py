@@ -58,7 +58,8 @@ def basic_auth(user,passwd):
 	auth = "Basic " + base64.b64encode(":".join([user,passwd]).encode()).decode()
 	return auth
 
-def sql_select(sql:str,name:str,index=0):
+def sql_select(sql:str,index=0):
 	""" 数据库查询 """
 	res = Mysql().select(sql=sql)
-	return res[index][name]
+	key = re.match('select\s*(.*?)\sfrom',sql).group(1)
+	return res[index][key]

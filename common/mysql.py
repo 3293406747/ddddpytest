@@ -1,30 +1,40 @@
 import pymysql
 from common.logger import logger
-from common.yaml import read_config
+from common.yaml_ import read_config
 
 mysql_text = read_config()["mysql"]
 
 class Mysql:
 
-	@logger.catch()
+	instance = None
+	__init_flag = True
+
+	def __new__(cls, *args, **kwargs):
+		if cls.instance is None:
+			cls.instance = object.__new__(cls)
+			return cls.instance
+		else:
+			return cls.instance
+
 	def __init__(self):
 		""" 连接mysql数据库 """
-		host = mysql_text["host"]
-		port = mysql_text["port"]
-		user = mysql_text["user"]
-		password = mysql_text["password"]
-		db = mysql_text["db"]
+		if Mysql.__init_flag:
+			host = mysql_text["host"]
+			port = mysql_text["port"]
+			user = mysql_text["user"]
+			password = mysql_text["password"]
+			db = mysql_text["db"]
 
-		try:
-			self.conn = pymysql.connect(
-				host=host, port=port, user=user, password=password, db=db, charset='utf8'
-			)
-			self.cursor = self.conn.cursor(cursor=pymysql.cursors.DictCursor)
-			logger.info(f"数据库连接成功，地址:{host},端口:{port},用户:{user},密码{password},连接库:{db}")
-		except Exception as why:
-			raise Exception(f"数据库连接失败，连接失败原因:{why}") from None
+			try:
+				self.conn = pymysql.connect(
+					host=host, port=port, user=user, password=password, db=db, charset='utf8'
+				)
+				self.cursor = self.conn.cursor(cursor=pymysql.cursors.DictCursor)
+				logger.info(f"数据库连接成功，地址:{host},端口:{port},用户:{user},密码{password},连接库:{db}")
+			except Exception as why:
+				raise Exception(f"数据库连接失败，连接失败原因:{why}") from None
+			Mysql.__init_flag = False
 
-	@logger.catch()
 	def select(self, sql):
 		""" 读取table中数据 """
 		try:
@@ -36,7 +46,6 @@ class Mysql:
 			self.conn.rollback()
 			raise Exception(f"数据select失败，select失败原因:{why}") from None
 
-	@logger.catch()
 	def insert(self, sql):
 		""" 将数据写入table中 """
 		try:
@@ -47,7 +56,6 @@ class Mysql:
 			self.conn.rollback()
 			raise Exception(f"数据insert失败，insert失败原因:{why}") from None
 
-	@logger.catch()
 	def update(self, sql):
 		""" 更新table中数据 """
 		try:
@@ -58,7 +66,6 @@ class Mysql:
 			self.conn.rollback()
 			raise Exception(f"数据update失败，update失败原因:{why}") from None
 
-	@logger.catch()
 	def delete(self, sql):
 		""" 删除table中数据 """
 		try:
@@ -69,7 +76,6 @@ class Mysql:
 			self.conn.rollback()
 			raise Exception(f"数据delete失败，delete失败原因:{why}") from None
 
-	@logger.catch()
 	def __del__(self):
 		if hasattr(Mysql, "cursor") and self.cursor:
 			try:
@@ -81,5 +87,4 @@ class Mysql:
 				self.conn.close()
 			except Exception as why:
 				raise Exception(f"conn关闭失败，关闭失败原因:{why}") from None
-
 
