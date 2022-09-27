@@ -7,7 +7,6 @@ import requests
 import yaml
 from common.logger import logger
 from common.mysql import Mysql
-from common.yaml_ import read_extract, write_extract
 from mako.template import Template
 from pathlib import Path
 
@@ -15,12 +14,13 @@ __all__ = ["auto_send_request", "send_request", "extract_variable"]
 
 path = Path(__file__).resolve()
 session = requests.session()
+extractPool = {}
 
 
 def render_template(data):
 	""" 渲染用例 """
 	data = json.dumps(data) if data and isinstance(data, dict) else data
-	extract = read_extract()
+	extract = extractPool
 	# extract.yaml文件可能为空，为空时不渲染用例
 	if extract and data:
 		temp = Template(data).render(**extract)
@@ -61,7 +61,7 @@ def send_request(method, url, base_url=None, files=None, caseinfo=None, start=No
 					  attachment_type=allure.attachment_type.TEXT)
 		for k, v in files.items():
 			files[k] = open(v, "rb")
-	response = session.request(method=method, url=url, files=files, **kwargs)
+	response = session.request(method=method, url=url, files=files,timeout=10,**kwargs)
 	allure.attach(body=str(response.status_code), name="响应状态码:", attachment_type=allure.attachment_type.TEXT)
 	try:
 		data = json.dumps(response.json(), ensure_ascii=False)
@@ -131,8 +131,7 @@ def extract_variable(string, case_info, start=None):
 				raise Exception("提取器表达式错误") from None
 			if start:
 				response = start + response
-			target = {key: response}
-			write_extract(target)
+			extractPool[key] = response
 
 
 def assertion(caseinfo, string):

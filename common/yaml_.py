@@ -3,7 +3,7 @@ import yaml
 from jinja2 import FileSystemLoader, Environment
 from pathlib import Path
 
-__all__ = ["read_testcase", "read_extract", "read_config", "write_extract", "clear_extract"]
+__all__ = ["read_testcase", "read_config"]
 
 path = Path(__file__).resolve()
 instance = {}
@@ -45,26 +45,6 @@ def dynamic_load(filename):
 		base_url=read_config()["base_url"])
 	load_yaml_text = yaml.load(stream=temp, Loader=yaml.FullLoader)
 	return load_yaml_text
-
-
-def read_extract():
-	""" 读取extract """
-	with open(file=path.parent.parent / 'extract.yaml', mode="r", encoding="utf-8") as f:
-		yaml_text = yaml.load(stream=f, Loader=yaml.FullLoader)
-		return yaml_text
-
-
-def write_extract(data):
-	""" 写入extract """
-	with open(file=path.parent.parent / 'extract.yaml', mode="a", encoding="utf-8") as f:
-		yaml.dump(data=data, stream=f, allow_unicode=True)
-
-
-def clear_extract():
-	""" 清空extract """
-	with open(file=path.parent.parent / 'extract.yaml', mode="w", encoding="utf-8") as f:
-		f.truncate()
-
 
 def read_config():
 	""" 读取config """
