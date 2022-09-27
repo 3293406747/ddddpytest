@@ -1,29 +1,26 @@
 import sys
-from loguru import logger
+from loguru import logger as logging
 from common.yaml_ import read_config
 
 
-logger_text = read_config()["logger"]
+class Logger:
 
-logger.remove()
+	def __init__(self):
+		self.logger = logging
+		self.logger.remove()
+		# 控制台日志
+		self.logger.add(
+			sink=sys.stderr,
+			level=read_config()["logger"]["level"],
+			format=read_config()["logger"]["format"],
+			backtrace=True,
+			diagnose=False
+		)
+		# 文件日志
+		self.logger.add(
+			**read_config()["logger"],
+			backtrace=True,
+			diagnose=False
+		)
 
-# 控制台日志
-logger.add(
-	sink=sys.stderr,
-	level=logger_text["level"],
-	format=logger_text["format"],
-	backtrace=True,
-	diagnose=False
-)
-
-# 文件日志
-logger.add(
-	sink=logger_text["sink"],
-	level=logger_text["level"],
-	format=logger_text["format"],
-	rotation = logger_text["rotation"],
-	backtrace=True,
-	diagnose=False
-)
-
-# logger.info("logger启动成功")
+logger = Logger().logger

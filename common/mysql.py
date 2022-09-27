@@ -2,8 +2,6 @@ import pymysql
 from common.logger import logger
 from common.yaml_ import read_config
 
-mysql_text = read_config()["mysql"]
-
 class Mysql:
 
 	instance = None
@@ -19,18 +17,12 @@ class Mysql:
 	def __init__(self):
 		""" 连接mysql数据库 """
 		if Mysql.__init_flag:
-			host = mysql_text["host"]
-			port = mysql_text["port"]
-			user = mysql_text["user"]
-			password = mysql_text["password"]
-			db = mysql_text["db"]
-
 			try:
 				self.conn = pymysql.connect(
-					host=host, port=port, user=user, password=password, db=db, charset='utf8'
+					**read_config()["mysql"], charset='utf8'
 				)
 				self.cursor = self.conn.cursor(cursor=pymysql.cursors.DictCursor)
-				logger.info(f"数据库连接成功，地址:{host},端口:{port},用户:{user},密码{password},连接库:{db}")
+				logger.info(f"数据库连接成功")
 			except Exception as why:
 				raise Exception(f"数据库连接失败，连接失败原因:{why}") from None
 			Mysql.__init_flag = False

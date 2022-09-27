@@ -3,7 +3,6 @@ import random
 import re
 import string
 from faker import Faker
-from common.mysql import Mysql
 
 
 def generate_userinfo(key):

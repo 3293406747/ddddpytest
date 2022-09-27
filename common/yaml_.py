@@ -35,7 +35,7 @@ def analyze_testcase_format(caseinfo):
 
 def dynamic_load(filename):
 	""" 热加载+获取项目环境地址 """
-	if not instance:
+	if not instance.get("env"):
 		env = Environment(loader=FileSystemLoader(path.parent.parent))
 		module = __import__("dynamic_load", fromlist=True)
 		for func in read_config()["dynamic_load"]:
@@ -68,6 +68,8 @@ def clear_extract():
 
 def read_config():
 	""" 读取config """
-	with open(file=path.parent.parent / 'config.yaml', mode="r", encoding="utf-8") as f:
-		response = yaml.load(stream=f, Loader=yaml.FullLoader)
-		return response
+	if not instance.get("conf"):
+		with open(file=path.parent.parent / 'config.yaml', mode="r", encoding="utf-8") as f:
+			response = yaml.load(stream=f, Loader=yaml.FullLoader)
+			instance['conf'] = response
+	return instance['conf']
