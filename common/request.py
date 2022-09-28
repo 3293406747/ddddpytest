@@ -10,12 +10,23 @@ from common.mysql import Mysql
 from mako.template import Template
 from pathlib import Path
 
-__all__ = ["auto_send_request", "send_request", "extract_variable"]
+__all__ = ["autoSendRequest", "send_request", "extract_variable"]
 
 path = Path(__file__).resolve()
 session = requests.session()
 extractPool = {}
 
+
+def autoSendRequest(caseinfo, start=None):
+	""" 获取用例自动发送请求 """
+	temp = dict(
+		url=caseinfo["request"].pop("url"),
+		method=caseinfo["request"].pop("method"),
+		base_url=caseinfo["base_url"],
+		files= caseinfo["request"].pop("files") if caseinfo["request"].get("files") else None
+	)
+	response = send_request(caseinfo=caseinfo, start=start,**temp,**caseinfo["request"])
+	return response
 
 def render_template(data):
 	""" 渲染用例 """
@@ -34,17 +45,12 @@ def send_request(method, url, base_url=None, files=None, caseinfo=None, start=No
 	""" 发送同一个session请求 """
 	method = str(method).lower()
 	new_url = render_template(url)
-	# 未经过渲染时使用原来的url，未渲染会导致url变为None
-	url = new_url if new_url else url
+	url = new_url if new_url else url		# 未经过渲染时使用原来的url，未渲染会导致url变为None
+	url = base_url + url if base_url else url  # 配置中无base_url或者send_request方法不传入base_url参数，都会使base_url为None
 	for key, value in kwargs.items():
 		if key in ("headers", "params", "data", "json"):
 			new_value = render_template(value)
 			kwargs[key] = new_value if new_value else value
-	# 配置中无base_url或者send_request方法不传入base_url参数，都会使base_url为None
-	if base_url:
-		url = base_url + url
-	else:
-		url = url
 	logger.info(f"{'接口请求开始':-^20}")
 	if caseinfo:
 		logger.info(f"请求名称:{caseinfo['name']}")
@@ -96,36 +102,41 @@ def send_request(method, url, base_url=None, files=None, caseinfo=None, start=No
 		logger.info(f"{'接口请求结束':-^20}\n")
 	return response
 
-
-def auto_send_request(caseinfo, start=None):
-	""" 获取用例自动发送请求 """
-	url = caseinfo["request"].pop("url")
-	method = caseinfo["request"].pop("method")
-	base_url = caseinfo["base_url"]
-	if caseinfo["request"].get("files"):
-		files = caseinfo["request"].pop("files")
-	else:
-		files = None
-	response = send_request(method=method, url=url, base_url=base_url, files=files, caseinfo=caseinfo, start=start,
-							**caseinfo["request"])
-	return response
-
+def download(response, target):
+	""" 文件下载 """
+	if response.headers.get("Content-Type"):
+		tp = target.pop()
+		if tp in response.headers["Content-Type"]:
+			path.parent.parent.joinpath('data').mkdir(parents=True,exist_ok=True)
+			file = Path(path.parent.parent,'data',(str(int(time.time())) + ".%s") % tp.split("/")[1])
+			with open(file=file, mode="wb") as f:
+				f.write(response.content)
+			logger.info(f"{tp.split('/')[1]}格式文件下载成功，文件下载路径:{file}")
+			with open(file, mode="rb") as f:
+				if tp == "image/jpeg":
+					allure.attach(body=f.read(), name="jpeg图片", attachment_type=allure.attachment_type.JPG)
+				elif tp == "image/png":
+					allure.attach(body=f.read(), name="png图片", attachment_type=allure.attachment_type.PNG)
+				elif tp == "application/pdf":
+					allure.attach(body=f.read(), name="pdf", attachment_type=allure.attachment_type.PDF)
+			return None
+		elif not target:
+			return None
+		else:
+			return download(response, target)
 
 def extract_variable(string, case_info, start=None):
 	""" 接口关联:提取响应中的内容 """
 	if "extract" in case_info.keys():
 		for key, value in case_info["extract"].items():
 			tf_list = list(map(lambda x: True if x in value else False, ["$", ">", "(", ")"]))
-			if all(tf_list):
-				# json+正则提取器
+			if all(tf_list):		# json+正则提取器
 				json_extract, re_extract = str(string.json()).split(">")
 				temp = jsonpath.jsonpath(str(json_extract).strip(), value)[0]
 				response = re.search(str(re_extract).strip(), temp).group(1)
-			elif "(" in value and ")" in value:
-				# 正则提取器
+			elif "(" in value and ")" in value:			# 正则提取器
 				response = re.search(value, string.text).group(1)
-			elif "$" in value:
-				# json提取器
+			elif "$" in value:		# json提取器
 				response = jsonpath.jsonpath(string.json(), value)[0]
 			else:
 				raise Exception("提取器表达式错误") from None
@@ -139,30 +150,24 @@ def assertion(caseinfo, string):
 	validata = caseinfo["validata"]
 	if isinstance(validata, dict):
 		for key, value in validata.items():
-			if key == "equal":
-				# 相等断言
-				if isinstance(value, dict):
+			if key == "equal" and isinstance(value, dict):		# 相等断言
 					for i, j in value.items():
 						if j:
-							if i == "status_code":
-								# 响应状态断言
+							if i == "status_code":		# 响应状态断言
 								logger.info(f"预期结果状态码:{j}")
 								logger.info(f"实际结果状态码:{string.status_code}")
 								logger.info(f"相等断言:断言{'通过' if j == string.status_code else '失败'}")
 								assert j == string.status_code, f"断言失败，预期结果状态码{j}不等于实际结果状态码{string.status_code}"
-							else:
-								# 响应结果断言
+							else:			# 响应状态断言
 								results = jsonpath.jsonpath(string.json(), "$..%s" % i)
 								if results:
-									if isinstance(j, str):
-										# 结果是个字符串
+									if isinstance(j, str):		# 结果是个字符串
 										for x in results:
 											logger.info(f"预期结果:{j}")
 											logger.info(f"实际结果:{x}")
 											logger.info(f"相等断言:断言{'通过' if x == j else '失败'}")
 											assert x == j, f"断言失败，预期结果{j}不等于实际结果{x}"
-									elif isinstance(j, list):
-										# 结果是个列表
+									elif isinstance(j, list):			# 结果是个列表
 										logger.info(f"预期结果:{j}")
 										logger.info(f"实际结果:{results}")
 										seq = list(map(lambda a, b: True if a == b else False, j, results))
@@ -188,27 +193,3 @@ def assertion(caseinfo, string):
 							message = f"{x + '找到，断言通过' if temp.find(x) != -1 else x + '未找到，断言失败'}"
 							seq.append(message)
 						logger.info("包含断言:" + ",".join(seq))
-
-
-def download(response, target):
-	""" 文件下载 """
-	if response.headers.get("Content-Type"):
-		tp = target.pop()
-		if tp in response.headers["Content-Type"]:
-			path.parent.parent.joinpath('data').mkdir(parents=True,exist_ok=True)
-			file = Path(path.parent.parent,'data',(str(int(time.time())) + ".%s") % tp.split("/")[1])
-			with open(file=file, mode="wb") as f:
-				f.write(response.content)
-			logger.info(f"{tp.split('/')[1]}格式文件下载成功，文件下载路径:{file}")
-			with open(file, mode="rb") as f:
-				if tp == "image/jpeg":
-					allure.attach(body=f.read(), name="jpeg图片", attachment_type=allure.attachment_type.JPG)
-				elif tp == "image/png":
-					allure.attach(body=f.read(), name="png图片", attachment_type=allure.attachment_type.PNG)
-				elif tp == "application/pdf":
-					allure.attach(body=f.read(), name="pdf", attachment_type=allure.attachment_type.PDF)
-			return None
-		elif not target:
-			return None
-		else:
-			return download(response, target)

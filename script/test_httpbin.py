@@ -1,6 +1,6 @@
 import allure
 import pytest
-from common.request import auto_send_request
+from common.request import autoSendRequest
 from common.yaml_ import read_testcase
 
 
@@ -15,7 +15,7 @@ class TestHttpbin:
 	def test_getapi(self, testcase):
 		allure.dynamic.title(testcase["name"])		# 用例名称
 		allure.dynamic.description("无")			# 用例描述
-		auto_send_request(testcase)					# 发送请求、接口关联、断言、热加载、下载文件
+		autoSendRequest(testcase)					# 发送请求、接口关联、断言、热加载、下载文件
 
 	@allure.story("post接口")		# 接口名称
 	@allure.link(url="https://httpbin.org",name="接口文档地址")
@@ -23,4 +23,4 @@ class TestHttpbin:
 	def test_postapi(self, testcase):
 		allure.dynamic.title(testcase["name"])
 		allure.dynamic.description("无")
-		auto_send_request(testcase)
+		autoSendRequest(testcase)
