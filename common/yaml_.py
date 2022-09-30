@@ -11,7 +11,6 @@ instance = {}
 
 def analyze_testcase_format(function):
 	""" 校验用例格式 """
-
 	def wapper(file):
 		cases = function(file)
 		for case in cases:
@@ -23,13 +22,11 @@ def analyze_testcase_format(function):
 						if y not in dict(case)["request"].keys():
 							raise Exception("yaml用例在request一级关键字下必须包括两个二级关键字:method,url") from None
 		return cases
-
 	return wapper
 
 
 def dynamic_load(function):
 	""" 热加载+获取项目环境地址 """
-
 	def wapper(file):
 		function(file)
 		if not instance.get("env"):
@@ -41,7 +38,6 @@ def dynamic_load(function):
 		temp = instance['env'].get_template(os.path.join("testcase", file).replace("\\", "/")).render(
 			base_url=read_config()["base_url"])
 		return yaml.load(stream=temp, Loader=yaml.FullLoader)
-
 	return wapper
 
 

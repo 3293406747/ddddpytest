@@ -19,7 +19,6 @@ extractPool = {}
 
 def sqlHandle(func):
 	""" sql处理 """
-
 	def wapper(caseinfo):
 		response = func(caseinfo)
 		if caseinfo["validata"]:
@@ -31,21 +30,17 @@ def sqlHandle(func):
 						key = re.match(p, v).group(1)
 						caseinfo["validata"]["equal"][k] = res[0][key]
 			if caseinfo["validata"].get('contain'):
-				num = 0
-				for i in caseinfo["validata"]['contain']:
-					if re.match(p, str(i)):
-						res = Mysql().select(sql=i)
-						key = re.match(p, i).group(1)
-						caseinfo["validata"]['contain'][num] = res[0][key]
-						num += 1
+				for i in range(len(caseinfo["validata"]['contain'])):
+					if re.match(p, str(caseinfo["validata"]['contain'][i])):
+						res = Mysql().select(sql=caseinfo["validata"]['contain'][i])
+						key = re.match(p, caseinfo["validata"]['contain'][i]).group(1)
+						caseinfo["validata"]['contain'][i] = res[0][key]
 		return response
-
 	return wapper
 
 
 def extract_variable(func):
 	""" 接口关联:提取响应中的内容 """
-
 	def wapper(caseinfo):
 		response = func(caseinfo)
 		if "extract" in caseinfo.keys():
@@ -65,23 +60,20 @@ def extract_variable(func):
 		# 渲染validata
 		caseinfo["validata"] = render_template(caseinfo["validata"])
 		return response
-
 	return wapper
 
 
 def assertion(func):
 	""" 响应断言 """
-
 	def wapper(caseinfo):
 		response = func(caseinfo)
-		validata = caseinfo["validata"]
-		if isinstance(validata, dict):
-			for key, value in validata.items():
+		if isinstance(caseinfo["validata"], dict):
+			for key, value in caseinfo["validata"].items():
 				if key == "equal" and isinstance(value, dict):  # 相等断言
 					equalFrame(value, response)
 				elif key == "contain":
-					containFrame(validata["contain"], response)  # 包含断言
-
+					containFrame(caseinfo["validata"]["contain"], response)  # 包含断言
+		return response
 	return wapper
 
 
@@ -115,7 +107,6 @@ def render_template(data):
 
 def parameterHandle(func):
 	""" 参数处理 """
-
 	def wapper(method, url, base_url=None, files=None, **kwargs):
 		method = str(method).lower()
 		url = render_template(url)
@@ -128,13 +119,11 @@ def parameterHandle(func):
 			for k, v in files.items():
 				files[k] = open(v, "rb")
 		return func(method, url, files, **kwargs)
-
 	return wapper
 
 
 def downloadFixture(func):
 	""" 文件下载 """
-
 	def wapper(method, url, files=None, **kwargs):
 		response = func(method, url, files, **kwargs)
 		flag = False
@@ -155,13 +144,11 @@ def downloadFixture(func):
 				file.open(mode="wb").write(response.content)
 				logger.info(f"{ct.split('/')[1]}格式文件下载成功，文件下载路径:{file}")
 		return response
-
 	return wapper
 
 
 def logFixture(func):
 	""" 日志记录 """
-
 	def wapper(method, url, files=None, name=None, **kwargs):
 		logger.info(f"{'接口请求开始':-^20}")
 		logger.info(f"请求名称:{name}")
@@ -170,15 +157,13 @@ def logFixture(func):
 		logger.info(f"请求参数:{kwargs}")
 		logger.info(f"文件上传:{files}")
 		response = func(method, url, files, **kwargs)
-		logger.info(f"{'接口请求结束':-^20}\n")
+		logger.info(f"{'接口请求结束':-^20}")
 		return response
-
 	return wapper
 
 
 def allureFixture(func):
 	""" allure记录 """
-
 	def wapper(method, url, files=None, **kwargs):
 		allure.attach(body=url, name="请求url:", attachment_type=allure.attachment_type.TEXT)
 		allure.attach(body=method, name="请求方式:", attachment_type=allure.attachment_type.TEXT)
@@ -198,7 +183,6 @@ def allureFixture(func):
 		finally:
 			allure.attach(body=data, name="响应数据:", attachment_type=allure.attachment_type.TEXT)
 		return response
-
 	return wapper
 
 
@@ -210,6 +194,7 @@ def send_request(method, url, files=None, **kwargs):
 	""" 发送同一个session请求 """
 	response = session.request(method=method, url=url, files=files, timeout=10, **kwargs)
 	return response
+
 
 def equalFrame(target, string):
 	""" 相等断言 """
