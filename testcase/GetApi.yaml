@@ -25,8 +25,7 @@
       ssn: "{{generate_userinfo('ssn')}}"
   extract:
     user: $..user   # 提取响应中的数据，用于接口关联。
-    ssn: $..ssn     # 提取方式正则提取，json提取，json+正则提取。
-    # json提取如: $..token 正则提取如: token=(.*?) json+正则提取如: $..data>token=(.*?)
+    ssn: $..ssn     # json提取如: $..token 正则提取如: token=(.*?)
   validata: null
 -
   name: 设置cookie

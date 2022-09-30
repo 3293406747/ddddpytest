@@ -45,12 +45,7 @@ def extract_variable(func):
 		response = func(caseinfo)
 		if "extract" in caseinfo.keys():
 			for key, value in caseinfo["extract"].items():
-				tf_list = list(map(lambda x: True if x in value else False, ["$", ">", "(", ")"]))
-				if all(tf_list):  # json+正则提取器
-					json_extract, re_extract = str(response.json()).split(">")
-					temp = jsonpath.jsonpath(str(json_extract).strip(), value)[0]
-					extract = re.search(str(re_extract).strip(), temp).group(1)
-				elif "(" in value and ")" in value:  # 正则提取器
+				if "(" in value and ")" in value:  # 正则提取器
 					extract = re.search(value, response.text).group(1)
 				elif "$" in value:  # json提取器
 					extract = jsonpath.jsonpath(response.json(), value)[0]

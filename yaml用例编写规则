@@ -14,9 +14,6 @@
         4.2 正则提取方式，如:
             extract:
               access_token: "token=(.*?)"
-        4.3 json+正则提取方式，如:
-            extract:
-                access_token: "data>token=(.*?)"
     关联:
         如: ${access_token}
 5.热加载，当yaml用例需要使用动态参数时，可以在dynamic_load.py文件中编写方法调用。
