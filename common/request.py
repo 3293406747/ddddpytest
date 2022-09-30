@@ -66,8 +66,8 @@ def assertion(func):
 			for key, value in caseinfo["validata"].items():
 				if key == "equal" and isinstance(value, dict):  # 相等断言
 					equalFrame(value, response)
-				elif key == "contain":
-					containFrame(caseinfo["validata"]["contain"], response)  # 包含断言
+				elif key == "contain" and isinstance(value, list):
+					containFrame(value, response)  # 包含断言
 		return response
 	return wapper
 
@@ -191,51 +191,42 @@ def send_request(method, url, files=None, **kwargs):
 	return response
 
 
-def equalFrame(target, string):
+def equalFrame(target, response):
 	""" 相等断言 """
-	for i, j in target.items():
-		if j:
-			if i == "status_code":  # 响应状态断言
-				logger.info(f"预期结果状态码:{j}")
-				logger.info(f"实际结果状态码:{string.status_code}")
-				logger.info(f"相等断言:断言{'通过' if j == string.status_code else '失败'}")
-				assert j == string.status_code, f"断言失败，预期结果状态码{j}不等于实际结果状态码{string.status_code}"
-			else:  # 响应状态断言
-				results = jsonpath.jsonpath(string.json(), "$..%s" % i)
-				if results:
-					if isinstance(j, str):  # 结果是个字符串
-						for x in results:
-							logger.info(f"预期结果:{j}")
-							logger.info(f"实际结果:{x}")
-							logger.info(f"相等断言:断言{'通过' if x == j else '失败'}")
-							assert x == j, f"断言失败，预期结果{j}不等于实际结果{x}"
-					elif isinstance(j, list):  # 结果是个列表
-						logger.info(f"预期结果:{j}")
-						logger.info(f"实际结果:{results}")
-						seq = list(map(lambda a, b: True if a == b else False, j, results))
-						assert all(seq), f"断言失败，预期结果{j}不等于实际结果{results}"
-						logger.info(f"相等断言:断言{'通过' if all(seq) else '失败'}")
-					else:
-						raise Exception(f"validata中{i}只能是字符串或列表") from None
-				else:
-					raise Exception(f"在响应中未找到{i}") from None
+	for k, v in target.items():
+		if not v:
+			raise Exception("断言结果不能为空")
+		if k == "status_code":  # 响应状态断言
+			logger.info(f"预期结果状态码:{v}，实际结果状态码:{response.status_code}，断言{'通过' if v == response.status_code else '失败'}")
+			assert v == response.status_code, f"断言失败，预期结果状态码{v}不等于实际结果状态码{response.status_code}"
+		else:
+			results = jsonpath.jsonpath(response.json(), "$..%s" % k)
+			if not results:
+				raise Exception(f"validata中{k}只能是字符串或列表") from None
+			if isinstance(v, str):  # 结果是个字符串
+				for x in results:
+					logger.info(f"预期结果:{v},实际结果:{x}，断言{'通过' if x == v else '失败'}")
+					assert x == v, f"断言失败，预期结果{v}不等于实际结果{x}"
+			elif isinstance(v, list):  # 结果是个列表
+				seq = list(map(lambda a, b: True if a == b else False, v, results))
+				logger.info(f"预期结果:{v}，实际结果:{results}，断言{'通过' if all(seq) else '失败'}")
+				assert all(seq), f"断言失败，预期结果{v}不等于实际结果{results}"
+			else:
+				raise Exception(f"在响应中未找到{k}") from None
 
 
-def containFrame(target, string):
+def containFrame(target, response):
 	""" 包含断言 """
 	temp = ""
 	try:
-		data: dict = string.json()
-		temp: str = json.dumps(data, ensure_ascii=False)
+		temp = json.dumps(response.json(), ensure_ascii=False)
 	except Exception:
-		string.encoding = "utf-8"
-		data: str = string.text
-		temp: str = data
+		response.encoding = "utf-8"
+		temp = response.text
 	finally:
-		if target:
-			seq = []
-			for x in target:
-				assert temp.find(x) != -1, f"断言失败，响应结果中未找到{x}"
-				message = f"{x + '找到，断言通过' if temp.find(x) != -1 else x + '未找到，断言失败'}"
-				seq.append(message)
-			logger.info("包含断言:" + ",".join(seq))
+		seq = []
+		for x in target:
+			if temp.find(x) != -1:
+				seq.append(x)
+		logger.info(f"预期结果：{target}，实际结果：{seq}，断言{'通过' if target == seq else '失败'}")
+		assert target == seq, f"断言失败，预期结果{target}不等于实际结果{seq}"
