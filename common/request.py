@@ -7,6 +7,7 @@ import requests
 import yaml
 from common.logger import logger
 from common.mysql import Mysql
+from common.assertion import Assertion
 from mako.template import Template
 from pathlib import Path
 
@@ -63,11 +64,55 @@ def assertion(func):
 	def wapper(caseinfo):
 		response = func(caseinfo)
 		if isinstance(caseinfo["validata"], dict):
-			for key, value in caseinfo["validata"].items():
-				if key == "equal" and isinstance(value, dict):  # 相等断言
-					equalFrame(value, response)
-				elif key == "contain" and isinstance(value, list):
-					containFrame(value, response)  # 包含断言
+			at = Assertion()
+			for k,v in caseinfo["validata"].items():
+				x,y = str(k).split("|")
+				if x == "responseJson":
+					if y == "equal":
+						for m,n in v.items():
+							at.responseJson(m,response).equal(n)
+					elif y == "unequal":
+						for m,n in v.items():
+							at.responseJson(m,response).unequal(n)
+					elif y == "exist":
+						for i in v:
+							at.responseJson(i,response).exist()
+					elif y == "unexist":
+						for i in v:
+							at.responseJson(i,response).unexist()
+				elif x == "responseText":
+					if y == "equal":
+						for m,n in v.items():
+							at.responseText(m,response).equal(n)
+					elif y == "unequal":
+						for m,n in v.items():
+							at.responseText(m,response).unequal(n)
+					elif y == "exist":
+						for i in v:
+							at.responseText(i,response).exist()
+					elif y == "unexist":
+						for i in v:
+							at.responseText(i,response).unexist()
+				elif x == "responseHeader":
+					if y == "equal":
+						for m,n in v.items():
+							at.responseHeader(m,response).equal(n)
+					elif y == "unequal":
+						for m,n in v.items():
+							at.responseHeader(m,response).unequal(n)
+					elif y == "exist":
+						for i in v:
+							at.responseHeader(i,response).exist()
+					elif y == "unexist":
+						for i in v:
+							at.responseHeader(i,response).unexist()
+				elif x == "responseStatus":
+					if y == "equal":
+						for i in v:
+							at.responseStatus(response).equal(i)
+					elif y == "unequal":
+						for i in v:
+							at.responseStatus(response).unequal(i)
 		return response
 	return wapper
 
@@ -189,44 +234,3 @@ def send_request(method, url, files=None, **kwargs):
 	""" 发送同一个session请求 """
 	response = session.request(method=method, url=url, files=files, timeout=10, **kwargs)
 	return response
-
-
-def equalFrame(target, response):
-	""" 相等断言 """
-	for k, v in target.items():
-		if not v:
-			raise Exception("断言结果不能为空")
-		if k == "status_code":  # 响应状态断言
-			logger.info(f"预期结果状态码:{v}，实际结果状态码:{response.status_code}，断言{'通过' if v == response.status_code else '失败'}")
-			assert v == response.status_code, f"断言失败，预期结果状态码{v}不等于实际结果状态码{response.status_code}"
-		else:
-			results = jsonpath.jsonpath(response.json(), "$..%s" % k)
-			if not results:
-				raise Exception(f"validata中{k}只能是字符串或列表") from None
-			if isinstance(v, str):  # 结果是个字符串
-				for x in results:
-					logger.info(f"预期结果:{v},实际结果:{x}，断言{'通过' if x == v else '失败'}")
-					assert x == v, f"断言失败，预期结果{v}不等于实际结果{x}"
-			elif isinstance(v, list):  # 结果是个列表
-				seq = list(map(lambda a, b: True if a == b else False, v, results))
-				logger.info(f"预期结果:{v}，实际结果:{results}，断言{'通过' if all(seq) else '失败'}")
-				assert all(seq), f"断言失败，预期结果{v}不等于实际结果{results}"
-			else:
-				raise Exception(f"在响应中未找到{k}") from None
-
-
-def containFrame(target, response):
-	""" 包含断言 """
-	temp = ""
-	try:
-		temp = json.dumps(response.json(), ensure_ascii=False)
-	except Exception:
-		response.encoding = "utf-8"
-		temp = response.text
-	finally:
-		seq = []
-		for x in target:
-			if temp.find(x) != -1:
-				seq.append(x)
-		logger.info(f"预期结果：{target}，实际结果：{seq}，断言{'通过' if target == seq else '失败'}")
-		assert target == seq, f"断言失败，预期结果{target}不等于实际结果{seq}"

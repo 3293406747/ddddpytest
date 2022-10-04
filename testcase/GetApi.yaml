@@ -6,7 +6,9 @@
   request:
     url: /ip      # 完整url为base_url+url
     method: GET
-  validata: null
+  validata:
+    responseStatus|equal: # 相等断言
+      - 200
 -
   name: 获取user-agent
   base_url: null
@@ -37,8 +39,8 @@
       foo1: "{{generate_string(15)}}"
       foo2: bar
   validata:
-    equal: # 相等断言
-      status_code: 200
+    responseStatus|equal: # 相等断言
+      - 200
 -
   name: 获取cookie
   base_url: "{{base_url}}"
@@ -46,8 +48,8 @@
     url: /cookies
     method: GET
   validata:
-    equal: # 相等断言
-      status_code: 200
+    responseStatus|equal: # 相等断言
+      - 200
 -
   name: Authorization bearer鉴权
   base_url: "{{base_url}}"
@@ -57,9 +59,10 @@
     headers:
       Authorization: "Bearer aaa"
   validata:
-    equal:
-      status_code: 200
-      token: aaa
+    responseJson|equal:
+      $..token: aaa
+    responseJson|exist:
+      - $..token
 -
   name: Authorization basic鉴权
   base_url: "{{base_url}}"
@@ -69,8 +72,8 @@
     headers:
       Authorization: "{{basic_auth('admin','123456')}}"
   validata:
-    equal:
-      status_code: 200
+    responseStatus|equal: # 相等断言
+      - 200
 -
   name: png图片下载
   base_url: "{{base_url}}"
@@ -94,8 +97,8 @@
   extract:
     who: "Availing (.*?) of the mild"
   validata:
-    equal:
-      status_code: 200
-    contain:
+    responseStatus|equal: # 相等断言
+      - 200
+    responseText|exist:
       - himself
       - Availing himself of the mild

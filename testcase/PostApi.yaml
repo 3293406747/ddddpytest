@@ -12,11 +12,12 @@
 #    files:        # 文件上传
 #      image: C:\Users\86159\Desktop\test.png
   validata:
-    equal:        # 相等断言
-      status_code: 200
-      user: "${user}"   # 如果相等断言的是个列表时，可写成列表形式
-      ssn: "${ssn}"
-    contain:    # 包含断言
+    responseStatus|equal:
+      - 200
+    responseJson|equal:
+      $..user: "${user}"
+      $..ssn: "${ssn}"
+    responseText|exist:
       - "${user}"
       - "${ssn}"
 -
@@ -29,8 +30,7 @@
       user: 张红霞
       ssn: "${ssn}"
   validata:
-    equal: # 相等断言
-      status_code: 200
-      user: "select name from user where name = '张红霞'"
-    contain:
-      - "select name from user where name = '张红霞'"
+#    responseJson|equal:
+#      $..user: "select name from user where name = '张红霞'"
+#    responseText|exist:
+#      - "select name from user where name = '张红霞'"
