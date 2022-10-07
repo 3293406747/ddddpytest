@@ -13,7 +13,7 @@
 #      image: C:\Users\86159\Desktop\test.png
   validata:
     responseStatus|equal:
-      - 200
+      statusCode: 200
     responseJson|equal:
       $..user: "${user}"
       $..ssn: "${ssn}"

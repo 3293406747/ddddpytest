@@ -8,7 +8,7 @@
     method: GET
   validata:
     responseStatus|equal: # 相等断言
-      - 200
+      statusCode: 200
 -
   name: 获取user-agent
   base_url: null
@@ -40,7 +40,7 @@
       foo2: bar
   validata:
     responseStatus|equal: # 相等断言
-      - 200
+      statusCode: 200
 -
   name: 获取cookie
   base_url: "{{base_url}}"
@@ -49,7 +49,7 @@
     method: GET
   validata:
     responseStatus|equal: # 相等断言
-      - 200
+      statusCode: 200
 -
   name: Authorization bearer鉴权
   base_url: "{{base_url}}"
@@ -73,7 +73,7 @@
       Authorization: "{{basic_auth('admin','123456')}}"
   validata:
     responseStatus|equal: # 相等断言
-      - 200
+      statusCode: 200
 -
   name: png图片下载
   base_url: "{{base_url}}"
@@ -98,7 +98,7 @@
     who: "Availing (.*?) of the mild"
   validata:
     responseStatus|equal: # 相等断言
-      - 200
+      statusCode: 200
     responseText|exist:
       - himself
       - Availing himself of the mild

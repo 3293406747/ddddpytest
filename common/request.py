@@ -7,7 +7,7 @@ import requests
 import yaml
 from common.logger import logger
 from common.mysql import Mysql
-from common.assertion import Assertion
+from common.assertion import AssertionFactory
 from mako.template import Template
 from pathlib import Path
 
@@ -64,55 +64,29 @@ def assertion(func):
 	def wapper(caseinfo):
 		response = func(caseinfo)
 		if isinstance(caseinfo["validata"], dict):
-			at = Assertion()
 			for k,v in caseinfo["validata"].items():
 				x,y = str(k).split("|")
-				if x == "responseJson":
-					if y == "equal":
-						for m,n in v.items():
-							at.responseJson(m,response).equal(n)
-					elif y == "unequal":
-						for m,n in v.items():
-							at.responseJson(m,response).unequal(n)
-					elif y == "exist":
-						for i in v:
-							at.responseJson(i,response).exist()
-					elif y == "unexist":
-						for i in v:
-							at.responseJson(i,response).unexist()
-				elif x == "responseText":
-					if y == "equal":
-						for m,n in v.items():
-							at.responseText(m,response).equal(n)
-					elif y == "unequal":
-						for m,n in v.items():
-							at.responseText(m,response).unequal(n)
-					elif y == "exist":
-						for i in v:
-							at.responseText(i,response).exist()
-					elif y == "unexist":
-						for i in v:
-							at.responseText(i,response).unexist()
-				elif x == "responseHeader":
-					if y == "equal":
-						for m,n in v.items():
-							at.responseHeader(m,response).equal(n)
-					elif y == "unequal":
-						for m,n in v.items():
-							at.responseHeader(m,response).unequal(n)
-					elif y == "exist":
-						for i in v:
-							at.responseHeader(i,response).exist()
-					elif y == "unexist":
-						for i in v:
-							at.responseHeader(i,response).unexist()
-				elif x == "responseStatus":
-					if y == "equal":
-						for i in v:
-							at.responseStatus(response).equal(i)
-					elif y == "unequal":
-						for i in v:
-							at.responseStatus(response).unequal(i)
+				at = AssertionFactory(x)
+				if isinstance(v,list):
+					for pattern in v:
+						temp = at.create(pattern,response,index=0)
+						match y:
+							case 'exist':
+								temp.exist()
+							case 'unexist':
+								temp.unexist()
+							case _:
+								raise ValueError('方法错误')
+				elif isinstance(v,dict):
+					for pattern,expect in v.items():
+						temp = at.create(pattern,response,index=0)
+						match y:
+							case 'equal':
+								temp.equal(expect)
+							case 'unequal':
+								temp.unequal(expect)
+							case _:
+								raise ValueError('方法错误')
 		return response
 	return wapper
 

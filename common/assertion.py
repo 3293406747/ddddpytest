@@ -4,8 +4,7 @@ from json import JSONDecodeError
 import jsonpath
 from common.logger import logger
 
-
-class Assertion:
+class AssertionFactory:
 
 	__instance = None
 
@@ -14,32 +13,28 @@ class Assertion:
 			cls.__instance = object.__new__(cls)
 		return cls.__instance
 
-	@staticmethod
-	def responseJson(pattern, response, index=0):
-		if not isinstance(pattern, str):
-			raise ValueError("jsonpath必须是个字符串")
-		return ResponseJson(pattern, response, index)
+	def __init__(self,cls):
+		self.cls = cls
 
-	@staticmethod
-	def responseText(pattern, response, index=0):
-		if not isinstance(pattern, str):
-			raise ValueError("re表达式必须是个字符串")
-		try:
-			response = json.dumps(response.json(),ensure_ascii=False)
-		except JSONDecodeError:
-			response.encoding = 'utf-8'
-			response = response.text
-		return ResponseText(pattern, response, index)
-
-	@staticmethod
-	def responseHeader(pattern,response):
-		if not isinstance(pattern, str):
-			raise ValueError("响应头参数必须是个字符串")
-		return ResponseHeader(pattern,response)
-
-	@staticmethod
-	def responseStatus(response):
-		return ResponseStatus(response)
+	def create(self,pattern,response,index):
+		if not isinstance(pattern,str):
+			raise ValueError('表达式必须是个字符串')
+		match self.cls:
+			case 'responseJson':
+				return ResponseJson(pattern, response, index)
+			case 'responseText':
+				try:
+					response = json.dumps(response.json(), ensure_ascii=False)
+				except JSONDecodeError:
+					response.encoding = 'utf-8'
+					response = response.text
+				return ResponseText(pattern,response,index)
+			case 'responseHeader':
+				return ResponseHeader(pattern,response)
+			case 'responseStatus':
+				return ResponseStatus(pattern,response)
+			case _:
+				raise ValueError('方法错误')
 
 
 class ResponseJson:
@@ -208,14 +203,15 @@ class ResponseStatus:
 			cls.__instance = object.__new__(cls)
 		return cls.__instance
 
-	def __init__(self,response):
+	def __init__(self,pattern,response):
+		self.pattern = pattern
 		self.__value = response.status_code
 
 	def equal(self,expect):
 		if not isinstance(expect, int):
 			raise ValueError("预期值必须是整数")
 		if self.__value == expect:
-			logger.success(f"status_code等于{self.__value}")
+			logger.success(f"{self.pattern}等于{self.__value}")
 		else:
 			logger.error(f"预期值'{expect}'不等于实际值'{self.__value}'")
 			raise SystemExit(1)
@@ -224,7 +220,7 @@ class ResponseStatus:
 		if not isinstance(expect, int):
 			raise ValueError("预期值必须是整数")
 		if self.__value != expect:
-			logger.success(f"status_code不等于{self.__value}")
+			logger.success(f"{self.pattern}不等于{self.__value}")
 		else:
 			logger.error(f"预期值'{expect}'等于实际值'{self.__value}'")
 			raise SystemExit(1)
