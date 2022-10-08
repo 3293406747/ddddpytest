@@ -14,15 +14,15 @@ class Mysql:
 		else:
 			return cls.instance
 
-	def __init__(self):
+	def __init__(self,host,port,user,password,db):
 		""" 连接mysql数据库 """
 		if Mysql.__init_flag:
 			try:
 				self.conn = pymysql.connect(
-					**read_config()["mysql"], charset='utf8'
+					host=host,port=port,user=user,password=password,db=db, charset='utf8'
 				)
 				self.cursor = self.conn.cursor(cursor=pymysql.cursors.DictCursor)
-				logger.info(f"数据库连接成功")
+				logger.debug(f"数据库连接成功")
 			except Exception as why:
 				raise Exception(f"数据库连接失败，连接失败原因:{why}") from None
 			Mysql.__init_flag = False
@@ -32,7 +32,7 @@ class Mysql:
 		try:
 			self.cursor.execute(sql)
 			r = self.cursor.fetchall()
-			logger.info("数据select成功")
+			logger.debug("数据select成功")
 			return r
 		except Exception as why:
 			self.conn.rollback()
@@ -43,7 +43,7 @@ class Mysql:
 		try:
 			self.cursor.execute(sql)
 			self.conn.commit()
-			logger.success("数据inset成功")
+			logger.debug("数据inset成功")
 		except Exception as why:
 			self.conn.rollback()
 			raise Exception(f"数据insert失败，insert失败原因:{why}") from None
@@ -53,7 +53,7 @@ class Mysql:
 		try:
 			self.cursor.execute(sql)
 			self.conn.commit()
-			logger.success("数据update成功")
+			logger.debug("数据update成功")
 		except Exception as why:
 			self.conn.rollback()
 			raise Exception(f"数据update失败，update失败原因:{why}") from None
@@ -63,7 +63,7 @@ class Mysql:
 		try:
 			self.cursor.execute(sql)
 			self.conn.commit()
-			logger.success("数据delete成功")
+			logger.debug("数据delete成功")
 		except Exception as why:
 			self.conn.rollback()
 			raise Exception(f"数据delete失败，delete失败原因:{why}") from None
@@ -79,4 +79,35 @@ class Mysql:
 				self.conn.close()
 			except Exception as why:
 				raise Exception(f"conn关闭失败，关闭失败原因:{why}") from None
+
+
+class RegexSql:
+
+	instance = None
+	__init_flag = True
+
+	def __new__(cls, *args, **kwargs):
+		if cls.instance is None:
+			cls.instance = object.__new__(cls)
+			return cls.instance
+		else:
+			return cls.instance
+
+	def __init__(self):
+		if RegexSql.__init_flag:
+			config = read_config()["mysql"]
+			self.mysql = Mysql(**config)
+			RegexSql.__init_flag = False
+
+	def select(self,reMatch):
+		match str(reMatch.group(1)).split(','):
+			case [sql,key]:
+				logger.debug(f'sql:{sql}')
+				return self.mysql.select(sql)[0][key]
+			case [sql,key,index]:
+				logger.debug(f'sql:{sql}')
+				return self.mysql.select(sql)[int(index)][key]
+			case _:
+				raise ValueError
+
 

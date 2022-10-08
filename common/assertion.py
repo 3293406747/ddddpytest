@@ -224,3 +224,9 @@ class ResponseStatus:
 		else:
 			logger.error(f"预期值'{expect}'等于实际值'{self.__value}'")
 			raise SystemExit(1)
+
+	def exist(self):
+		...
+
+	def unexist(self):
+		...

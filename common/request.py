@@ -6,7 +6,7 @@ import jsonpath
 import requests
 import yaml
 from common.logger import logger
-from common.mysql import Mysql
+from common.mysql import RegexSql
 from common.assertion import AssertionFactory
 from mako.template import Template
 from pathlib import Path
@@ -17,28 +17,22 @@ path = Path(__file__).resolve()
 session = requests.session()
 extractPool = {}
 
-
-def sqlHandle(func):
-	""" sql处理 """
+def sqlSelect(func):
 	def wapper(caseinfo):
 		response = func(caseinfo)
-		if caseinfo["validata"]:
-			p = r'select\s*(.*?)\sfrom'
-			if caseinfo["validata"].get('equal'):
-				for k, v in caseinfo["validata"]["equal"].items():
-					if re.match(p, str(v)):
-						res = Mysql().select(sql=v)
-						key = re.match(p, v).group(1)
-						caseinfo["validata"]["equal"][k] = res[0][key]
-			if caseinfo["validata"].get('contain'):
-				for i in range(len(caseinfo["validata"]['contain'])):
-					if re.match(p, str(caseinfo["validata"]['contain'][i])):
-						res = Mysql().select(sql=caseinfo["validata"]['contain'][i])
-						key = re.match(p, caseinfo["validata"]['contain'][i]).group(1)
-						caseinfo["validata"]['contain'][i] = res[0][key]
+		if not caseinfo['validata'] or not isinstance(caseinfo['validata'],dict):
+			return response
+		for sqls in caseinfo['validata'].values():
+			if isinstance(sqls,list):
+				for n,sql in enumerate(sqls):
+					if isinstance(sql, str) and re.search('%.*?%', sql):
+						sqls[n] = re.sub(r'%(.*?)%',RegexSql().select,sql)
+			elif isinstance(sqls,dict):
+				for key,sql in sqls.items():
+					if isinstance(sql,str) and re.search('%.*?%',sql):
+						sqls[key] = re.sub(r'%(.*?)%',RegexSql().select,sql)
 		return response
 	return wapper
-
 
 def extract_variable(func):
 	""" 接口关联:提取响应中的内容 """
@@ -63,36 +57,37 @@ def assertion(func):
 	""" 响应断言 """
 	def wapper(caseinfo):
 		response = func(caseinfo)
-		if isinstance(caseinfo["validata"], dict):
-			for k,v in caseinfo["validata"].items():
-				x,y = str(k).split("|")
-				at = AssertionFactory(x)
-				if isinstance(v,list):
-					for pattern in v:
-						temp = at.create(pattern,response,index=0)
-						match y:
-							case 'exist':
-								temp.exist()
-							case 'unexist':
-								temp.unexist()
-							case _:
-								raise ValueError('方法错误')
-				elif isinstance(v,dict):
-					for pattern,expect in v.items():
-						temp = at.create(pattern,response,index=0)
-						match y:
-							case 'equal':
-								temp.equal(expect)
-							case 'unequal':
-								temp.unequal(expect)
-							case _:
-								raise ValueError('方法错误')
+		if not isinstance(caseinfo["validata"], dict):
+			return response
+		for k,v in caseinfo["validata"].items():
+			x,y = str(k).split("|")
+			at = AssertionFactory(x)
+			if isinstance(v,list):
+				for pattern in v:
+					temp = at.create(pattern,response,index=0)
+					match y:
+						case 'exist':
+							temp.exist()
+						case 'unexist':
+							temp.unexist()
+						case _:
+							raise ValueError
+			elif isinstance(v,dict):
+				for pattern,expect in v.items():
+					temp = at.create(pattern,response,index=0)
+					match y:
+						case 'equal':
+							temp.equal(expect)
+						case 'unequal':
+							temp.unequal(expect)
+						case _:
+							raise ValueError
 		return response
 	return wapper
 
 
 @assertion
-@sqlHandle
+@sqlSelect
 @extract_variable
 def autoSendRequest(caseinfo):
 	""" 获取用例自动发送请求 """
