@@ -15,8 +15,8 @@
     responseStatus|equal:
       statusCode: 200
     responseJson|equal:
-      $..user: "${user}"
-      $..ssn: "${ssn}"
+      $..user|0: "${user}"
+      $..ssn|0: "${ssn}"
     responseText|exist:
       - "${user}"
       - "${ssn}"
@@ -33,4 +33,4 @@
     responseJson|equal:
       $..user: "%select name from user where name = '张红霞',name%"
     responseText|exist:
-      - "%select name from user where name = '张红霞',name,0%"
+      - "%select name from user where name = '张红霞',name,0%|0"

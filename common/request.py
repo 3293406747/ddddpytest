@@ -24,9 +24,9 @@ def sqlSelect(func):
 			return response
 		for sqls in caseinfo['validata'].values():
 			if isinstance(sqls,list):
-				for n,sql in enumerate(sqls):
+				for index, sql in enumerate(sqls):
 					if isinstance(sql, str) and re.search('%.*?%', sql):
-						sqls[n] = re.sub(r'%(.*?)%',RegexSql().select,sql)
+						sqls[index] = re.sub(r'%(.*?)%', RegexSql().select, sql)
 			elif isinstance(sqls,dict):
 				for key,sql in sqls.items():
 					if isinstance(sql,str) and re.search('%.*?%',sql):
@@ -63,8 +63,15 @@ def assertion(func):
 			x,y = str(k).split("|")
 			at = AssertionFactory(x)
 			if isinstance(v,list):
-				for pattern in v:
-					temp = at.create(pattern,response,index=0)
+				for patterns in v:
+					match str(patterns).split('|'):
+						case [pattern]:
+							pattern,index = pattern,0
+						case [pattern,index]:
+							pattern,index = pattern,int(index)
+						case _:
+							raise ValueError
+					temp = at.create(pattern,response,index=index)
 					match y:
 						case 'exist':
 							temp.exist()
@@ -73,8 +80,15 @@ def assertion(func):
 						case _:
 							raise ValueError
 			elif isinstance(v,dict):
-				for pattern,expect in v.items():
-					temp = at.create(pattern,response,index=0)
+				for patterns,expect in v.items():
+					match str(patterns).split('|'):
+						case [pattern]:
+							pattern,index = pattern,0
+						case [pattern,index]:
+							pattern,index = pattern,int(index)
+						case _:
+							raise ValueError
+					temp = at.create(pattern,response,index=index)
 					match y:
 						case 'equal':
 							temp.equal(expect)

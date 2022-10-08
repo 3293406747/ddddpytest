@@ -8,10 +8,14 @@ mysql:
 
 # logger配置
 logger:
-  sink: ./log/logger.log
-  level: DEBUG
-  format: <green>{time:YYYY-MM-DD HH:mm:ss}</green>[<level>{level}</level>]<level>{message}</level>
-  rotation: "10 MB"
+  file:
+    sink: ./log/logger.log
+    level: DEBUG
+    format: <green>{time:YYYY-MM-DD HH:mm:ss}</green>[<level>{level}</level>]<level>{message}</level>
+    rotation: "10 MB"
+  console:
+    level: INFO
+    format: <green>{time:YYYY-MM-DD HH:mm:ss}</green>[<level>{level}</level>]<level>{message}</level>
 
 # 环境配置
 base_url: http://httpbin.org
