@@ -79,35 +79,3 @@ class Mysql:
 				self.conn.close()
 			except Exception as why:
 				raise Exception(f"conn关闭失败，关闭失败原因:{why}") from None
-
-
-class RegexSql:
-
-	instance = None
-	__init_flag = True
-
-	def __new__(cls, *args, **kwargs):
-		if cls.instance is None:
-			cls.instance = object.__new__(cls)
-			return cls.instance
-		else:
-			return cls.instance
-
-	def __init__(self):
-		if RegexSql.__init_flag:
-			config = read_config()["mysql"]
-			self.mysql = Mysql(**config)
-			RegexSql.__init_flag = False
-
-	def select(self,reMatch):
-		match str(reMatch.group(1)).split(','):
-			case [sql,key]:
-				logger.debug(f'sql:{sql}')
-				return self.mysql.select(sql)[0][key]
-			case [sql,key,index]:
-				logger.debug(f'sql:{sql}')
-				return self.mysql.select(sql)[int(index)][key]
-			case _:
-				raise ValueError
-
-

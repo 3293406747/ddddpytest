@@ -9,18 +9,17 @@ path = Path(__file__).resolve()
 instance = {}
 
 
-def analyze_testcase_format(function):
+def formatTestcase(function):
 	""" 校验用例格式 """
 	def wapper(file):
 		cases = function(file)
-		for case in cases:
-			for x in ["name", "base_url", "request", "validata"]:
-				if x not in dict(case).keys():
-					raise Exception("yaml用例必须有的四个一级关键字: name,base_url,request,validata") from None
-				if x == "request":
-					for y in ["url", "method"]:
-						if y not in dict(case)["request"].keys():
-							raise Exception("yaml用例在request一级关键字下必须包括两个二级关键字:method,url") from None
+		for elem in ["name", "base_url", "request", "validata"]:
+			if cases.keys() not in elem:
+				raise Exception("yaml用例必须有的四个一级关键字: name,base_url,request,validata") from None
+			if elem == "request":
+				for item in ["url", "method"]:
+					if dict(cases)["request"].keys() not in item:
+						raise Exception("yaml用例在request一级关键字下必须包括两个二级关键字:method,url") from None
 		return cases
 	return wapper
 
@@ -42,7 +41,7 @@ def dynamic_load(function):
 
 
 @dynamic_load
-@analyze_testcase_format
+@formatTestcase
 def read_testcase(file):
 	""" 读取测试用例 """
 	case = path.parent.parent / 'testcase' / file

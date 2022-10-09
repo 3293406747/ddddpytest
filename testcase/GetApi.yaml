@@ -36,8 +36,8 @@
     url: /cookies/set
     method: GET
     params:
-      foo1: "{{generate_string(15)}}"
-      foo2: bar
+      foo1: "${user}"
+      foo2: "${ssn}"
   validata:
     responseStatus|equal: # 相等断言
       statusCode: 200
