@@ -1,28 +1,30 @@
+config:
+  mysql: local
+  logger: local
+  base_url: local
+  environment: local
+
 # 数据库配置
 mysql:
-  host: 127.0.0.1
-  port: 3306
-  user: root
-  password: "111111"
-  db: test_db
+  local:
+    host: 127.0.0.1
+    port: 3306
+    user: root
+    password: "111111"
+    db: test_db
 
 # logger配置
 logger:
-  file:
-    sink: ./log/logger.log
-    level: DEBUG
-    format: <green>{time:YYYY-MM-DD HH:mm:ss}</green>[<level>{level}</level>]<level>{message}</level>
-    rotation: "10 MB"
-  console:
-    level: INFO
-    format: <green>{time:YYYY-MM-DD HH:mm:ss}</green>[<level>{level}</level>]<level>{message}</level>
+  local:
+    file:
+      sink: ./log/logger.log
+      level: DEBUG
+      format: <green>{time:YYYY-MM-DD HH:mm:ss}</green>[<level>{level}</level>]<level>{message}</level>
+      rotation: "10 MB"
+    console:
+      level: INFO
+      format: <green>{time:YYYY-MM-DD HH:mm:ss}</green>[<level>{level}</level>]<level>{message}</level>
 
 # 环境配置
-base_url: http://httpbin.org
-
-# 需要热加载的函数
-dynamic_load:
-  - generate_userinfo
-  - generate_string
-  - generate_string2
-  - basic_auth
+base_url:
+  local: http://httpbin.org

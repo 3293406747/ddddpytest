@@ -13,12 +13,12 @@ class Mysql:
 		else:
 			return cls.instance
 
-	def __init__(self,host,port,user,password,db):
+	def __init__(self,host,port,user,password,db,charset='utf8'):
 		""" 连接mysql数据库 """
 		if Mysql.__init_flag:
 			try:
 				self.conn = pymysql.connect(
-					host=host,port=port,user=user,password=password,db=db, charset='utf8'
+					host=host,port=port,user=user,password=password,db=db, charset=charset
 				)
 				self.cursor = self.conn.cursor(cursor=pymysql.cursors.DictCursor)
 				logger.debug(f"数据库连接成功")

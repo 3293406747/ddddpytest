@@ -1,7 +1,7 @@
 import allure
 import pytest
 from common.request import autoSendRequest
-from common.yaml_ import read_testcase
+from common.yaml import read_testcase
 
 
 @allure.epic("ddddpytest接口自动化测试项目")		# 项目名称

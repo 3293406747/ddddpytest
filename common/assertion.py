@@ -18,7 +18,7 @@ class AssertionFactory:
 
 	def create(self,pattern,response,index):
 		if not isinstance(pattern,str):
-			raise ValueError('表达式必须是个字符串')
+			raise TypeError('pattern must be a string')
 		match self.cls:
 			case 'responseJson':
 				return ResponseJson(pattern, response, index)
@@ -34,7 +34,7 @@ class AssertionFactory:
 			case 'responseStatus':
 				return ResponseStatus(pattern,response)
 			case _:
-				raise ValueError('方法错误')
+				raise ValueError
 
 
 class ResponseJson:

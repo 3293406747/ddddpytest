@@ -7,7 +7,11 @@ class Variable:
 		self.__pool[key] = value
 
 	def get(self,key):
-		self.__pool.get(key, "null")
+		value = self.__pool.get(key)
+		if value:
+			return value
+		else:
+			raise Exception("未找到该变量")
 
 	def clear(self):
 		self.__pool.clear()

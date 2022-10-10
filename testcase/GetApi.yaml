@@ -70,7 +70,7 @@
     url: /basic-auth/admin/123456
     method: GET
     headers:
-      Authorization: "Basic {{admin|:|123456|#base64}}"
+      Authorization: "Basic {{${username}|:|${password}|#base64}}"
   validata:
     responseStatus|equal: # 相等断言
       statusCode: 200
