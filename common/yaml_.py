@@ -13,41 +13,24 @@ def formatTestcase(function):
 	""" 校验用例格式 """
 	def wapper(file):
 		cases = function(file)
-		for elem in ["name", "base_url", "request", "validata"]:
-			if cases.keys() not in elem:
-				raise Exception("yaml用例必须有的四个一级关键字: name,base_url,request,validata") from None
-			if elem == "request":
-				for item in ["url", "method"]:
-					if dict(cases)["request"].keys() not in item:
-						raise Exception("yaml用例在request一级关键字下必须包括两个二级关键字:method,url") from None
+		elems = ["name", "base_url", "request", "validata"]
+		for elem in elems:
+			for case in cases:
+				if elem not in case.keys():
+					raise Exception("yaml用例必须有的四个一级关键字: name,base_url,request,validata") from None
+				elif elem == "request":
+					for item in ["url", "method"]:
+						if item not in case["request"]:
+							raise Exception("yaml用例在request一级关键字下必须包括两个二级关键字:method,url") from None
 		return cases
 	return wapper
 
-
-def dynamic_load(function):
-	""" 热加载+获取项目环境地址 """
-	def wapper(file):
-		function(file)
-		if not instance.get("env"):
-			env = Environment(loader=FileSystemLoader(path.parent.parent))
-			module = __import__("dynamic_load", fromlist=True)
-			for func in read_config()["dynamic_load"]:
-				env.globals[func] = getattr(module, func)
-			instance['env'] = env
-		temp = instance['env'].get_template(os.path.join("testcase", file).replace("\\", "/")).render(
-			base_url=read_config()["base_url"])
-		return yaml.load(stream=temp, Loader=yaml.FullLoader)
-	return wapper
-
-
-@dynamic_load
 @formatTestcase
 def read_testcase(file):
 	""" 读取测试用例 """
 	case = path.parent.parent / 'testcase' / file
 	with open(file=case, mode="r", encoding="utf-8") as f:
 		return yaml.load(stream=f, Loader=yaml.FullLoader)
-
 
 def read_config():
 	""" 读取config """

@@ -1,9 +1,8 @@
 import pymysql
 from common.logger import logger
-from common.yaml_ import read_config
 
 class Mysql:
-
+	""" mysql数据库操作 """
 	instance = None
 	__init_flag = True
 

@@ -2,7 +2,7 @@
 # 测试post请求
 -
   name: post请求-data传参
-  base_url: "{{base_url}}"
+  base_url: "${base_url}"
   request:
     url: /post
     method: POST
@@ -22,7 +22,7 @@
       - "${ssn}"
 -
   name: post请求-json传参
-  base_url: "{{base_url}}"
+  base_url: "${base_url}"
   request:
     url: /post
     method: POST
@@ -31,6 +31,6 @@
       ssn: "${ssn}"
   validata:
     responseJson|equal:
-      $..user: "%select name from user where name = '张红霞',name%"
+      $..user: "{{{{select name from user where name = '张红霞',name}}}}"
     responseText|exist:
-      - "%select name from user where name = '张红霞',name,0%|0"
+      - "{{{{select name from user where name = '张红霞',name,0}}}}|0"

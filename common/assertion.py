@@ -5,7 +5,7 @@ import jsonpath
 from common.logger import logger
 
 class AssertionFactory:
-
+	"""响应断言"""
 	__instance = None
 
 	def __new__(cls, *args, **kwargs):
@@ -38,7 +38,7 @@ class AssertionFactory:
 
 
 class ResponseJson:
-
+	""" json方式断言 """
 	__instance = None
 
 	def __new__(cls, *args, **kwargs):
@@ -93,7 +93,7 @@ class ResponseJson:
 
 
 class ResponseText:
-
+	""" 正则表达式方式断言 """
 	__instance = None
 
 	def __new__(cls, *args, **kwargs):
@@ -148,7 +148,7 @@ class ResponseText:
 
 
 class ResponseHeader:
-
+	""" 响应头断言 """
 	__instance = None
 
 	def __new__(cls, *args, **kwargs):
@@ -195,7 +195,7 @@ class ResponseHeader:
 			raise SystemExit(1)
 
 class ResponseStatus:
-
+	""" 响应状态断言 """
 	__instance = None
 
 	def __new__(cls, *args, **kwargs):

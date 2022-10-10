@@ -1,17 +1,18 @@
 import json
 import re
 from string import Template
-
+from typing import Pattern
 import jsonpath
 import yaml
-
-
 from common.assertion import AssertionFactory
+from common.function import function
 from common.logger import logger
+from common.mock import mock
 from common.mysql import Mysql
+from common.variable import variable
 from common.yaml_ import read_config
 
-extractPool = {}
+pattern: Pattern = re.compile(r"\{\{(.*?)\}\}")
 
 class RegexSql:
 
@@ -52,12 +53,12 @@ def sqlSelect(template,response):
 	for sqls in template['validata'].values():
 		if isinstance(sqls,list):
 			for index, sql in enumerate(sqls):
-				if isinstance(sql, str) and re.search('%.*?%', sql):
-					sqls[index] = re.sub(r'%(.*?)%', RegexSql().select, sql)
+				if isinstance(sql, str) and pattern.search(sql):
+					sqls[index] = pattern.sub(RegexSql().select, sql)
 		elif isinstance(sqls,dict):
 			for key,sql in sqls.items():
-				if isinstance(sql,str) and re.search('%.*?%',sql):
-					sqls[key] = re.sub(r'%(.*?)%',RegexSql().select,sql)
+				if isinstance(sql,str) and pattern.search(sql):
+					sqls[key] = pattern.sub(RegexSql().select, sql)
 	return response
 
 def assertion(template,response):
@@ -92,13 +93,13 @@ def assertion(template,response):
 def drawPatterns(patterns,response,factory):
 	""" 抽取出的patterns """
 	match str(patterns).split('|'):
-		case [pattern]:
-			pattern, index = pattern, 0
-		case [pattern, index]:
-			pattern, index = pattern, int(index)
+		case [target]:
+			target, index = target, 0
+		case [target, index]:
+			target, index = target, int(index)
 		case _:
 			raise ValueError
-	return factory.create(pattern, response, index=index)
+	return factory.create(target, response, index=index)
 
 def extractVariable(template,response):
 	""" 提取响应中的内容作为变量 """
@@ -110,16 +111,60 @@ def extractVariable(template,response):
 				extract = jsonpath.jsonpath(response.json(), value)[0]
 			else:
 				raise Exception("提取器表达式错误") from None
-			extractPool[key] = extract
+			variable.set(key,extract)
 	return response
 
 def renderTemplate(template):
 	""" 渲染用例 """
 	data = json.dumps(template,ensure_ascii=False) if isinstance(template, dict) else template
-	if extractPool and data:
-		temp = Template(data).safe_substitute(extractPool)
+	if not variable.is_empty and data:
+		temp = Template(data).safe_substitute(variable.pool)
 		return yaml.load(stream=temp, Loader=yaml.FullLoader)
 	elif data:
 		return yaml.load(stream=data, Loader=yaml.FullLoader)
 	else:
 		return None
+
+class RegexFunctionMock:
+	""" 函数及mock数据处理 """
+	instance = None
+	flag = True
+
+	def __new__(cls, *args, **kwargs):
+		if cls.instance is None:
+			cls.instance = object.__new__(cls)
+			return cls.instance
+		else:
+			return cls.instance
+
+	def __init__(self):
+		if RegexFunctionMock.flag:
+			self.func = function
+			self.mock = mock
+			RegexFunctionMock.flag = False
+
+	def main(self,reMatch):
+		elems = reMatch.group(1).split("|")
+		p = []
+		for elem in elems:
+			if str(elem).startswith("@"):
+				attr,*args = str(elem).lstrip("@").split(",")
+				p.append(getattr(self.mock,attr)(*args))
+			elif str(elem).startswith("#"):
+				attr,*args = str(elem).lstrip("#").split(",")
+				temp = getattr(self.func,attr)("".join(p),*args)
+				p.clear()
+				p.append(temp)
+			else:
+				p.append(str(elem))
+		return "".join(p)
+
+
+def dynamicLoad(template):
+	"""
+	函数及mock数据处理
+	书写方式如：{{@cword|string1|#md5|string2|#md5}}
+	"""
+	data = json.dumps(template,ensure_ascii=False)
+	data = pattern.sub(RegexFunctionMock().main,data)
+	return yaml.load(data,yaml.FullLoader)

@@ -2,7 +2,7 @@ import base64
 import hashlib
 
 class Function:
-
+	""" 数据处理方法 """
 	@classmethod
 	def md5(cls,string):
 		""" md5加密 """
@@ -17,3 +17,5 @@ class Function:
 		if not isinstance(string,str):
 			raise TypeError('string must be a string')
 		return base64.b64encode(string.encode()).decode()
+
+function = Function()

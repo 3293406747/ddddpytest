@@ -18,20 +18,20 @@
   validata: null
 -
   name: get请求
-  base_url: "{{base_url}}"  # 从配置文件读取base_url
+  base_url: "${base_url}"
   request:
     url: /get
     method: GET
     params:
-      user: "{{generate_userinfo('username')}}"   # 调用python函数生成测试数据
-      ssn: "{{generate_userinfo('ssn')}}"
+      user: "{{@cname}}"   # 调用python函数生成测试数据
+      ssn: "{{@cssn}}"
   extract:
     user: $..user   # 提取响应中的数据，用于接口关联。
     ssn: $..ssn     # json提取如: $..token 正则提取如: token=(.*?)
   validata: null
 -
   name: 设置cookie
-  base_url: "{{base_url}}"
+  base_url: "${base_url}"
   request:
     url: /cookies/set
     method: GET
@@ -43,7 +43,7 @@
       statusCode: 200
 -
   name: 获取cookie
-  base_url: "{{base_url}}"
+  base_url: "${base_url}"
   request:
     url: /cookies
     method: GET
@@ -52,7 +52,7 @@
       statusCode: 200
 -
   name: Authorization bearer鉴权
-  base_url: "{{base_url}}"
+  base_url: "${base_url}"
   request:
     url: /bearer
     method: GET
@@ -65,32 +65,32 @@
       - $..token
 -
   name: Authorization basic鉴权
-  base_url: "{{base_url}}"
+  base_url: "${base_url}"
   request:
     url: /basic-auth/admin/123456
     method: GET
     headers:
-      Authorization: "{{basic_auth('admin','123456')}}"
+      Authorization: "Basic {{admin|:|123456|#base64}}"
   validata:
     responseStatus|equal: # 相等断言
       statusCode: 200
 -
   name: png图片下载
-  base_url: "{{base_url}}"
+  base_url: "${base_url}"
   request:
     url: /image/png
     method: GET
   validata: null
 -
   name: jpeg图片下载
-  base_url: "{{base_url}}"
+  base_url: "${base_url}"
   request:
     url: /image/jpeg
     method: GET
   validata: null
 -
   name: 获取html响应
-  base_url: "{{base_url}}"
+  base_url: "${base_url}"
   request:
     url: /html
     method: GET

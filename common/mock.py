@@ -1,27 +1,17 @@
 import random
+import re
 import string
-
 from faker import Faker
 
 
 class Mock:
+	""" 生成mock数据 """
 	locales = ['zh-CN', 'en-US']
-	instance = None
-	__init_flag = True
-
-	def __new__(cls, *args, **kwargs):
-		if cls.instance is None:
-			cls.instance = object.__new__(cls)
-			return cls.instance
-		else:
-			return cls.instance
 
 	def __init__(self):
-		if Mock.__init_flag:
-			self.cn = self.locales[0]
-			self.us = self.locales[1]
-			self.faker = Faker(locale=self.locales)
-			Mock.__init_flag = False
+		self.cn = self.locales[0]
+		self.us = self.locales[1]
+		self.faker = Faker(locale=self.locales)
 
 	def __getattr__(self, attr):
 		match attr:
@@ -32,7 +22,7 @@ class Mock:
 				}
 				attr = elems.get(attr) or attr
 				return getattr(self.faker[self.us], attr)
-			case 'cname' | 'cphone' | 'cssn' | 'caddress' | 'ccompany' | 'cjob' | 'ccountry' | 'ccity' | 'cword' | 'cemail' | 'ccard' | 'cprovince':
+			case 'cname' | 'cphone' | 'cssn' | 'cjob' | 'ccountry' | 'ccity' | 'cword' | 'cemail' | 'ccard' | 'cprovince':
 				elems = {
 					'cphone': 'phone_number',
 					'ccard': 'credit_card_number'
@@ -41,6 +31,14 @@ class Mock:
 				return getattr(self.faker[self.cn], attr)
 			case _:
 				raise AttributeError(f'Attribute {attr} not found')
+
+	def caddress(self):
+		""" 国内地址 """
+		return re.sub(r"[a-zA-Z]\w\s\d{3}", "", self.faker[self.cn].address()) + "号"
+
+	def ccompany(self):
+		""" 国内公司名 """
+		return self.faker[self.cn].province().rstrip('省') + self.faker[self.cn].company()
 
 	@staticmethod
 	def randchar(length: int) -> str:
@@ -57,3 +55,6 @@ class Mock:
 		random.shuffle(all_arry)
 		random_string = ''.join(all_arry)
 		return random_string
+
+
+mock = Mock()

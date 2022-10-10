@@ -4,7 +4,7 @@ from common.yaml_ import read_config
 
 
 class Logger:
-
+	"""项目日志管理"""
 	def __init__(self):
 		self.logger = logging
 		self.logger.remove()

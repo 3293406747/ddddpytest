@@ -5,16 +5,22 @@ import allure
 import requests
 from common.logger import logger
 from pathlib import Path
-from common.template import sqlSelect, assertion, extractVariable, renderTemplate
+from common.template import sqlSelect, assertion, extractVariable, renderTemplate, dynamicLoad
 
 __all__ = ["autoSendRequest", "send_request"]
+
+from common.variable import variable
+from common.yaml_ import read_config
 
 path = Path(__file__).resolve()
 session = requests.session()
 
 def autoSendRequest(caseinfo):
 	""" 获取用例自动发送请求 """
+	variable.set("base_url",read_config()["base_url"])
 	caseinfo = renderTemplate(caseinfo)
+	caseinfo = dynamicLoad(caseinfo)
+	print(caseinfo)
 	temp = dict(
 		url=caseinfo["request"].pop("url"),
 		method=caseinfo["request"].pop("method"),
