@@ -3,6 +3,7 @@ config:
   logger: local
   base_url: local
   environment: local
+  login: 0
 
 # 数据库配置
 mysql:

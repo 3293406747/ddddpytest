@@ -20,10 +20,12 @@ def read_config(item):
 	if not instance.get("conf"):
 		with open(file=path.parent.parent / 'config.yaml', mode="r", encoding="utf-8") as f:
 			response = yaml.load(stream=f, Loader=yaml.FullLoader)
-		instance['conf'] = response
-	config = instance['conf']
+		instance['config'] = response
+	config = instance['config']
 	if item == "environment":
 		return config["config"]["environment"]
+	elif item == "login":
+		return config["config"]["login"]
 	elif config["config"][item]:
 		return config[item][config["config"][item]]
 	else:
