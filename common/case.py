@@ -163,7 +163,10 @@ class RegexFunctionMock:
 				p.append(getattr(self.mock, attr)(*args))
 			elif str(elem).startswith("#"):
 				attr, *args = str(elem).lstrip("#").split(",")
-				temp = getattr(self.func, attr)("".join(p), *args)
+				if p:
+					temp = getattr(self.func, attr)("".join(p), *args)
+				else:
+					temp = getattr(self.func, attr)(*args)
 				p.clear()
 				p.append(temp)
 			else:
