@@ -1,9 +1,0 @@
--
-  name: 登录
-  base_url: http://httpbin.org
-  request:
-    url: /ip
-    method: GET
-  validata:
-    responseStatus|equal: # 相等断言
-      statusCode: 200

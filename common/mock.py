@@ -3,6 +3,9 @@ import re
 import string
 from faker import Faker
 
+attrset = ['name', 'phone', 'ssn', 'address', 'company', 'job', 'country', 'city', 'word', 'email', 'card']
+cattrset = ['cname', 'cphone', 'cssn', 'cjob', 'ccountry', 'ccity', 'cword', 'cemail', 'ccard', 'cprovince']
+
 
 class Mock:
 	""" 生成mock数据 """
@@ -14,23 +17,22 @@ class Mock:
 		self.faker = Faker(locale=self.locales)
 
 	def __getattr__(self, attr):
-		match attr:
-			case 'name' | 'phone' | 'ssn' | 'address' | 'company' | 'job' | 'country' | 'city' | 'word' | 'email' | 'card':
-				elems = {
-					'phone': 'phone_number',
-					'card': 'credit_card_number'
-				}
-				attr = elems.get(attr) or attr
-				return getattr(self.faker[self.us], attr)
-			case 'cname' | 'cphone' | 'cssn' | 'cjob' | 'ccountry' | 'ccity' | 'cword' | 'cemail' | 'ccard' | 'cprovince':
-				elems = {
-					'cphone': 'phone_number',
-					'ccard': 'credit_card_number'
-				}
-				attr = elems.get(attr) or attr[1:]
-				return getattr(self.faker[self.cn], attr)
-			case _:
-				raise AttributeError(f'Attribute {attr} not found')
+		if attr in attrset:
+			elems = {
+				'phone': 'phone_number',
+				'card': 'credit_card_number'
+			}
+			attr = elems.get(attr) or attr
+			return getattr(self.faker[self.us], attr)
+		elif attr in cattrset:
+			elems = {
+				'cphone': 'phone_number',
+				'ccard': 'credit_card_number'
+			}
+			attr = elems.get(attr) or attr[1:]
+			return getattr(self.faker[self.cn], attr)
+		else:
+			raise AttributeError(f'Attribute {attr} not found')
 
 	def caddress(self):
 		""" 国内地址 """

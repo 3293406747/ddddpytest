@@ -5,12 +5,12 @@ from typing import Pattern
 import jsonpath
 import yaml
 from common.assertion import AssertionFactory
+from common.config import read_config
 from common.function import function
 from common.logger import logger
 from common.mock import mock
 from common.mysql import Mysql
-from common.variable import variable
-from common.yaml import read_config, read_globals, read_environment
+from common.variable import variable, global_, environment
 
 pattern: Pattern = re.compile(r"\{\{(.*?)\}\}")
 
@@ -30,7 +30,7 @@ class RegexSql:
 
 	def __init__(self):
 		if RegexSql.__init_flag:
-			config = read_config("mysql")
+			config = read_config()["mysql"]
 			if not config:
 				raise Exception("config.yaml中未配置数据库连接")
 			self.mysql = Mysql(**config)
@@ -51,60 +51,33 @@ class RegexSql:
 
 def sqlSelect(case, response):
 	""" sql查询 """
-	if not case['validata'] or not isinstance(case['validata'], dict):
+	if not case['validata']:
 		return response
-	for sqls in case['validata'].values():
-		if isinstance(sqls, list):
-			for index, sql in enumerate(sqls):
-				if isinstance(sql, str) and pattern.search(sql):
-					sqls[index] = pattern.sub(RegexSql().select, sql)
-		elif isinstance(sqls, dict):
-			for key, sql in sqls.items():
-				if isinstance(sql, str) and pattern.search(sql):
-					sqls[key] = pattern.sub(RegexSql().select, sql)
+	if not isinstance(case['validata'], list):
+		raise TypeError(f"{case['validata']} must is a list")
+	jsondata = json.dumps(case['validata'],ensure_ascii=False)
+	if pattern.search(jsondata):
+		temp = pattern.sub(RegexSql().select,jsondata)
+		case['validata'] = json.loads(temp)
 	return response
 
 
 def assertion(case, response):
 	""" 响应断言 """
-	if not isinstance(case["validata"], dict):
+	if not case["validata"]:
 		return response
-	for k, v in case["validata"].items():
-		x, y = str(k).split("|")
-		factory = AssertionFactory(x)
-		if isinstance(v, list):
-			for patterns in v:
-				temp = drawPatterns(patterns, response, factory)
-				match y:
-					case 'exist':
-						temp.exist()
-					case 'unexist':
-						temp.unexist()
-					case _:
-						raise ValueError
-		elif isinstance(v, dict):
-			for patterns, expect in v.items():
-				temp = drawPatterns(patterns, response, factory)
-				match y:
-					case 'equal':
-						temp.equal(expect)
-					case 'unequal':
-						temp.unequal(expect)
-					case _:
-						raise ValueError
+	elif not isinstance(case["validata"],list):
+		raise TypeError("validata must is a list")
+	else:
+		elems = ["target","pattern","expect","index","name"]
+		for i in case["validata"]:
+			if not isinstance(i,dict):
+				raise TypeError(f"{i} must is a dict")
+			tflist = list(map(lambda x:True if x in elems else False,i.keys()))
+			if not all(tflist):
+				raise ValueError(f"{list(i.keys())} must in {elems}")
+			AssertionFactory.create(**i,response=response)
 	return response
-
-
-def drawPatterns(patterns, response, factory):
-	""" 抽取出的patterns """
-	match str(patterns).split('|'):
-		case [target]:
-			target, index = target, 0
-		case [target, index]:
-			target, index = target, int(index)
-		case _:
-			raise ValueError
-	return factory.create(target, response, index=index)
 
 
 def extractVariable(case, response):
@@ -125,8 +98,7 @@ def renderTemplate(case):
 	""" 渲染用例 """
 	data = json.dumps(case, ensure_ascii=False) if isinstance(case, dict) else case
 	if not variable.is_empty and data:
-		merge = variable.pool | read_globals() if isinstance(read_globals(), dict) else variable.pool
-		merge = merge|read_environment() if isinstance(read_environment(),dict) else merge
+		merge = variable.pool | global_.pool | environment.pool
 		temp = Template(data).safe_substitute(merge)
 
 		return yaml.load(stream=temp, Loader=yaml.FullLoader)

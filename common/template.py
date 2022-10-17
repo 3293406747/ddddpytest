@@ -1,3 +1,11 @@
+import re
+from typing import Pattern
+from pathlib import Path
+import yaml
+
+path = Path(__file__).resolve()
+pattern: Pattern = re.compile(r"\{\{(.*?)\}\}")
+
 def formatTemplate(func):
 	""" 校验用例格式 """
 	def wapper(template):
@@ -13,3 +21,10 @@ def formatTemplate(func):
 							raise Exception("yaml用例在request一级关键字下必须包括两个二级关键字:method,url") from None
 		return cases
 	return wapper
+
+@formatTemplate
+def read_testcase(file):
+	""" 读取测试用例 """
+	case = path.parent.parent / 'testcase' / file
+	with open(file=case, mode="r", encoding="utf-8") as f:
+		return yaml.load(stream=f, Loader=yaml.FullLoader)

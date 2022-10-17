@@ -12,14 +12,22 @@
 #    files:        # 文件上传
 #      image: C:\Users\86159\Desktop\test.png
   validata:
-    responseStatus|equal:
-      statusCode: 200
-    responseJson|equal:
-      $..user|0: "${user}"
-      $..ssn|0: "${ssn}"
-    responseText|exist:
-      - "${user}"
-      - "${ssn}"
+      -
+        target: status
+        expect: 200
+      -
+        target: responseJson
+        pattern: $..user
+        expect: "${user}"
+      -
+        target: responseJson
+        name: ssn
+        pattern: $..ssn
+        expect: "${ssn}"
+        index: 0
+      -
+        target: responseText
+        pattern: "${user}"
 -
   name: post请求-json传参
   base_url: "${base_url}"
@@ -30,7 +38,11 @@
       user: 张红霞
       ssn: "${ssn}"
   validata:
-    responseJson|equal:
-      $..user: "{{{{select name from user where name = '张红霞',name}}}}"
-    responseText|exist:
-      - "{{{{select name from user where name = '张红霞',name,0}}}}|0"
+      -
+        target: responseJson
+        pattern: $..user
+        expect: "{{{{select name from user where name = '张红霞',name}}}}"
+      -
+        target: responseText
+        pattern: "{{{{select name from user where name = '张红霞',name,0}}}}"
+        index: 0

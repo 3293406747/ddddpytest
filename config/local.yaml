@@ -1,0 +1,18 @@
+base_url: http://httpbin.org
+
+logger:
+  file:
+    sink: ./log/logger.log
+    level: DEBUG
+    format: <green>{time:YYYY-MM-DD HH:mm:ss}</green>[<level>{level}</level>]<level>{message}</level>
+    rotation: "10 MB"
+  console:
+    level: INFO
+    format: <green>{time:YYYY-MM-DD HH:mm:ss}</green>[<level>{level}</level>]<level>{message}</level>
+
+mysql:
+  host: 127.0.0.1
+  port: 3306
+  user: root
+  password: "111111"
+  db: test_db

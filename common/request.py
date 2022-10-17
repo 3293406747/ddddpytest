@@ -3,6 +3,8 @@ import time
 from json import JSONDecodeError
 import allure
 import requests
+
+from common.config import read_config
 from common.logger import logger
 from pathlib import Path
 from common.case import sqlSelect, assertion, extractVariable, renderTemplate, dynamicLoad
@@ -10,15 +12,13 @@ from common.case import sqlSelect, assertion, extractVariable, renderTemplate, d
 __all__ = ["autoSendRequest", "send_request"]
 
 from common.variable import variable
-from common.yaml import read_config
 
 path = Path(__file__).resolve()
 session = requests.session()
 
 def autoSendRequest(caseinfo):
 	""" 获取用例自动发送请求 """
-	if read_config("base_url"):
-		variable.set("base_url",read_config("base_url"))
+	variable.set("base_url",read_config()["base_url"])
 	caseinfo = renderTemplate(caseinfo)
 	caseinfo = dynamicLoad(caseinfo)
 	temp = dict(
