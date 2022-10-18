@@ -1,17 +1,14 @@
 import json
-import time
 from json import JSONDecodeError
 import allure
 import requests
-
+from pathlib import Path
 from common.config import read_config
 from common.logger import logger
-from pathlib import Path
 from common.case import sqlSelect, assertion, extractVariable, renderTemplate, dynamicLoad
+from common.variable import variable
 
 __all__ = ["autoSendRequest", "send_request"]
-
-from common.variable import variable
 
 path = Path(__file__).resolve()
 session = requests.session()
@@ -36,31 +33,7 @@ def autoSendRequest(caseinfo):
 	response = extractVariable(caseinfo,response)
 	response = sqlSelect(caseinfo,response)
 	response = assertion(caseinfo,response)
-	response = download(response)
 	return response
-
-
-def download(response):
-	""" 文件下载 """
-	flag = False
-	if isinstance(response.content, bytes) and response.headers.get("Content-Type"):
-		ct = response.headers["Content-Type"]
-		if ct == "image/jpeg":
-			flag = True
-			allure.attach(body=response.content, name="jpeg图片", attachment_type=allure.attachment_type.JPG)
-		elif ct == "image/png":
-			flag = True
-			allure.attach(body=response.content, name="png图片", attachment_type=allure.attachment_type.PNG)
-		elif ct == "application/pdf":
-			flag = True
-			allure.attach(body=response.content, name="pdf", attachment_type=allure.attachment_type.PDF)
-		if flag:
-			path.parent.parent.joinpath('data').mkdir(parents=True, exist_ok=True)
-			file = Path(path.parent.parent, 'data', (str(int(time.time())) + ".%s") % ct.split("/")[1])
-			file.open(mode="wb").write(response.content)
-			logger.info(f"{ct.split('/')[1]}格式文件下载成功，文件下载路径:{file}")
-	return response
-
 
 def logFixture(func):
 	""" 日志记录 """
@@ -97,6 +70,14 @@ def allureFixture(func):
 			data = response.text
 		finally:
 			allure.attach(body=data, name="响应数据:", attachment_type=allure.attachment_type.TEXT)
+		if isinstance(response.content, bytes) and response.headers.get("Content-Type"):
+			ct = response.headers["Content-Type"]
+			if ct == "image/jpeg":
+				allure.attach(body=response.content, name="image", attachment_type=allure.attachment_type.JPG)
+			elif ct == "image/png":
+				allure.attach(body=response.content, name="image", attachment_type=allure.attachment_type.PNG)
+			elif ct == "application/pdf":
+				allure.attach(body=response.content, name="pdf", attachment_type=allure.attachment_type.PDF)
 		return response
 	return wapper
 
