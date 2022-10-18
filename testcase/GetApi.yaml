@@ -7,6 +7,7 @@
     url: /ip      # 完整url为base_url+url
     method: GET
   validata: null
+  session: 0
 -
   name: 获取user-agent
   base_url: null
@@ -14,6 +15,7 @@
     url: http://httpbin.org/user-agent
     method: GET
   validata: null
+  session: 0
 -
   name: get请求
   base_url: "${base_url}"

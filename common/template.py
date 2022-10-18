@@ -3,13 +3,17 @@ from typing import Pattern
 from pathlib import Path
 import yaml
 
+from common.session import session
+
 path = Path(__file__).resolve()
 pattern: Pattern = re.compile(r"\{\{(.*?)\}\}")
 
 def formatTemplate(func):
 	""" 校验用例格式 """
-	def wapper(template):
-		cases = func(template)
+	def wapper(template=None):
+		cases = func(template) if template else func()
+		if not cases:
+			return cases
 		elems = ["name", "base_url", "request", "validata"]
 		for elem in elems:
 			for case in cases:
@@ -28,3 +32,11 @@ def read_testcase(file):
 	case = path.parent.parent / 'testcase' / file
 	with open(file=case, mode="r", encoding="utf-8") as f:
 		return yaml.load(stream=f, Loader=yaml.FullLoader)
+
+@formatTemplate
+def login():
+	case = path.parent.parent / 'testcase' / 'login.yaml'
+	with open(file=case, mode="r", encoding="utf-8") as f:
+		r = yaml.load(stream=f, Loader=yaml.FullLoader)
+		session.generate_handle() if not r else [session.generate_handle() for _ in range(len(r))]
+		return r

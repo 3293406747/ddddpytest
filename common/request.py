@@ -4,16 +4,16 @@ import allure
 from pathlib import Path
 from common.config import read_config
 from common.logger import logger
-from common.case import sqlSelect, assertion, extractVariable, renderTemplate, dynamicLoad
+from common.case import sqlSelect, assertion, extractVariable, renderTemplate, dynamicLoad, getsession
 from common.variable import variable
 from common.session import session
 
 __all__ = ["autoSendRequest", "send_request"]
 
 path = Path(__file__).resolve()
-session = session.generate_handle()
 
-def autoSendRequest(caseinfo,sess=session):
+
+def autoSendRequest(caseinfo):
 	""" 获取用例自动发送请求 """
 	variable.set("base_url",read_config()["base_url"])
 	caseinfo = renderTemplate(caseinfo)
@@ -28,6 +28,7 @@ def autoSendRequest(caseinfo,sess=session):
 	if temp['files']:
 		for k, v in temp['files'].items():
 			temp['files'][k] = open(v, "rb")
+	sess = getsession(caseinfo)
 	response = send_request(sess=sess,**temp, **caseinfo["request"])
 	response = extractVariable(caseinfo,response)
 	response = sqlSelect(caseinfo,response)

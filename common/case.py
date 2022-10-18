@@ -10,6 +10,7 @@ from common.function import function
 from common.logger import logger
 from common.mock import mock
 from common.mysql import Mysql
+from common.session import session
 from common.variable import variable, global_, environment
 
 pattern: Pattern = re.compile(r"\{\{(.*?)\}\}")
@@ -154,3 +155,9 @@ def dynamicLoad(case):
 	data = json.dumps(case, ensure_ascii=False)
 	data = pattern.sub(RegexFunctionMock().main, data)
 	return yaml.load(data, yaml.FullLoader)
+
+def getsession(case):
+	i = dict(case).get('session') or 0
+	return session.handles()[i]
+
+
