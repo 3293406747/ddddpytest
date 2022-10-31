@@ -5,9 +5,11 @@ from common.thread import thread
 from common.assertion import Assertion
 from common.response import Response
 from common.case import useFunc,renderTemplate
-from common.read import read_case
+from common.read import read_case, read_config
+
 
 class dp:
+
 	@classmethod
 	def requests(cls):
 		""" 发送请求 """
@@ -31,6 +33,7 @@ class dp:
 	@classmethod
 	def variables(cls):
 		""" 变量 """
+		Variables().set(key="base_url",value=read_config()["base_url"])
 		return Variables()
 
 	@classmethod
@@ -52,6 +55,13 @@ class dp:
 	def renderTemplate(cls,case_):
 		""" 渲染case """
 		return renderTemplate(case=case_)
+
+	@classmethod
+	def case_parse(cls,case_):
+		""" 解析case """
+		data = dp.use_func(case_)
+		data = dp.renderTemplate(data)
+		return data
 
 	@classmethod
 	def read_case(cls,file_name,encoding="utf-8"):

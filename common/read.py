@@ -5,7 +5,7 @@ from pathlib import Path
 path = Path(__file__).resolve().parent.parent
 instance = {}
 
-def read_config(file_name="local.yaml",encoding="utf-8"):
+def read_config(file_name="local.yaml",encoding="utf-8") ->dict:
 	""" 读取配置文件 """
 	if not instance.get(file_name):
 		with path.joinpath("config").joinpath(file_name).open(encoding=encoding) as f:

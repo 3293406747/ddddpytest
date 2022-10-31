@@ -54,7 +54,7 @@ class ExtractVariable:
 
 	def json(self,expr,index=None):
 		""" json提取 """
-		if not index:
+		if index is None:
 			extract = jsonpath.jsonpath(obj=self.res.json(), expr=expr)
 		else:
 			extract = jsonpath.jsonpath(obj=self.res.json(), expr=expr)[index]
@@ -66,7 +66,7 @@ class ExtractVariable:
 			data = json.dumps(self.res.json(), ensure_ascii=False)
 		except JSONDecodeError:
 			data = self.res.text
-		if not index:
+		if index is None:
 			extract = re.findall(pattern=pattern, string=data)
 		else:
 			extract = re.findall(pattern=pattern, string=data)[index]
