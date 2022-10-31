@@ -13,8 +13,8 @@ def read_config(file_name="local.yaml",encoding="utf-8") ->dict:
 		instance[file_name] = data
 	return instance[file_name]
 
-def read_case(file_name, encoding='utf-8'):
-	""" 读取测试用例 """
+def read_data(file_name, encoding='utf-8'):
+	""" 读取测试数据 """
 	with path.joinpath("data").joinpath(file_name).open(encoding=encoding) as f:
 		reader = csv.reader(f)
 		column = next(reader)
@@ -23,3 +23,9 @@ def read_case(file_name, encoding='utf-8'):
 			case = dict(zip(column,row))
 			cases.append(case)
 	return cases
+
+def read_case(file_name, encoding='utf-8'):
+	""" 读取测试用例 """
+	with path.joinpath("testcase").joinpath(file_name).open(encoding=encoding) as f:
+		case = yaml.load(stream=f,Loader=yaml.FullLoader)
+	return case

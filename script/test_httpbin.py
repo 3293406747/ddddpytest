@@ -10,16 +10,18 @@ class TestHttpbin:
 	@allure.severity(allure.severity_level.CRITICAL)		# 优先级 可以修饰方法，也可以修饰类
 	@allure.link(url="http://httpbin.org",name="接口文档地址")
 	@allure.story("get接口")			# 接口名称
-	@pytest.mark.parametrize("data",dp.read_case("test1.csv"))		# 读取用例文件
+	@pytest.mark.parametrize("data", dp.read_data("test1.csv"))		# 读取用例文件
 	def test_getapi(self, data):
 		# allure.dynamic.title(testcase["name"])		# 用例名称
 		allure.dynamic.description("无")			# 用例描述
-		base_url = dp.variables().get('base_url')
-		url = base_url + "/post"
+		# base_url = dp.variables().get('base_url')
+		# url = base_url + "/post"
 		method = "POST"
 		dp.variables().set("value", "123456")
+		case = dp.read_case("test1.yaml")[0]
+		print(case.pop("name"))
 		data = dp.case_parse(data)
-		response = dp.requests().request(method=method, url=url, data=data)
+		response = dp.requests().request(**case, data=data)
 		value = response.extractVariable().json('$..value', 0)
 		dp.asserion().equal("123456", value, "相等断言")
 

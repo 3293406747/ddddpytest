@@ -5,7 +5,7 @@ from common.thread import thread
 from common.assertion import Assertion
 from common.response import Response
 from common.case import useFunc,renderTemplate
-from common.read import read_case, read_config
+from common.read import read_data, read_config,read_case
 
 
 class dp:
@@ -64,9 +64,14 @@ class dp:
 		return data
 
 	@classmethod
-	def read_case(cls,file_name,encoding="utf-8"):
+	def read_data(cls, file_name, encoding="utf-8"):
 		""" 读取case for csv文件"""
-		return read_case(file_name=file_name,encoding=encoding)
+		return read_data(file_name=file_name, encoding=encoding)
+
+	@classmethod
+	def read_case(cls, file_name, encoding="utf-8"):
+		""" 读取case for csv文件"""
+		return read_case(file_name=file_name, encoding=encoding)
 
 	@classmethod
 	def session(cls):
