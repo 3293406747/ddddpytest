@@ -1,4 +1,4 @@
 -
   name: post请求-data传参
-  url: http://httpbin.org/post
+  url: "${base_url}/post"
   method: POST

@@ -1,0 +1,48 @@
+# http://httpbin.org
+# 测试post请求
+-
+  name: post请求-data传参
+  base_url: "${base_url}"
+  request:
+    url: /post
+    method: POST
+    data:
+      user: "${user}"   # 获取从响应中提取的数据
+      ssn: "${ssn}"
+#    files:        # 文件上传
+#      image: C:\Users\86159\Desktop\test.png
+  validata:
+      -
+        target: status
+        expect: 200
+      -
+        target: responseJson
+        pattern: $..user
+        expect: "${user}"
+      -
+        target: responseJson
+        name: ssn
+        pattern: $..ssn
+        expect: "${ssn}"
+        index: 0
+      -
+        target: responseText
+        pattern: "${user}"
+-
+  name: post请求-json传参
+  base_url: "${base_url}"
+  request:
+    url: /post
+    method: POST
+    json:
+      user: 张红霞
+      ssn: "${ssn}"
+  validata:
+      -
+        target: responseJson
+        pattern: $..user
+        expect: "{{{{select name from user where name = '张红霞',name}}}}"
+      -
+        target: responseText
+        pattern: "{{{{select name from user where name = '张红霞',name,0}}}}"
+        index: 0

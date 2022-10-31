@@ -1,25 +1,11 @@
 import json
 from json import JSONDecodeError
 import allure
+from common.case import useFunc, renderTemplate
 from common.logger import logger
 from common.response import Response
 from common.session import session
 
-
-def request(method,url,files=None,sess=None,timeout=10,**kwargs):
-	""" 发送请求 """
-	response = session(seek=sess).request(method=method, url=url, files=files, timeout=timeout, **kwargs)
-	return Response(response)
-
-def get(url,files=None,sess=None,timeout=10,**kwargs):
-	""" 发送get请求 """
-	response = session(seek=sess).get(url=url, files=files, timeout=timeout, **kwargs)
-	return Response(response)
-
-def post(url,files=None,sess=None,timeout=10,**kwargs):
-	""" 发送post请求 """
-	response = session(seek=sess).post(url=url, files=files, timeout=timeout, **kwargs)
-	return Response(response)
 
 class fixture:
 
@@ -28,17 +14,19 @@ class fixture:
 		""" 日志记录 """
 		def wapper(url,files=None,sess=None,timeout=10,method=None,**kwargs):
 			real = func(url=url,files=files,sess=sess,timeout=timeout,method=method,**kwargs)
-			logger.info(f"请求url:{url}")
+			logger.info(f"{'start':*^120s}")
+			logger.info(f"请求url:{url:.255s}")
 			if method:
 				logger.info(f"请求方式:{method}")
-			logger.info(f"请求参数:{json.dumps(kwargs)}")
+			logger.info(f"请求参数:{json.dumps(kwargs,ensure_ascii=False):.255s}")
 			if files:
-				logger.info(f"文件上传:{files}")
+				logger.info(f"文件上传:{files:.255s}")
 			try:
 				data = json.dumps(real.json(),ensure_ascii=False)
 			except JSONDecodeError:
 				data = real.text
-			logger.info(f"响应结果:{data:20s}")
+			logger.info(f"响应结果:{data:.255s}")
+			logger.info(f"{'end':*^120s}")
 			return real
 		return wapper
 
@@ -46,10 +34,11 @@ class fixture:
 	def files(cls,func):
 		""" 文件处理 """
 		def wapper(files,*args,**kwargs):
-			for file,path in dict(files).items():
-				dict(files)[file] = open(path,"rb")
-			real = func(files=files,*args,**kwargs)
-			return real
+			if isinstance(files,dict):
+				for file,path in dict(files).items():
+					dict(files)[file] = open(path,"rb")
+				real = func(files=files,*args,**kwargs)
+				return real
 		return wapper
 
 	@classmethod
@@ -81,3 +70,32 @@ class fixture:
 					allure.attach(body=response.content, name="pdf", attachment_type=allure.attachment_type.PDF)
 			return response
 		return wapper
+
+
+def autoRequest(method,url,files=None,sess=None,timeout=10,**kwargs):
+	url = renderTemplate(useFunc(url))
+	if files:
+		files = renderTemplate(files)
+	if kwargs:
+		kwargs = renderTemplate(useFunc(kwargs))
+	response = request(method=method,url=url,files=files,sess=sess,timeout=timeout,**kwargs)
+	return response
+
+@fixture.allure
+@fixture.logfixture
+def request(method,url,files=None,sess=None,timeout=10,**kwargs):
+	""" 发送请求 """
+	response = session(seek=sess).request(method=method, url=url, files=files, timeout=timeout, **kwargs)
+	return Response(response)
+
+def get(url,files=None,sess=None,timeout=10,**kwargs):
+	""" 发送get请求 """
+	response = session(seek=sess).get(url=url, files=files, timeout=timeout, **kwargs)
+	return Response(response)
+
+def post(url,files=None,sess=None,timeout=10,**kwargs):
+	""" 发送post请求 """
+	response = session(seek=sess).post(url=url, files=files, timeout=timeout, **kwargs)
+	return Response(response)
+
+

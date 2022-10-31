@@ -33,6 +33,9 @@ class Response:
 		""" 设置响应编码格式 """
 		self.res.encoding = item
 
+	def content(self):
+		return self.res.content
+
 	@property
 	def status_code(self):
 		""" 响应状态码 """

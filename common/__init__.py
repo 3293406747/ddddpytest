@@ -59,8 +59,8 @@ class dp:
 	@classmethod
 	def case_parse(cls,case_):
 		""" 解析case """
-		data = dp.use_func(case_)
-		data = dp.renderTemplate(data)
+		data = useFunc(case_)
+		data = renderTemplate(data)
 		return data
 
 	@classmethod
