@@ -1,90 +1,83 @@
 import json
 from json import JSONDecodeError
 import allure
-from pathlib import Path
-from common.config import read_config
 from common.logger import logger
-from common.case import sqlSelect, assertion, extractVariable, renderTemplate, dynamicLoad, getsession
-from common.variable import variable
+from common.response import Response
 from common.session import session
 
-__all__ = ["autoSendRequest", "send_request"]
 
-path = Path(__file__).resolve()
+def request(method,url,files=None,sess=None,timeout=10,**kwargs):
+	""" 发送请求 """
+	response = session(seek=sess).request(method=method, url=url, files=files, timeout=timeout, **kwargs)
+	return Response(response)
 
+def get(url,files=None,sess=None,timeout=10,**kwargs):
+	""" 发送get请求 """
+	response = session(seek=sess).get(url=url, files=files, timeout=timeout, **kwargs)
+	return Response(response)
 
-def autoSendRequest(caseinfo):
-	""" 获取用例自动发送请求 """
-	variable.set("base_url",read_config()["base_url"])
-	caseinfo = renderTemplate(caseinfo)
-	caseinfo = dynamicLoad(caseinfo)
-	temp = dict(
-		url=caseinfo["request"].pop("url"),
-		method=caseinfo["request"].pop("method"),
-		files=caseinfo["request"].pop("files") if caseinfo["request"].get("files") else None,
-		name=caseinfo["name"]
-	)
-	temp['url'] = caseinfo['base_url'] + temp['url'] if caseinfo['base_url'] else temp['url']
-	if temp['files']:
-		for k, v in temp['files'].items():
-			temp['files'][k] = open(v, "rb")
-	sess = getsession(caseinfo)
-	response = send_request(sess=sess,**temp, **caseinfo["request"])
-	response = extractVariable(caseinfo,response)
-	response = sqlSelect(caseinfo,response)
-	response = assertion(caseinfo,response)
-	return response
+def post(url,files=None,sess=None,timeout=10,**kwargs):
+	""" 发送post请求 """
+	response = session(seek=sess).post(url=url, files=files, timeout=timeout, **kwargs)
+	return Response(response)
 
-def logFixture(func):
-	""" 日志记录 """
-	def wapper(method, url, sess,files=None, name=None, **kwargs):
-		logger.info(f"{'接口请求开始':-^20}")
-		logger.info(f"请求名称:{name}")
-		logger.info(f"请求url:{url}")
-		logger.info(f"请求方法:{method}")
-		logger.info(f"请求参数:{kwargs}")
-		logger.info(f"文件上传:{files}")
-		response = func(method=method, url=url, sess=sess,files=files, **kwargs)
-		logger.info(f"{'接口请求结束':-^20}")
-		return response
-	return wapper
+class fixture:
 
+	@classmethod
+	def logfixture(cls,func):
+		""" 日志记录 """
+		def wapper(url,files=None,sess=None,timeout=10,method=None,**kwargs):
+			real = func(url=url,files=files,sess=sess,timeout=timeout,method=method,**kwargs)
+			logger.info(f"请求url:{url}")
+			if method:
+				logger.info(f"请求方式:{method}")
+			logger.info(f"请求参数:{json.dumps(kwargs)}")
+			if files:
+				logger.info(f"文件上传:{files}")
+			try:
+				data = json.dumps(real.json(),ensure_ascii=False)
+			except JSONDecodeError:
+				data = real.text
+			logger.info(f"响应结果:{data:20s}")
+			return real
+		return wapper
 
-def allureFixture(func):
-	""" allure记录 """
-	def wapper(method, url, sess,files=None, namne=None,**kwargs):
-		allure.attach(body=url, name="请求url:", attachment_type=allure.attachment_type.TEXT)
-		allure.attach(body=method, name="请求方式:", attachment_type=allure.attachment_type.TEXT)
-		allure.attach(body=json.dumps(kwargs, ensure_ascii=False), name="请求参数:",
-					  attachment_type=allure.attachment_type.TEXT)
-		if files:
-			allure.attach(body=json.dumps(files, ensure_ascii=False), name="文件上传:",
+	@classmethod
+	def files(cls,func):
+		""" 文件处理 """
+		def wapper(files,*args,**kwargs):
+			for file,path in dict(files).items():
+				dict(files)[file] = open(path,"rb")
+			real = func(files=files,*args,**kwargs)
+			return real
+		return wapper
+
+	@classmethod
+	def allure(cls,func):
+		""" allure记录 """
+		def wapper(url, sess=None, method=None,files=None,timeout=10, **kwargs):
+			allure.attach(body=url, name="请求url:", attachment_type=allure.attachment_type.TEXT)
+			if method:
+				allure.attach(body=method, name="请求方式:", attachment_type=allure.attachment_type.TEXT)
+			allure.attach(body=json.dumps(kwargs, ensure_ascii=False), name="请求参数:",
 						  attachment_type=allure.attachment_type.TEXT)
-		response = func(method=method, url=url, sess=sess,files=files,**kwargs)
-		allure.attach(body=str(response.status_code), name="响应状态码:", attachment_type=allure.attachment_type.TEXT)
-		data = None
-		try:
-			data = json.dumps(response.json(), ensure_ascii=False)
-		except JSONDecodeError:
-			response.encoding = "utf-8"
-			data = response.text
-		finally:
+			if files:
+				allure.attach(body=json.dumps(files, ensure_ascii=False), name="文件上传:",
+							  attachment_type=allure.attachment_type.TEXT)
+			response = func(method=method, url=url, sess=sess, files=files,timeout=timeout,**kwargs)
+			allure.attach(body=str(response.status_code), name="响应状态码:", attachment_type=allure.attachment_type.TEXT)
+			try:
+				data = json.dumps(response.json(), ensure_ascii=False)
+			except JSONDecodeError:
+				data = response.text
 			allure.attach(body=data, name="响应数据:", attachment_type=allure.attachment_type.TEXT)
-		if isinstance(response.content, bytes) and response.headers.get("Content-Type"):
-			ct = response.headers["Content-Type"]
-			if ct == "image/jpeg":
-				allure.attach(body=response.content, name="image", attachment_type=allure.attachment_type.JPG)
-			elif ct == "image/png":
-				allure.attach(body=response.content, name="image", attachment_type=allure.attachment_type.PNG)
-			elif ct == "application/pdf":
-				allure.attach(body=response.content, name="pdf", attachment_type=allure.attachment_type.PDF)
-		return response
-	return wapper
-
-
-@allureFixture
-@logFixture
-def send_request(method, url,sess=session,files=None, **kwargs):
-	""" 发送同一个session请求 """
-	response = sess.request(method=method, url=url, files=files, timeout=10, **kwargs)
-	return response
+			if isinstance(response.content, bytes) and response.headers.get("Content-Type"):
+				ct = response.headers["Content-Type"]
+				if ct == "image/jpeg":
+					allure.attach(body=response.content, name="image", attachment_type=allure.attachment_type.JPG)
+				elif ct == "image/png":
+					allure.attach(body=response.content, name="image", attachment_type=allure.attachment_type.PNG)
+				elif ct == "application/pdf":
+					allure.attach(body=response.content, name="pdf", attachment_type=allure.attachment_type.PDF)
+			return response
+		return wapper

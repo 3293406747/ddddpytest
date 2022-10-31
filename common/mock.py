@@ -9,12 +9,23 @@ cattrset = ['cname', 'cphone', 'cssn', 'cjob', 'ccountry', 'ccity', 'cword', 'ce
 
 class Mock:
 	""" 生成mock数据 """
-	locales = ['zh-CN', 'en-US']
+	__locales = ['zh-CN', 'en-US']
+	__instance = None
+	__init_flag = True
+
+	def __new__(cls):
+		if cls.__instance is None:
+			cls.__instance = object.__new__(cls)
+			return cls.__instance
+		else:
+			return cls.__instance
 
 	def __init__(self):
-		self.cn = self.locales[0]
-		self.us = self.locales[1]
-		self.faker = Faker(locale=self.locales)
+		if Mock.__init_flag:
+			self.__cn = self.__locales[0]
+			self.__us = self.__locales[1]
+			self.__faker = Faker(locale=self.__locales)
+			Mock.__init_flag = False
 
 	def __getattr__(self, attr):
 		if attr in attrset:
@@ -23,24 +34,24 @@ class Mock:
 				'card': 'credit_card_number'
 			}
 			attr = elems.get(attr) or attr
-			return getattr(self.faker[self.us], attr)
+			return getattr(self.__faker[self.__us], attr)
 		elif attr in cattrset:
 			elems = {
 				'cphone': 'phone_number',
 				'ccard': 'credit_card_number'
 			}
 			attr = elems.get(attr) or attr[1:]
-			return getattr(self.faker[self.cn], attr)
+			return getattr(self.__faker[self.__cn], attr)
 		else:
 			raise AttributeError(f'Attribute {attr} not found')
 
 	def caddress(self):
 		""" 国内地址 """
-		return re.sub(r"[a-zA-Z]\w\s\d{3}", "", self.faker[self.cn].address()) + "号"
+		return re.sub(r"[a-zA-Z]\w\s\d{3}", "", self.__faker[self.__cn].address()) + "号"
 
 	def ccompany(self):
 		""" 国内公司名 """
-		return self.faker[self.cn].province().rstrip('省') + self.faker[self.cn].company()
+		return self.__faker[self.__cn].province().rstrip('省') + self.__faker[self.__cn].company()
 
 	@staticmethod
 	def randchar(length: int) -> str:
@@ -58,5 +69,5 @@ class Mock:
 		random_string = ''.join(all_arry)
 		return random_string
 
-
-mock = Mock()
+	def __call__(self,item):
+		return self.__faker[item]

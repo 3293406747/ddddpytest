@@ -4,19 +4,41 @@ import requests
 class Session:
 
 	def __init__(self):
-		self.__pool = []
+		self.__sessPool = []
+		self.__seek = 0
 
-	def generate_handle(self):
-		sess = requests.session()
-		self.__pool.append(sess)
-		return sess
+	def create(self,item=1):
+		""" 创建session对象 """
+		for _ in range(item):
+			sess = requests.session()
+			self.__sessPool.append(sess)
 
-	def current_handle(self):
-		if not self.__pool:
-			raise Exception("pool is empty")
-		return self.__pool[0]
+	def __call__(self,seek=None):
+		""" 返回session对象 """
+		self.__seek = seek or self.__seek
+		return self.__sessPool[self.__seek]
 
-	def handles(self):
-		return self.__pool
+	def clear(self):
+		""" 清空session池 """
+		self.__sessPool.clear()
+
+	def __delitem__(self, key):
+		""" 删除session """
+		del self.__sessPool[key]
+
+	@property
+	def seek(self):
+		""" session池中session指向 """
+		return self.__seek
+
+	@seek.setter
+	def seek(self,item):
+		""" 修改session池中session指向 """
+		self.__seek = item
+
+	def sessions(self):
+		"""" 获取session池中所有session """
+		return self.__sessPool
 
 session = Session()
+session.create()
