@@ -1,6 +1,8 @@
 import json
 from json import JSONDecodeError
 import allure
+from common.read import read_config
+from common.variable import Variables
 from common.case import useFunc, renderTemplate
 from common.logger import logger
 from common.response import Response
@@ -14,7 +16,7 @@ class fixture:
 		""" 日志记录 """
 		def wapper(url,files=None,sess=None,timeout=10,method=None,**kwargs):
 			real = func(url=url,files=files,sess=sess,timeout=timeout,method=method,**kwargs)
-			logger.info(f"{'start':*^120s}")
+			logger.info(f"{'start':*^80s}")
 			logger.info(f"请求url:{url:.255s}")
 			if method:
 				logger.info(f"请求方式:{method}")
@@ -26,7 +28,7 @@ class fixture:
 			except JSONDecodeError:
 				data = real.text
 			logger.info(f"响应结果:{data:.255s}")
-			logger.info(f"{'end':*^120s}")
+			logger.info(f"{'end':*^80s}")
 			return real
 		return wapper
 
@@ -73,6 +75,8 @@ class fixture:
 
 
 def autoRequest(method,url,files=None,sess=None,timeout=10,**kwargs):
+	if not Variables().get("base_url"):
+		Variables().set(key="base_url", value=read_config()["base_url"])
 	url = renderTemplate(useFunc(url))
 	if files:
 		files = renderTemplate(files)

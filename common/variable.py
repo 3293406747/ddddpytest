@@ -28,11 +28,7 @@ class Variables:
 
 	def get(self,key):
 		""" 获取变量 """
-		value = self.__pool.get(key)
-		if value:
-			return value
-		else:
-			raise Exception("未找到该变量")
+		return self.__pool.get(key)
 
 	def unset(self,key):
 		""" 删除变量 """

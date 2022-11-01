@@ -1,3 +1,6 @@
+import json
+from string import Template
+import yaml
 from common import request,function
 from common.variable import Variables,Globals,Environment
 from common.session import session
@@ -21,6 +24,20 @@ class dp:
 		return function
 
 	@classmethod
+	def read_testcase(cls,file_name, item=0):
+		""" 读取测试用例 """
+		case_ = read_case(file_name=file_name)[item]
+		name = case_.get("name")
+		case_ = json.dumps(case_, ensure_ascii=False)
+		caseList = []
+		data = read_data(name)
+		for i in data:
+			temp = Template(case_).safe_substitute(i)
+			newCase = yaml.load(stream=temp, Loader=yaml.FullLoader)
+			caseList.append(newCase)
+		return caseList
+
+	@classmethod
 	def asserion(cls):
 		""" 断言 """
 		return Assertion
@@ -33,7 +50,6 @@ class dp:
 	@classmethod
 	def variables(cls):
 		""" 变量 """
-		Variables().set(key="base_url",value=read_config()["base_url"])
 		return Variables()
 
 	@classmethod
@@ -47,31 +63,9 @@ class dp:
 		return Environment()
 
 	@classmethod
-	def use_func(cls,case_):
-		""" case中调用python方法 """
-		return useFunc(case=case_)
-
-	@classmethod
-	def renderTemplate(cls,case_):
-		""" 渲染case """
-		return renderTemplate(case=case_)
-
-	@classmethod
-	def case_parse(cls,case_):
-		""" 解析case """
-		data = useFunc(case_)
-		data = renderTemplate(data)
-		return data
-
-	@classmethod
 	def read_data(cls, file_name, encoding="utf-8"):
 		""" 读取case for csv文件"""
 		return read_data(file_name=file_name, encoding=encoding)
-
-	@classmethod
-	def read_case(cls, file_name, encoding="utf-8"):
-		""" 读取case for csv文件"""
-		return read_case(file_name=file_name, encoding=encoding)
 
 	@classmethod
 	def session(cls):

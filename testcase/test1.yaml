@@ -1,4 +1,8 @@
 -
-  name: post请求-data传参
+  name: test1.csv
   url: "${base_url}/post"
   method: POST
+  data:
+    name: "${name}"
+    id: "${id}"
+    value: "${value}"
