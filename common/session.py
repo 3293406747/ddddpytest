@@ -15,7 +15,7 @@ class Session:
 
 	def __call__(self,seek=None):
 		""" 返回session对象 """
-		self.__seek = seek or self.__seek
+		self.__seek = self.__seek if seek is None else seek
 		return self.__sessPool[self.__seek]
 
 	def clear(self):
