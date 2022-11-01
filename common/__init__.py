@@ -27,10 +27,10 @@ class dp:
 	def read_testcase(cls,file_name, item=0):
 		""" 读取测试用例 """
 		case_ = read_case(file_name=file_name)[item]
-		name = case_.get("name")
+		data_path = case_.pop("data_path")
 		case_ = json.dumps(case_, ensure_ascii=False)
 		caseList = []
-		data = read_data(name)
+		data = read_data(data_path)
 		for i in data:
 			temp = Template(case_).safe_substitute(i)
 			newCase = yaml.load(stream=temp, Loader=yaml.FullLoader)

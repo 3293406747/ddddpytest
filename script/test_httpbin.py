@@ -12,7 +12,7 @@ class TestHttpbin:
 	@allure.story("get接口")			# 接口名称
 	@pytest.mark.parametrize("case", dp.read_testcase("test1.yaml"))		# 读取用例文件
 	def test_getapi(self, case):
-		allure.dynamic.title(case.pop("name"))		# 用例名称
+		allure.dynamic.title(case.pop("casename"))		# 用例名称
 		allure.dynamic.description("无")			# 用例描述
 
 		dp.variables().set("value", "123456")

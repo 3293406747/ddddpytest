@@ -1,5 +1,6 @@
 -
-  name: test1.csv
+  casename: "${casename}"
+  data_path: test1.csv
   url: "${base_url}/post"
   method: POST
   data:
