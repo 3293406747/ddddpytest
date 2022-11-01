@@ -15,14 +15,14 @@ class fixture:
 	def logfixture(cls,func):
 		""" 日志记录 """
 		def wapper(url,files=None,sess=None,timeout=10,method=None,**kwargs):
-			real = func(url=url,files=files,sess=sess,timeout=timeout,method=method,**kwargs)
 			logger.info(f"{'start':*^80s}")
 			logger.info(f"请求url:{url:.255s}")
 			if method:
 				logger.info(f"请求方式:{method}")
 			logger.info(f"请求参数:{json.dumps(kwargs,ensure_ascii=False):.255s}")
 			if files:
-				logger.info(f"文件上传:{files:.255s}")
+				logger.info(f"文件上传:{json.dumps(files,ensure_ascii=False):.255s}")
+			real = func(url=url,files=files,sess=sess,timeout=timeout,method=method,**kwargs)
 			try:
 				data = json.dumps(real.json(),ensure_ascii=False)
 			except JSONDecodeError:
@@ -35,12 +35,12 @@ class fixture:
 	@classmethod
 	def files(cls,func):
 		""" 文件处理 """
-		def wapper(files,*args,**kwargs):
+		def wapper(url, sess=None, method=None,files=None,timeout=10, **kwargs):
 			if isinstance(files,dict):
-				for file,path in dict(files).items():
-					dict(files)[file] = open(path,"rb")
-				real = func(files=files,*args,**kwargs)
-				return real
+				for file,path in files.items():
+					files[file] = open(path,"rb")
+			real = func(url=url, sess=sess, method=method,files=files,timeout=timeout, **kwargs)
+			return real
 		return wapper
 
 	@classmethod
@@ -87,6 +87,7 @@ def autoRequest(method,url,files=None,sess=None,timeout=10,**kwargs):
 
 @fixture.allure
 @fixture.logfixture
+@fixture.files
 def request(method,url,files=None,sess=None,timeout=10,**kwargs):
 	""" 发送请求 """
 	response = session(seek=sess).request(method=method, url=url, files=files, timeout=timeout, **kwargs)
