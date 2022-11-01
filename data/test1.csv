@@ -1,0 +1,3 @@
+casename,id,name,value
+用例1,0,{{mock().cname()}},${value}
+用例2,1,{{mock().cname()}},${value}
