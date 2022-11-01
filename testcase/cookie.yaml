@@ -1,0 +1,4 @@
+-
+  casename: ...
+  url: http://httpbin.org/cookies
+  method: GET

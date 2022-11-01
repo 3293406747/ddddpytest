@@ -1,0 +1,30 @@
+-
+  casename: get请求
+  url: http://httpbin.org/get
+  method: GET
+  params:
+    foo1: bar1
+    foo2: bar2
+-
+  casename: post请求data传参
+  url: http://httpbin.org/post
+  method: POST
+  data:
+    foo1: bar1
+    foo2: bar2
+-
+  casename: post请求json传参
+  url: http://httpbin.org/post
+  method: POST
+  json:
+    foo1: bar1
+    foo2: bar2
+-
+  casename: post请求files传参
+  data_path: ..
+  url: http://httpbin.org/post
+  method: POST
+  files:
+    file1: path
+    file2: path
+

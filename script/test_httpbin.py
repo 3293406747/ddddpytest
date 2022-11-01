@@ -2,29 +2,33 @@ import allure
 import pytest
 from common import dp
 
-
-@allure.epic("ddddpytest接口自动化测试项目")		# 项目名称
-@allure.feature("httpbin接口自动化测试")			# 模块名称
+# 优先级 可以修饰方法，也可以修饰类
+@allure.severity(allure.severity_level.CRITICAL)
+@allure.link(url="http://httpbin.org",name="接口文档地址")
+# 项目名称
+@allure.epic("ddddpytest接口自动化测试项目")
+# 模块名称
+@allure.feature("测试method")
 class TestHttpbin:
 
-	@allure.severity(allure.severity_level.CRITICAL)		# 优先级 可以修饰方法，也可以修饰类
-	@allure.link(url="http://httpbin.org",name="接口文档地址")
-	@allure.story("get接口")			# 接口名称
-	@pytest.mark.parametrize("case", dp.read_testcase("test1.yaml"))		# 读取用例文件
-	def test_getapi(self, case):
-		allure.dynamic.title(case.pop("casename"))		# 用例名称
-		allure.dynamic.description("无")			# 用例描述
+	# 接口名称
+	@allure.story("get请求")
+	# 读取用例文件
+	@pytest.mark.parametrize("case", dp.read_testcase("method.yaml"))
+	def test_get(self, case):
+		# 用例名称
+		allure.dynamic.title(case.pop("casename"))
+		# 发送请求
+		dp.requests().autoRequest(**case)
 
-		dp.variables().set("value", "123456")
+	@allure.story("post请求data传参")
+	@pytest.mark.parametrize("case", dp.read_testcase("method.yaml",1))
+	def test_postdata(self, case):
+		allure.dynamic.title(case.pop("casename"))
+		dp.requests().autoRequest(**case)
 
-		response = dp.requests().autoRequest(**case)
-		value = response.extractVariable().json('$..value', 0)
-		dp.asserion().equal("123456", value, "相等断言")
-
-	# @allure.story("post接口")		# 接口名称
-	# @allure.link(url="https://httpbin.org",name="接口文档地址")
-	# @pytest.mark.parametrize("testcase", read_testcase("PostApi.yaml"))
-	# def test_postapi(self, testcase):
-	# 	allure.dynamic.title(testcase["name"])
-	# 	allure.dynamic.description("无")
-	# 	autoSendRequest(testcase)
+	@allure.story("post请求json传参")
+	@pytest.mark.parametrize("case", dp.read_testcase("method.yaml",2))
+	def test_postjsoncls(self, case):
+		allure.dynamic.title(case.pop("casename"))
+		dp.requests().autoRequest(**case)

@@ -1,0 +1,7 @@
+-
+  casename: ...
+  url: http://httpbin.org/cookies/set
+  method: GET
+  params:
+    foo1: bar1
+    foo2: bar2

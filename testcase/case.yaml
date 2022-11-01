@@ -1,0 +1,16 @@
+-
+  casename: "${casename}"
+  data_path: ..
+  url: "${base_url}/post"
+  method: POST
+  json:
+    foo1: "${foo1}"
+    foo2: "${foo2}"
+-
+  casename: "${casename}"
+  data_path: ..
+  url: "${base_url}/post"
+  method: POST
+  json:
+    foo1: "${foo1}"
+    foo2: "${foo2}"
