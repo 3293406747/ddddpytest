@@ -33,6 +33,7 @@ class Response:
 		""" 设置响应编码格式 """
 		self.res.encoding = item
 
+	@property
 	def content(self):
 		return self.res.content
 

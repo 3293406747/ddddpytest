@@ -1,4 +1,18 @@
 -
-  casename: ...
-  url: http://httpbin.org/cookies
-  method: GET
+  casename: session0获取cookie_1
+  request:
+    url: "${base_url}/cookies"
+    method: GET
+    sess: 0
+-
+  casename: session1获取cookie
+  request:
+    url: "${base_url}/cookies"
+    method: GET
+    sess: 1
+-
+  casename: session0获取cookie_2
+  request:
+    url: "${base_url}/cookies"
+    method: GET
+    sess: 0

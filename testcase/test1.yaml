@@ -1,9 +1,0 @@
--
-  casename: "${casename}"
-  data_path: test1.csv
-  url: "${base_url}/post"
-  method: POST
-  data:
-    name: "${name}"
-    id: "${id}"
-    value: "${value}"

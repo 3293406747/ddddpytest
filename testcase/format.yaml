@@ -1,0 +1,15 @@
+-
+  casename: html响应
+  request:
+    url: http://httpbin.org/html
+    method: GET
+-
+  casename: png图片
+  request:
+    url: http://httpbin.org/image/png
+    method: GET
+-
+  casename: jpeg图片
+  request:
+    url: http://httpbin.org/image/jpeg
+    method: GET

@@ -1,0 +1,8 @@
+-
+  casename: "${casename}"
+  data_path: data.csv
+  request:
+    url: "${base_url}/get"
+    method: GET
+    params:
+      foo: "${foo}"
