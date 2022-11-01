@@ -1,0 +1,18 @@
+-
+  casename: 断言
+  request:
+    url: "${base_url}/get"
+    method: GET
+    params:
+      foo: bar
+  assertion:
+    foo: bar
+-
+  casename: 数据库断言
+  request:
+    url: "${base_url}/get"
+    method: GET
+    params:
+      foo: "{{mock().cname()}}"
+  assertion:
+    foo: "{{sqlSelect(select * from user,name,-1)}}"
