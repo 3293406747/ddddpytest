@@ -94,14 +94,14 @@ def autoRequest(method, url, files=None, sess=None, timeout=10, extract: list = 
 		kwargs = renderTemplate(useFunc(kwargs))
 	response = request(method=method, url=url, files=files, sess=sess, timeout=timeout, **kwargs)
 	extractPool = {}
-	if isinstance(extract, list) and extract_mode == "json":
-		for i in extract:
-			value = extractVariable.json(data=kwargs, expr=f"$..{i}", index=0)
-			extractPool[i] = value
-	elif isinstance(extract, list) and extract_mode == "re":
-		for i in extract:
-			value = extractVariable.match(data=kwargs, pattern=i, index=0)
-			extractPool[i] = value
+	if isinstance(extract, dict) and extract_mode == "json":
+		for key,pattern in extract.items():
+			value = extractVariable.json(data=kwargs, expr=pattern, index=0)
+			extractPool[key] = value
+	elif isinstance(extract, dict) and extract_mode == "re":
+		for key,pattern in extract:
+			value = extractVariable.match(data=kwargs, pattern=pattern, index=0)
+			extractPool[key] = value
 	if isinstance(assertion_,dict) and assertion_mode == "json":
 		temp = Template(json.dumps(assertion_,ensure_ascii=False)).safe_substitute(extractPool)
 		temp = useFunc(renderTemplate(temp))
