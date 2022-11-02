@@ -46,32 +46,3 @@ class Response:
 	def headers(self):
 		""" 响应头 """
 		return self.res.headers
-
-	def extractVariable(self):
-		""" 提取响应中的内容 """
-		return ExtractVariable(self.res)
-
-class ExtractVariable:
-	""" 提取响应中的内容 """
-	def __init__(self,response):
-		self.res = response
-
-	def json(self,expr,index=None):
-		""" json提取 """
-		if index is None:
-			extract = jsonpath.jsonpath(obj=self.res.json(), expr=expr)
-		else:
-			extract = jsonpath.jsonpath(obj=self.res.json(), expr=expr)[index]
-		return extract
-
-	def match(self,pattern,index=None):
-		""" 正则提取 """
-		try:
-			data = json.dumps(self.res.json(), ensure_ascii=False)
-		except JSONDecodeError:
-			data = self.res.text
-		if index is None:
-			extract = re.findall(pattern=pattern, string=data)
-		else:
-			extract = re.findall(pattern=pattern, string=data)[index]
-		return extract

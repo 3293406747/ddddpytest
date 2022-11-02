@@ -9,6 +9,7 @@ from common.assertion import Assertion
 from common.response import Response
 from common.case import useFunc
 from common.read import read_data, read_config,read_case
+from common.extract import extractVariable
 
 
 class dp:
@@ -83,3 +84,8 @@ class dp:
 	def useFunc(cls,data):
 		""" 调用python函数 """
 		return useFunc(data)
+
+	@classmethod
+	def extractVariable(cls):
+		""" 提取 """
+		return extractVariable

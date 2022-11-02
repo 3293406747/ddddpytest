@@ -4,15 +4,32 @@
     url: "${base_url}/get"
     method: GET
     params:
-      foo: bar
+      key: value
+  extract:
+    - key
   assertion:
-    foo: bar
+    equal:
+      -
+        expect: "${key}"
+        actual: "$..key"
+        actual_index: 0
 -
   casename: 数据库断言
   request:
     url: "${base_url}/get"
     method: GET
     params:
-      foo: "{{mock().cname()}}"
+      key: "{{mock().cname()}}"
+      name: 杨瑞
+  extract:
+    - key
   assertion:
-    foo: "{{sqlSelect(select * from user,name,-1)}}"
+    equal:
+      -
+        expect: "${key}"
+        actual: "$..key"
+        actual_index: 0
+      -
+        expect: "{{sqlSelect(select * from user,name,-1)}}"
+        actual: "$..name"
+        actual_index: 0
