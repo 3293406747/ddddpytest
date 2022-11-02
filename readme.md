@@ -1,5 +1,4 @@
 :link:[真希望你没见过什么世面，一生只爱我这张平凡的脸](https://music.163.com/#/song?id=1963720173)
-
 # 带带弟弟pytest
 
 本项目实现接口自动化的技术选型：**Python+Requests+Pytest+Allure+YAML+CSV+Loguru** ，
@@ -7,53 +6,20 @@
 使用 Allure 生成测试报告，使用 YAML +CSV管理测试数据，使用Loguru管理日志。
 
 - 采用统一请求封装，session自动关联
-
 - 支持多session之间切换
-
 - 多变量环境，可设置变量，全局变量及环境变量
-
 - 支持多套配置文件之间切换
-
 - Yaml文件可关联Csv文件，Yaml文件存放公共测试数据，Csv文件存放测试数据
-
 - yaml及Csv文件中均可使用变量、调用python函数
-
 - 支持mysql数据库连接及操作
-
 - 自动处理请求中的files数据
-
 - 项目运行自动生成Log日志文件、Allure报告
 
-  [TOC]
-
-  **使用流程**
-
-  ```mermaid
-  graph LR
-  
-  readyaml(读取用例文件)
-  request(发送请求)
-  extract(提取响应内容)
-  assertion(断言)
-  session(创建session)
-  variables(设置变量)
-  
-  readyaml-->request-->extract-->assertion
-  readyaml-->session-->request
-  readyaml-->variables-->request
-  ```
-
-  
-
-  :loudspeaker:项目测试环境：win11+python3.10
-
-
+:loudspeaker:项目测试环境：win11+python3.10
 
 ## Allure报告
 
 ![allure](img/allure.png)
-
-
 
 ## Demo部署
 
@@ -72,37 +38,21 @@ pip3 install -r requirements.txt
 pytest
 ```
 
-
-
 ## 项目结构
 
 - common >> 各种工具类
-
 - config >> 项目配置文件
-
 - data >> 存放测试数据
-
 - environment >> 环境变量
-
 - log >> 日志文件
-
 - report >> allure测试报告
-
 - script >> 测试用例执行脚本
-
 - temp >> allure临时报告
-
 - testcase >> 存放测试用例
-
 - main.py >> 项目运行入口
-
 - pytest.ini >> pytest配置文件
-
 - requirements.txt >> 相关依赖包文件
-
 - user.sql >> 初始化数据库表
-
-  
 
 ## 项目使用
 
@@ -132,8 +82,6 @@ def test_get(self, case):
       foo2: bar2
 ```
 
-
-
 ### 发送请求
 
 ```python
@@ -147,8 +95,6 @@ dp.requests().get(url,[files=None,sess=None,timeout=10,**kwargs])
 dp.requests().post(url,[files=None,sess=None,timeout=10,**kwargs])
 ```
 
-
-
 ### 读取用例
 
 ```python
@@ -156,8 +102,6 @@ dp.requests().post(url,[files=None,sess=None,timeout=10,**kwargs])
 # 参数 file_name:yaml文件文件名,yaml文件中的索引
 dp.read_testcase(file_name, [item=0])
 ```
-
-
 
 ### 变量
 
@@ -177,8 +121,6 @@ dp.globals().set(key,value)
 dp.globals().get(key)
 ```
 
-
-
 ### session
 
 ```python
@@ -191,8 +133,6 @@ dp.session().create([item=1])
 dp.session()([seek=None])
 ```
 
-
-
 ### 使用内置函数
 
 ```python
@@ -200,8 +140,6 @@ dp.session()([seek=None])
 # func()为具体的函数
 dp.function().func()
 ```
-
-
 
 ### 用例文件
 
@@ -221,8 +159,6 @@ dp.function().func()
       foo2: "{{mock().cname()}}"
 ```
 
-
-
 ### yaml关联csv文件
 
 ```yaml
@@ -238,10 +174,6 @@ dp.function().func()
     params:
       foo: "${foo}"
 ```
-
-
-
-
 
 ## 联系作者
 
