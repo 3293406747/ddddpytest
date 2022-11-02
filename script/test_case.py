@@ -17,7 +17,7 @@ class TestHttpbin:
 	@pytest.mark.parametrize("case", dp.read_testcase("case.yaml",1))
 	def test_variable(self, case):
 		allure.dynamic.title(case.pop("casename"))
-		dp.environment().set("variable","variable_value")
+		dp.variables().set("variable","variable_value")
 		dp.requests().autoRequest(**case.get("request"))
 
 	@allure.story("使用自定义全局变量")
