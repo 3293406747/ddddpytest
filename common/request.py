@@ -83,8 +83,8 @@ class fixture:
 		return wapper
 
 
-def autoRequest(method, url, files=None, sess=None, timeout=10, extract: list = None, extract_mode="json",
-				assertion_:dict=None, assertion_mode="json", **kwargs):
+def autoRequest(method, url, files=None, sess=None, timeout=10, extract: dict = None, assertion_: dict = None,
+				**kwargs):
 	if not Variables().get("base_url"):
 		Variables().set(key="base_url", value=read_config()["base_url"])
 	url = renderTemplate(useFunc(url))
@@ -94,50 +94,38 @@ def autoRequest(method, url, files=None, sess=None, timeout=10, extract: list = 
 		kwargs = renderTemplate(useFunc(kwargs))
 	response = request(method=method, url=url, files=files, sess=sess, timeout=timeout, **kwargs)
 	extractPool = {}
-	if isinstance(extract, dict) and extract_mode == "json":
-		for key,pattern in extract.items():
-			value = extractVariable.json(data=kwargs, expr=pattern, index=0)
+	if isinstance(extract, dict):
+		for key, pattern in extract.items():
+			if pattern[0] == "$":
+				# json提取
+				value = extractVariable.json(data=kwargs, expr=pattern, index=0)
+			else:
+				# 正则提取
+				value = extractVariable.match(data=kwargs, pattern=pattern, index=0)
 			extractPool[key] = value
-	elif isinstance(extract, dict) and extract_mode == "re":
-		for key,pattern in extract:
-			value = extractVariable.match(data=kwargs, pattern=pattern, index=0)
-			extractPool[key] = value
-	if isinstance(assertion_,dict) and assertion_mode == "json":
-		temp = Template(json.dumps(assertion_,ensure_ascii=False)).safe_substitute(extractPool)
+	if isinstance(assertion_, dict):
+		temp = Template(json.dumps(assertion_, ensure_ascii=False)).safe_substitute(extractPool)
 		temp = useFunc(renderTemplate(temp))
 		assertion_ = json.loads(temp)
-		for method,value in assertion_.items():
+		for method, value in assertion_.items():
 			if method == "equal" or "unequal":
 				for item in value:
 					expect = dict(item).get("expect")
 					actual = dict(item).get("actual")
 					index = int(dict(item).get("actual_index")) if dict(item).get("actual_index") is not None else None
-					actual = extractVariable.json(data=response.json(), expr=actual, index=index)
-					if method == "equal":
-						Assertion.equal(expect=expect,actual=actual)
+					if actual[0] == "$":
+						# json提取
+						actual = extractVariable.json(data=response.json(), expr=actual, index=index)
 					else:
-						Assertion.unequal(expect=expect,actual=actual)
+						# 正则提取
+						actual = extractVariable.match(data=response.text, pattern=actual, index=index)
+					if method == "equal":
+						Assertion.equal(expect=expect, actual=actual)
+					else:
+						Assertion.unequal(expect=expect, actual=actual)
 			elif method == "contain" or "uncontain":
 				for expect in value:
-					Assertion.contian(expect=expect,actual=response.json())
-	elif isinstance(assertion_,dict) and assertion_mode == "re":
-		temp = Template(json.dumps(assertion_,ensure_ascii=False)).safe_substitute(extractPool)
-		temp = useFunc(renderTemplate(temp))
-		assertion_ = json.loads(temp)
-		for method,value in assertion_.items():
-			if method == "equal" or "unequal":
-				for item in value:
-					expect = dict(item).get("expect")
-					actual = dict(item).get("actual")
-					index = int(dict(item).get("actual_index")) if dict(item).get("actual_index") else None
-					actual = extractVariable.match(data=response.text, pattern=actual, index=index)
-					if method == "equal":
-						Assertion.equal(expect=expect,actual=actual)
-					else:
-						Assertion.unequal(expect=expect,actual=actual)
-			elif method == "contain" or "uncontain":
-				for expect in value:
-					Assertion.contian(expect=expect,actual=response.text)
+					Assertion.contian(expect=expect, actual=response.json())
 	return response
 
 

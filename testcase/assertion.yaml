@@ -6,7 +6,7 @@
     params:
       key: value
   extract:
-    key: "$..key"
+    key: 'key": "(.*?)"'
   assertion:
     equal:
       -
