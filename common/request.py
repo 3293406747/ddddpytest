@@ -108,7 +108,7 @@ def autoRequest(method, url, files=None, sess=None, timeout=10, extract: dict = 
 		temp = useFunc(renderTemplate(temp))
 		assertion_ = json.loads(temp)
 		for method, value in assertion_.items():
-			if method == "equal" or "unequal":
+			if method in ["equal" , "unequal"]:
 				for item in value:
 					expect = dict(item).get("expect")
 					actual = dict(item).get("actual")
@@ -118,14 +118,22 @@ def autoRequest(method, url, files=None, sess=None, timeout=10, extract: dict = 
 						actual = extractVariable.json(data=response.json(), expr=actual, index=index)
 					else:
 						# 正则提取
-						actual = extractVariable.match(data=response.text, pattern=actual, index=index)
+						try:
+							data = response.json()
+						except JSONDecodeError:
+							data = response.text
+						actual = extractVariable.match(data=data, pattern=actual, index=index)
 					if method == "equal":
 						Assertion.equal(expect=expect, actual=actual)
 					else:
 						Assertion.unequal(expect=expect, actual=actual)
-			elif method == "contain" or "uncontain":
+			elif method in ["contain" , "uncontain"]:
 				for expect in value:
-					Assertion.contian(expect=expect, actual=response.json())
+					try:
+						actual = response.json()
+					except JSONDecodeError:
+						actual = response.text
+					Assertion.contian(expect=expect, actual=actual)
 	return response
 
 

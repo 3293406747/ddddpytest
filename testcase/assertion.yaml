@@ -1,5 +1,5 @@
 -
-  casename: 断言
+  casename: 相等断言
   request:
     url: "${base_url}/get"
     method: GET
@@ -13,6 +13,16 @@
         expect: "${key}"
         actual: "$..key"
         actual_index: 0
+-
+  casename: 包含断言
+  request:
+    url: "${base_url}/get"
+    method: GET
+    params:
+      key: value
+  assertion:
+    contain:
+      - key
 -
   casename: 数据库断言
   request:
@@ -31,5 +41,5 @@
         actual_index: 0
       -
         expect: "{{sqlSelect(select * from user,name,-1)}}"
-        actual: "$..name"
+        actual: 'name": "(.*?)"'
         actual_index: 0

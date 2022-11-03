@@ -1,3 +1,4 @@
+import json
 from common.logger import logger
 
 
@@ -53,45 +54,47 @@ class Assertion:
 	@classmethod
 	def contian(cls,expect,actual,name=None):
 		""" 包含断言 """
+		actual = json.dumps(actual, ensure_ascii=False) if isinstance(actual, dict) else actual
 		if isinstance(expect,list|tuple|set):
 			for i in expect:
 				try:
 					assert i in actual
-					msg = f"{name or ''}断言通过:{str(i)}在{actual:20s}中存在"
+					msg = f"{name or ''}断言通过:{str(i)}在{actual:.255s}中存在"
 					logger.success(msg)
 				except AssertionError:
-					msg = f"{name or ''}断言失败:{str(i)}在{actual:20s}中不存在"
+					msg = f"{name or ''}断言失败:{str(i)}在{actual:.255s}中不存在"
 					logger.error(msg)
 					raise AssertionError(msg) from None
 		elif isinstance(expect,str):
 			try:
 				assert expect in actual
-				msg = f"{name or ''}断言通过:{expect}在{actual:20s}中存在"
+				msg = f"{name or ''}断言通过:{expect}在{actual:.255s}中存在"
 				logger.success(msg)
 			except AssertionError:
-				msg = f"{name or ''}断言失败:{expect}在{actual:20s}中不存在"
+				msg = f"{name or ''}断言失败:{expect}在{actual:.255s}中不存在"
 				logger.error(msg)
 				raise AssertionError(msg) from None
 
 	@classmethod
 	def uncontian(cls,expect,actual,name=None):
+		actual = json.dumps(actual, ensure_ascii=False) if isinstance(actual, dict) else actual
 		""" 不包含断言 """
 		if isinstance(expect,list|tuple|set):
 			for i in expect:
 				try:
 					assert i not in actual
-					msg = f"{name or ''}断言通过:{str(i)}在{actual:20s}中不存在"
+					msg = f"{name or ''}断言通过:{str(i)}在{actual:.255s}中不存在"
 					logger.success(msg)
 				except AssertionError:
-					msg = f"{name or ''}断言失败:{str(i)}在{actual:20s}中存在"
+					msg = f"{name or ''}断言失败:{str(i)}在{actual:.255s}中存在"
 					logger.error(msg)
 					raise AssertionError(msg) from None
 		elif isinstance(expect,str):
 			try:
 				assert expect not in actual
-				msg = f"{name or ''}断言通过:{expect}在{actual:20s}中不存在"
+				msg = f"{name or ''}断言通过:{expect}在{actual:.255s}中不存在"
 				logger.success(msg)
 			except AssertionError:
-				msg = f"{name or ''}断言失败:{expect}在{actual:20s}中存在"
+				msg = f"{name or ''}断言失败:{expect}在{actual:.255s}中存在"
 				logger.error(msg)
 				raise AssertionError(msg) from None

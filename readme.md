@@ -12,7 +12,7 @@
 - Yaml文件可关联Csv文件，Yaml文件存放公共测试数据，Csv文件存放测试数据
 - yaml及Csv文件中均可使用变量、调用python函数
 - 支持mysql数据库连接及操作
-- 自动处理请求中的files数据
+- 自动处理请求中的files数据，自动提取请求、响应中的内容、自动断言
 - 项目运行自动生成Log日志文件、Allure报告
 
 :loudspeaker:项目测试环境：win11+python3.10
@@ -86,9 +86,9 @@ def test_get(self, case):
 
 ```python
 # 发送请求 url、files、kwargs渲染;files处理;生成log日志及allure报告;
-# 参数 method:请求方式 url:请求url,files:文件,sess:session,timeout请求超时,kwargs其它参数;
+# 参数 method:请求方式 url:请求url,files:文件,sess:session,timeout:请求超时,extract:提取请求参数,assertion_:响应断言,kwargs其它参数;
 # sess默认为索引为0的session
-dp.requests().autoRequest(method,url,[files=None,sess=None,timeout=10,**kwargs])
+dp.requests().autoRequest(method,url,[files=None,sess=None,timeout=10,extract=None,assertion_=None,**kwargs])
 # 发送get请求
 dp.requests().get(url,[files=None,sess=None,timeout=10,**kwargs])
 # 发送post请求
@@ -147,6 +147,8 @@ dp.function().func()
 # yaml
 # ${变量名} 为使用已存在的变量
 # {{func(*args)}} 为调用python函数
+# extract 为提取请求参数,第一个字符为$是为json提取，否则为正则提取.extract不存在时则不提取。
+# assertion 为断言,支持相等断言、不相等断言、包含断言、不包含断言。相等断言、不相等断言时,expect可使用提取的请求参数,也可使用外部变量及调用python函数。actual为提取响应参数,第一个字符为$是为json提取，否则为正则提取。actual_index为提取响应中值的索引，默认提取全部值。包含断言、不包含断言时，其中的值可使用提取的请求参数,也可使用外部变量及调用python函数。assertion不存在时不断言。
 # 注意: 使用变量及调用python函数的地方必须用单引号或双引号包裹
 # csv文件使用变量及调用python函数同yaml文件
 -
@@ -157,6 +159,16 @@ dp.function().func()
     params:
       foo1: "{{md5(123456)}}"
       foo2: "{{mock().cname()}}"
+  extract:
+    key: 'foo1": "(.*?)"'
+  assertion:
+    equal:
+      -
+        expect: "${key}"
+        actual: "$..foo1"
+        actual_index: 0
+    contain:
+      - key
 ```
 
 ### yaml关联csv文件
