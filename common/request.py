@@ -6,7 +6,7 @@ from common.assertion import Assertion
 from common.extract import extractVariable
 from common.read import read_config
 from common.variable import Variables
-from common.case import useFunc, renderTemplate
+from common.case import renderTemplate
 from common.logger import logger
 from common.response import Response
 from common.session import session
@@ -87,11 +87,11 @@ def autoRequest(method, url, files=None, sess=None, timeout=10, extract: dict = 
 				**kwargs):
 	if not Variables().get("base_url"):
 		Variables().set(key="base_url", value=read_config()["base_url"])
-	url = renderTemplate(useFunc(url))
+	url = renderTemplate(url)
 	if files:
 		files = renderTemplate(files)
 	if kwargs:
-		kwargs = renderTemplate(useFunc(kwargs))
+		kwargs = renderTemplate(kwargs)
 	response = request(method=method, url=url, files=files, sess=sess, timeout=timeout, **kwargs)
 	extractPool = {}
 	if isinstance(extract, dict):
@@ -105,7 +105,7 @@ def autoRequest(method, url, files=None, sess=None, timeout=10, extract: dict = 
 			extractPool[key] = value
 	if isinstance(assertion_, dict):
 		temp = Template(json.dumps(assertion_, ensure_ascii=False)).safe_substitute(extractPool)
-		temp = useFunc(renderTemplate(temp))
+		temp = renderTemplate(temp)
 		assertion_ = json.loads(temp)
 		for method, value in assertion_.items():
 			if method in ["equal" , "unequal"]:

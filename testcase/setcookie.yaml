@@ -2,5 +2,6 @@
   casename: 设置cookie
   request:
     url: "http://httpbin.org/cookies/set"
+    method: GET
     params:
       foo: bar

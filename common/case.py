@@ -1,27 +1,91 @@
+import copy
 import json
 import re
 from string import Template
 from typing import Pattern
-import yaml
 from common.variable import Variables, Globals, Environment
 from common import function
 
 pattern: Pattern = re.compile(r"\{\{(.*?)\}\}")
-__all__ = ["useFunc","renderTemplate"]
-
-def useFunc(case):
-	""" 调用python函数 """
-	data = json.dumps(case, ensure_ascii=False)
-	data = pattern.sub(repl=parse, string=data)
-	res = json.loads(data)
-	return res
+__all__ = ["renderTemplate"]
 
 def renderTemplate(case):
 	""" 渲染用例 """
 	data = json.dumps(case, ensure_ascii=False)
-	merge = Variables().pool | Globals().pool | Environment().pool
-	temp = Template(data).safe_substitute(merge)
-	return yaml.load(stream=temp, Loader=yaml.FullLoader)
+	# 使用变量
+	merge = {**Variables().pool, **Globals().pool, **Environment().pool}
+	# merge = Variables().pool | Globals().pool | Environment().pool
+	data = Template(data).safe_substitute(merge)
+	# 调用python函数
+	data = pattern.sub(repl=parse, string=data)
+	return json.loads(data)
+
+
+def verifyCase(case):
+	""" 校验用例格式 """
+	newCase: dict = copy.deepcopy(case)
+	strcase = json.dumps(case,ensure_ascii=False)
+	# 必选参数校验
+	for key in ["casename", "request"]:
+		if not newCase.get(key):
+			msg = f"{strcase:.255s}必须包含一级关键字casename,request"
+			raise Exception(msg)
+	newCase.pop("casename")
+	request = newCase.pop("request")
+	# request校验
+	for key in ["url", "method"]:
+		if not request.get(key):
+			msg = f"{strcase:.255s}的request关键字下必须包含二级关键字url,method"
+			raise Exception(msg)
+		else:
+			request.pop(key)
+	requestOtherKeys = ["params", "data", "json", "files"]
+	for i in request.keys():
+		if i not in requestOtherKeys:
+			msg = f"{strcase:.255s}的request关键字下不能包含除url,method,params,data,json,files之外的关键字。"
+			raise Exception(msg)
+	# 非必选参数校验
+	otherKeys = ["data_path", "extract", "assertion", "session"]
+	for i in newCase.keys():
+		if i not in otherKeys:
+			msg = f"{strcase:.255s}不能包含除casename,request,data_path,extract,assertion,session之外的一级关键字。"
+			raise Exception(msg)
+	# extract校验
+	if newCase.get("extract") and not isinstance(newCase.get("extract"), dict):
+		msg = f"{strcase:.255s}的extract关键字下必须为字典格式。"
+		raise Exception(msg)
+	# session校验
+	if newCase.get("session") and not isinstance(newCase.get("session"), int):
+		msg = f"{strcase:.255s}的session关键字下必须为整数格式。"
+		raise Exception(msg)
+	# assertion校验
+	if newCase.get("assertion") and isinstance(newCase.get("assertion"), dict):
+		assertionKeys = ["contain", "uncontain", "equal", "unequal"]
+		for i in newCase.get("assertion").keys():
+			if i not in assertionKeys:
+				msg = f"{strcase:.255s}的assertion关键字下不能包含除equal,unequal,contain,uncontain之外的关键字。"
+				raise Exception(msg)
+			elif i in ["equal", "unequal"]:
+				for key in ["expect", "actual"]:
+					if not isinstance(newCase["assertion"][i],list):
+						msg = f"{strcase:.255s}的assertion关键字下的{i}必须是list格式。"
+						raise Exception(msg)
+					for j in newCase["assertion"][i]:
+						if key not in j.keys():
+							msg = f"{strcase:.255s}的assertion关键字下的{i}关键字下必须包含expect,actual关键字。"
+							raise Exception(msg)
+						if j.get("actual_index") and not isinstance(j["actual_index"], int):
+							msg = f"{strcase:.255s}的assertion关键字下的{i}关键字下的actual_index必须为整数格式。"
+							raise Exception(msg)
+			elif i in ["contain", "uncontain"]:
+				if not isinstance(newCase["assertion"][i], list):
+					msg = f"{strcase:.255s}的assertion关键字下的{i}关键字必须为list格式。"
+					raise Exception(msg)
+	elif newCase.get("assertion") and not isinstance(newCase.get("assertion"), dict):
+		msg = f"{strcase:.255s}的assertion关键字必须是整数格式。"
+		raise Exception(msg)
+	return case
+
 
 def parse(reMatch):
 	""" repl解析 """
@@ -45,10 +109,10 @@ def parse(reMatch):
 			else:
 				charset.append(char)
 		if args:
-			func = getattr(func,funcName)(*args)
+			func = getattr(func, funcName)(*args)
 		else:
 			func = getattr(func, funcName)()
-	if not isinstance(func,str):
+	if not isinstance(func, str):
 		msg = f"function {value} must return a string"
 		raise TypeError(msg)
 	return func
