@@ -3,16 +3,16 @@
   request:
     url: "${base_url}/cookies"
     method: GET
-    sess: 0
+  session: 0
 -
   casename: session1获取cookie
   request:
     url: "${base_url}/cookies"
     method: GET
-    sess: 1
+  session: 1
 -
   casename: session0获取cookie_2
   request:
     url: "${base_url}/cookies"
     method: GET
-    sess: 0
+  session: 0
