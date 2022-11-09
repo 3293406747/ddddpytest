@@ -59,15 +59,16 @@ pytest
 **demo**
 
 ```python
-# 接口名称
+import allure
+import pytest
+from common import dp
+
+
 @allure.story("get请求")
-# 读取用例文件
 @pytest.mark.parametrize("case", dp.read_testcase("method.yaml"))
 def test_get(self, case):
-    # 用例名称
-    allure.dynamic.title(case.pop("casename"))
-    # 发送请求
-    dp.requests().autoRequest(**case.get("request"))
+    allure.dynamic.title(case["casename"])
+    dp.requests().autoRequest(case)
 ```
 
 ```yaml
@@ -82,25 +83,24 @@ def test_get(self, case):
       foo2: bar2
 ```
 
+### 读取用例
+
+```python
+# 读取testcase目录下的yaml用例文件;
+# 参数 file_name:yaml用例文件名,yaml文件中的索引
+dp.read_testcase(file_name, [item=0])
+```
+
 ### 发送请求
 
 ```python
-# 发送请求 url、files、kwargs渲染;files处理;生成log日志及allure报告;
-# 参数 method:请求方式 url:请求url,files:文件,sess:session,timeout:请求超时,extract:提取请求参数,assertion_:响应断言,kwargs其它参数;
-# sess默认为索引为0的session
-dp.requests().autoRequest(method,url,[files=None,sess=None,timeout=10,extract=None,assertion_=None,**kwargs])
+# 自动请求;
+# 参数 caseinfo:读取出的单条用例,timeout:请求超时时间
+dp.requests().autoRequest(caseinfo, [timeout=10])
 # 发送get请求
 dp.requests().get(url,[files=None,sess=None,timeout=10,**kwargs])
 # 发送post请求
 dp.requests().post(url,[files=None,sess=None,timeout=10,**kwargs])
-```
-
-### 读取用例
-
-```python
-# 读取testcase目录下的yaml文件;
-# 参数 file_name:yaml文件文件名,yaml文件中的索引
-dp.read_testcase(file_name, [item=0])
 ```
 
 ### 变量
