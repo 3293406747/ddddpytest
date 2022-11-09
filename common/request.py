@@ -49,7 +49,7 @@ def autoRequest(caseinfo, timeout=10):
 				for item in value:
 					expect = dict(item).get("expect")
 					actual = dict(item).get("actual")
-					index = int(dict(item).get("actual_index")) if dict(item).get("actual_index") is not None else None
+					index = dict(item).get("actual_index")
 					# 从响应中提取内容
 					if actual[0] == "$":
 						# json提取
