@@ -143,49 +143,7 @@ dp.function().func()
 
 ### 用例文件
 
-```yaml
-# yaml
-# ${变量名} 为使用已存在的变量
-# {{func(*args)}} 为调用python函数
-# extract 为提取请求参数,第一个字符为$是为json提取，否则为正则提取.extract不存在时则不提取。
-# assertion 为断言,支持相等断言、不相等断言、包含断言、不包含断言。相等断言、不相等断言时,expect可使用提取的请求参数,也可使用外部变量及调用python函数。actual为提取响应参数,第一个字符为$是为json提取，否则为正则提取。actual_index为提取响应中值的索引，默认提取全部值。包含断言、不包含断言时，其中的值可使用提取的请求参数,也可使用外部变量及调用python函数。assertion不存在时不断言。
-# 注意: 使用变量及调用python函数的地方必须用单引号或双引号包裹
-# csv文件使用变量及调用python函数同yaml文件
--
-  casename: 调用python函数
-  request:
-    url: "${base_url}/get"
-    method: GET
-    params:
-      foo1: "{{md5(123456)}}"
-      foo2: "{{mock().cname()}}"
-  extract:
-    key: 'foo1": "(.*?)"'
-  assertion:
-    equal:
-      -
-        expect: "${key}"
-        actual: "$..foo1"
-        actual_index: 0
-    contain:
-      - key
-```
-
-### yaml关联csv文件
-
-```yaml
-# yaml
-# data_path：使用该字段关联csv文件
-# ${变量名或csv中列名}：为csv文件中列名时将会被循环替换为对应的值，生成关联后的用例集
--
-  casename: "${casename}"
-  data_path: data.csv
-  request:
-    url: "${base_url}/get"
-    method: GET
-    params:
-      foo: "${foo}"
-```
+**使用方法详见`yaml用例编写规则.md`**
 
 ## 联系作者
 
