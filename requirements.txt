@@ -6,4 +6,3 @@ requests~=2.27.1
 jsonpath~=0.82
 pathlib2~=2.3.7.post1
 pytest~=7.1.2
-pandas~=1.4.3
