@@ -7,7 +7,8 @@ class Assertion:
 	@classmethod
 	def equal(cls,expect,actual,name=None):
 		""" 相等断言 """
-		if isinstance(expect,list|tuple|set) and isinstance(actual,list|tuple|set):
+		# list|tuple|set
+		if isinstance(expect,(list,tuple,set)) and isinstance(actual,(list,tuple,set)):
 			for i in range(len(expect)):
 				try:
 					assert expect[i] == actual[i]
@@ -17,7 +18,8 @@ class Assertion:
 					msg = f"{name or ''}断言失败:{str(expect[i])}不等于{str(actual[i])}"
 					logger.error(msg)
 					raise AssertionError(msg) from None
-		elif isinstance(expect,str|int|float) and isinstance(actual,str|int|float):
+		# str|int|float
+		elif isinstance(expect,(str,int,float)) and isinstance(actual,(str,int,float)):
 			try:
 				assert expect == actual
 				msg = f"{name or ''}断言通过:{str(expect)}等于{str(actual)}"
@@ -30,7 +32,8 @@ class Assertion:
 	@classmethod
 	def unequal(cls,expect,actual,name=None):
 		""" 不相等断言 """
-		if isinstance(expect,list|tuple|set) and isinstance(actual,list|tuple|set):
+		# list|tuple|set
+		if isinstance(expect,(list,tuple,set)) and isinstance(actual,(list,tuple,set)):
 			for i in range(len(expect)):
 				try:
 					assert expect[i] != actual[i]
@@ -40,7 +43,8 @@ class Assertion:
 					msg = f"{name or ''}断言失败:{str(expect[i])}等于{str(actual[i])}"
 					logger.error(msg)
 					raise AssertionError(msg) from None
-		elif isinstance(expect,str|int|float) and isinstance(actual,str|int|float):
+		# str|int|float
+		elif isinstance(expect,(str,int,float)) and isinstance(actual,(str,int,float)):
 			try:
 				assert expect != actual
 				msg = f"{name or ''}断言通过:{str(expect)}不等于{str(actual)}"
@@ -55,7 +59,8 @@ class Assertion:
 	def contian(cls,expect,actual,name=None):
 		""" 包含断言 """
 		actual = json.dumps(actual, ensure_ascii=False) if isinstance(actual, dict) else actual
-		if isinstance(expect,list|tuple|set):
+		# list|tuple|set
+		if isinstance(expect,(list,tuple,set)):
 			for i in expect:
 				try:
 					assert i in actual
@@ -79,7 +84,8 @@ class Assertion:
 	def uncontian(cls,expect,actual,name=None):
 		actual = json.dumps(actual, ensure_ascii=False) if isinstance(actual, dict) else actual
 		""" 不包含断言 """
-		if isinstance(expect,list|tuple|set):
+		# list|tuple|set
+		if isinstance(expect,(list,tuple,set)):
 			for i in expect:
 				try:
 					assert i not in actual
