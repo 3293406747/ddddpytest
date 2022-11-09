@@ -10,5 +10,5 @@ class TestHttpbin:
 	@allure.story("测试data")
 	@pytest.mark.parametrize("case", dp.read_testcase("data.yaml"))
 	def test_data(self, case):
-		allure.dynamic.title(case.pop("casename"))
-		dp.requests().autoRequest(**case.get("request"))
+		allure.dynamic.title(case["casename"])
+		dp.requests().autoRequest(case)

@@ -10,17 +10,17 @@ class TestHttpbin:
 	@allure.story("返回html")
 	@pytest.mark.parametrize("case", dp.read_testcase("format.yaml"))
 	def test_html(self, case):
-		allure.dynamic.title(case.pop("casename"))
-		dp.requests().autoRequest(**case.get("request"))
+		allure.dynamic.title(case["casename"])
+		dp.requests().autoRequest(case)
 
 	@allure.story("返回png图片")
 	@pytest.mark.parametrize("case", dp.read_testcase("format.yaml",1))
 	def test_png(self, case):
-		allure.dynamic.title(case.pop("casename"))
-		dp.requests().autoRequest(**case.get("request"))
+		allure.dynamic.title(case["casename"])
+		dp.requests().autoRequest(case)
 
 	@allure.story("返回jpeg图片")
 	@pytest.mark.parametrize("case", dp.read_testcase("format.yaml",2))
 	def test_jpeg(self, case):
-		allure.dynamic.title(case.pop("casename"))
-		dp.requests().autoRequest(**case.get("request"))
+		allure.dynamic.title(case["casename"])
+		dp.requests().autoRequest(case)

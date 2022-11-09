@@ -12,14 +12,79 @@ from common.response import Response
 from common.session import session
 
 
+def autoRequest(caseinfo, timeout=10):
+	""" 自动请求 """
+	# 设置base_url为变量
+	if not Variables().get("base_url"):
+		Variables().set(key="base_url", value=read_config()["base_url"])
+	# 渲染请求
+	newRequest = renderTemplate(caseinfo["request"])
+	# 获取session
+	sess = caseinfo.get("session")
+	# 获取用例名称
+	name = caseinfo["casename"]
+	# 发送请求
+	response = request(**newRequest, name=name, sess=sess, timeout=timeout)
+	# 从请求中提取内容
+	extractPool = {}
+	if isinstance(caseinfo.get("extract"), dict):
+		for key, pattern in caseinfo.get("extract").items():
+			if pattern[0] == "$":
+				# json提取
+				value = extractVariable.json(data=newRequest, expr=pattern, index=0)
+			else:
+				# 正则提取
+				value = extractVariable.match(data=newRequest, pattern=pattern, index=0)
+			extractPool[key] = value
+	# 断言
+	if isinstance(caseinfo.get("assertion"), dict):
+		# 使用从请求中提取的内容进行渲染
+		temp = Template(json.dumps(caseinfo.get("assertion"), ensure_ascii=False)).safe_substitute(extractPool)
+		# 渲染
+		data = renderTemplate(temp)
+		data = json.loads(data)
+		for method, value in data.items():
+			# 相等或不相等断言
+			if method in ["equal", "unequal"]:
+				for item in value:
+					expect = dict(item).get("expect")
+					actual = dict(item).get("actual")
+					index = int(dict(item).get("actual_index")) if dict(item).get("actual_index") is not None else None
+					# 从响应中提取内容
+					if actual[0] == "$":
+						# json提取
+						actual = extractVariable.json(data=response.json(), expr=actual, index=index)
+					else:
+						# 正则提取
+						try:
+							data = response.json()
+						except JSONDecodeError:
+							data = response.text
+						actual = extractVariable.match(data=data, pattern=actual, index=index)
+					if method == "equal":
+						Assertion.equal(expect=expect, actual=actual)
+					else:
+						Assertion.unequal(expect=expect, actual=actual)
+			# 包含或不包含断言
+			elif method in ["contain", "uncontain"]:
+				for expect in value:
+					try:
+						actual = response.json()
+					except JSONDecodeError:
+						actual = response.text
+					Assertion.contian(expect=expect, actual=actual)
+	return response
+
+
 class fixture:
 
 	@classmethod
 	def logfixture(cls, func):
 		""" 日志记录 """
 
-		def wapper(url, files=None, sess=None, timeout=10, method=None, **kwargs):
+		def wapper(url, name, files=None, sess=None, timeout=10, method=None, **kwargs):
 			logger.info(f"{'start':*^80s}")
+			logger.info(f"请求名称:{name:.255s}")
 			logger.info(f"请求url:{url:.255s}")
 			if method:
 				logger.info(f"请求方式:{method}")
@@ -81,60 +146,6 @@ class fixture:
 			return response
 
 		return wapper
-
-
-def autoRequest(method, url, files=None, sess=None, timeout=10, extract: dict = None, assertion_: dict = None,
-				**kwargs):
-	if not Variables().get("base_url"):
-		Variables().set(key="base_url", value=read_config()["base_url"])
-	url = renderTemplate(url)
-	if files:
-		files = renderTemplate(files)
-	if kwargs:
-		kwargs = renderTemplate(kwargs)
-	response = request(method=method, url=url, files=files, sess=sess, timeout=timeout, **kwargs)
-	extractPool = {}
-	if isinstance(extract, dict):
-		for key, pattern in extract.items():
-			if pattern[0] == "$":
-				# json提取
-				value = extractVariable.json(data=kwargs, expr=pattern, index=0)
-			else:
-				# 正则提取
-				value = extractVariable.match(data=kwargs, pattern=pattern, index=0)
-			extractPool[key] = value
-	if isinstance(assertion_, dict):
-		temp = Template(json.dumps(assertion_, ensure_ascii=False)).safe_substitute(extractPool)
-		temp = renderTemplate(temp)
-		assertion_ = json.loads(temp)
-		for method, value in assertion_.items():
-			if method in ["equal" , "unequal"]:
-				for item in value:
-					expect = dict(item).get("expect")
-					actual = dict(item).get("actual")
-					index = int(dict(item).get("actual_index")) if dict(item).get("actual_index") is not None else None
-					if actual[0] == "$":
-						# json提取
-						actual = extractVariable.json(data=response.json(), expr=actual, index=index)
-					else:
-						# 正则提取
-						try:
-							data = response.json()
-						except JSONDecodeError:
-							data = response.text
-						actual = extractVariable.match(data=data, pattern=actual, index=index)
-					if method == "equal":
-						Assertion.equal(expect=expect, actual=actual)
-					else:
-						Assertion.unequal(expect=expect, actual=actual)
-			elif method in ["contain" , "uncontain"]:
-				for expect in value:
-					try:
-						actual = response.json()
-					except JSONDecodeError:
-						actual = response.text
-					Assertion.contian(expect=expect, actual=actual)
-	return response
 
 
 @fixture.allure
