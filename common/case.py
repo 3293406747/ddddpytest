@@ -9,9 +9,10 @@ from common import function
 pattern: Pattern = re.compile(r"\{\{(.*?)\}\}")
 __all__ = ["renderTemplate"]
 
-def renderTemplate(case):
+
+def renderTemplate(data):
 	""" 渲染用例 """
-	data = json.dumps(case, ensure_ascii=False)
+	data = json.dumps(data, ensure_ascii=False)
 	# 使用变量
 	merge = {**Variables().pool, **Globals().pool, **Environment().pool}
 	# merge = Variables().pool | Globals().pool | Environment().pool
@@ -24,7 +25,7 @@ def renderTemplate(case):
 def verifyCase(case):
 	""" 校验用例格式 """
 	newCase: dict = copy.deepcopy(case)
-	strcase = json.dumps(case,ensure_ascii=False)
+	strcase = json.dumps(case, ensure_ascii=False)
 	# 必选参数校验
 	for key in ["casename", "request"]:
 		if not newCase.get(key):
@@ -67,7 +68,7 @@ def verifyCase(case):
 				raise Exception(msg)
 			elif i in ["equal", "unequal"]:
 				for key in ["expect", "actual"]:
-					if not isinstance(newCase["assertion"][i],list):
+					if not isinstance(newCase["assertion"][i], list):
 						msg = f"{strcase:.255s}的assertion关键字下的{i}必须是list格式。"
 						raise Exception(msg)
 					for j in newCase["assertion"][i]:

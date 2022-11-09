@@ -17,24 +17,24 @@ class TestHttpbin:
 	@pytest.mark.parametrize("case", dp.read_testcase("method.yaml"))
 	def test_get(self, case):
 		# 用例名称
-		allure.dynamic.title(case.pop("casename"))
+		allure.dynamic.title(case["casename"])
 		# 发送请求
-		dp.requests().autoRequest(**case.get("request"))
+		dp.requests().autoRequest(case)
 
 	@allure.story("post请求data传参")
 	@pytest.mark.parametrize("case", dp.read_testcase("method.yaml",1))
 	def test_postdata(self, case):
-		allure.dynamic.title(case.pop("casename"))
-		dp.requests().autoRequest(**case.get("request"))
+		allure.dynamic.title(case["casename"])
+		dp.requests().autoRequest(case)
 
 	@allure.story("post请求json传参")
 	@pytest.mark.parametrize("case", dp.read_testcase("method.yaml",2))
 	def test_postjson(self, case):
-		allure.dynamic.title(case.pop("casename"))
-		dp.requests().autoRequest(**case.get("request"))
+		allure.dynamic.title(case["casename"])
+		dp.requests().autoRequest(case)
 
 	@allure.story("post请求文件上传")
 	@pytest.mark.parametrize("case", dp.read_testcase("method.yaml",3))
 	def test_postfiles(self, case):
-		allure.dynamic.title(case.pop("casename"))
-		dp.requests().autoRequest(**case.get("request"))
+		allure.dynamic.title(case["casename"])
+		dp.requests().autoRequest(case)
