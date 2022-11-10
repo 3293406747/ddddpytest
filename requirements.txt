@@ -1,8 +1,9 @@
-PyYAML~=6.0
-Faker~=13.12.1
-PyMySQL~=1.0.2
-loguru~=0.6.0
-requests~=2.27.1
-jsonpath~=0.82
-pathlib2~=2.3.7.post1
-pytest~=7.1.2
+PyYAML
+Faker
+PyMySQL
+loguru
+requests
+jsonpath
+allure-pytest
+pathlib2
+pytest
