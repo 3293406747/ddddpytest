@@ -1,5 +1,5 @@
 import yaml
-from pathlib2 import Path
+from pathlib import Path
 
 path = Path(__file__).resolve().parent.parent.joinpath('environment')
 
