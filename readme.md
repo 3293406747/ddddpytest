@@ -147,6 +147,8 @@ dp.function().func()
 
 ## 联系作者
 
-如果喜欢该项目就:star2:下吧。:heart:本项目学习及使用过程中遇到问题可添加本人微信进行沟通。
+如果喜欢该项目就:star2:下吧。:heart:本项目使用过程中遇到问题可添加微信或telegram进行沟通。
+
+Telegram: [qingtest](https://t.me/qingtest)
 
 ![vx](img/vx.jpg)
