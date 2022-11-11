@@ -3,17 +3,17 @@ import re
 from json import JSONDecodeError
 from string import Template
 import allure
+import requests
 from common.assertion import Assertion
 from common.extract import extractVariable
 from common.read import read_config
 from common.variable import Variables
 from common.case import renderTemplate
 from common.logger import logger
-from common.response import Response
 from common.session import session
 
 
-def autoRequest(caseinfo, timeout=10):
+def autoRequest(caseinfo, timeout=10) -> requests.Response:
 	""" 自动请求 """
 	# 设置base_url为变量
 	if not Variables().get("base_url"):
@@ -62,9 +62,9 @@ def autoRequest(caseinfo, timeout=10):
 					actual = re.sub(r"\[?\s?'(.*?)'\]?", r"\1", dict(item).get("actual")).split(",")
 					name = dict(item).get("name")
 					if method == "equal":
-						Assertion.equal(expect=expect, actual=actual,name=name)
+						Assertion.equal(expect=expect, actual=actual, name=name)
 					else:
-						Assertion.unequal(expect=expect, actual=actual,name=name)
+						Assertion.unequal(expect=expect, actual=actual, name=name)
 			# 包含或不包含断言
 			elif method in ["contain", "uncontain"]:
 				try:
@@ -76,7 +76,7 @@ def autoRequest(caseinfo, timeout=10):
 					if method == "contain":
 						Assertion.contian(expect=expect, actual=actual)
 					else:
-						Assertion.uncontian(expect=expect,actual=actual)
+						Assertion.uncontian(expect=expect, actual=actual)
 	return response
 
 
@@ -155,19 +155,19 @@ class fixture:
 @fixture.allure
 @fixture.logfixture
 @fixture.files
-def request(method, url, files=None, sess=None, timeout=10, **kwargs):
+def request(method, url, files=None, sess=None, timeout=10, **kwargs) -> requests.Response:
 	""" 发送请求 """
 	response = session(seek=sess).request(method=method, url=url, files=files, timeout=timeout, **kwargs)
-	return Response(response)
+	return response
 
 
-def get(url, files=None, sess=None, timeout=10, **kwargs):
+def get(url, files=None, sess=None, timeout=10, **kwargs) -> requests.Response:
 	""" 发送get请求 """
 	response = session(seek=sess).get(url=url, files=files, timeout=timeout, **kwargs)
-	return Response(response)
+	return response
 
 
-def post(url, files=None, sess=None, timeout=10, **kwargs):
+def post(url, files=None, sess=None, timeout=10, **kwargs) -> requests.Response:
 	""" 发送post请求 """
 	response = session(seek=sess).post(url=url, files=files, timeout=timeout, **kwargs)
-	return Response(response)
+	return response
