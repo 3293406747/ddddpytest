@@ -27,15 +27,25 @@ def autoRequest(caseinfo, timeout=10):
 	response = request(**newRequest, name=name, sess=sess, timeout=timeout)
 	# 从请求中提取内容
 	extractPool = {}
-	if isinstance(caseinfo.get("extract"), dict):
-		for key, pattern in caseinfo.get("extract").items():
-			if pattern[0] == "$":
-				# json提取
-				value = extractVariable.json(data=newRequest, expr=pattern, index=0)
-			else:
-				# 正则提取
-				value = extractVariable.match(data=newRequest, pattern=pattern, index=0)
-			extractPool[key] = value
+	if caseinfo.get("extract"):
+		for who, val in caseinfo["extract"].items():
+			for key, pattern in val.items():
+				temp = str(pattern).split(",")
+				pattern = temp.pop(0)
+				index = int(temp[0]) if temp else None
+				if pattern[0] == "$":
+					# json提取
+					value = extractVariable.json(data=newRequest if who == "request" else response.json(), expr=pattern,
+												 index=index)
+				else:
+					# 正则提取
+					try:
+						data = response.json()
+					except JSONDecodeError:
+						data = response.text
+					value = extractVariable.match(data=newRequest if who == "request" else data, pattern=pattern,
+												  index=index)
+				extractPool[key] = value
 	# 断言
 	if isinstance(caseinfo.get("assertion"), dict):
 		# 使用从请求中提取的内容进行渲染
@@ -49,18 +59,6 @@ def autoRequest(caseinfo, timeout=10):
 				for item in value:
 					expect = dict(item).get("expect")
 					actual = dict(item).get("actual")
-					index = dict(item).get("actual_index")
-					# 从响应中提取内容
-					if actual[0] == "$":
-						# json提取
-						actual = extractVariable.json(data=response.json(), expr=actual, index=index)
-					else:
-						# 正则提取
-						try:
-							data = response.json()
-						except JSONDecodeError:
-							data = response.text
-						actual = extractVariable.match(data=data, pattern=actual, index=index)
 					if method == "equal":
 						Assertion.equal(expect=expect, actual=actual)
 					else:

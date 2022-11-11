@@ -4,15 +4,23 @@
     url: "${base_url}/get"
     method: GET
     params:
-      key: value
+      key1: value1
+      key2: value2
   extract:
-    key: 'key": "(.*?)"'
+    request:
+      qkey1: 'key1": "(.*?)",0'
+      qkey2: "$..key2"
+    response:
+      skey1: "$..key1,0"
+      skey2: 'key2": "(.*?)"'
   assertion:
     equal:
       -
-        expect: "${key}"
-        actual: "$..key"
-        actual_index: 0
+        expect: "${qkey1}"
+        actual: "${skey1}"
+      -
+        expect: "${qkey2}"
+        actual: "${skey2}"
 -
   casename: 包含断言
   request:
@@ -32,14 +40,10 @@
       key: "{{mock().cname()}}"
       name: 杨瑞
   extract:
-      key: "$..key"
+    response:
+      name: '$..name,0'
   assertion:
     equal:
       -
-        expect: "${key}"
-        actual: "$..key"
-        actual_index: 0
-      -
         expect: "{{sqlSelect(select * from user,name,-1)}}"
-        actual: 'name": "(.*?)"'
-        actual_index: 0
+        actual: "${name}"
