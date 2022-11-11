@@ -52,9 +52,18 @@ def verifyCase(case):
 			msg = f"{strcase:.255s}不能包含除casename,request,data_path,extract,assertion,session之外的一级关键字。"
 			raise Exception(msg)
 	# extract校验
-	if newCase.get("extract") and not isinstance(newCase.get("extract"), dict):
-		msg = f"{strcase:.255s}的extract关键字下必须为字典格式。"
-		raise Exception(msg)
+	if newCase.get("extract"):
+		extractKeys = ["request","response"]
+		if not isinstance(newCase.get("extract"),dict):
+			msg = f"{strcase:.255s}的extract关键字下必须为字典格式。"
+			raise Exception(msg)
+		for key,value in newCase.get("extract").items():
+			if key not in extractKeys:
+				msg = f"{strcase:.255s}的extract关键字下不能包含除{','.join(extractKeys)}之外的关键字。"
+				raise Exception(msg)
+			if not isinstance(value,dict):
+				msg = f"{strcase:.255s}的extract关键字下的{key}必须为字典格式。"
+				raise Exception(msg)
 	# session校验
 	if newCase.get("session") and not isinstance(newCase.get("session"), int):
 		msg = f"{strcase:.255s}的session关键字下必须为整数格式。"
@@ -64,7 +73,7 @@ def verifyCase(case):
 		assertionKeys = ["contain", "uncontain", "equal", "unequal"]
 		for i in newCase.get("assertion").keys():
 			if i not in assertionKeys:
-				msg = f"{strcase:.255s}的assertion关键字下不能包含除equal,unequal,contain,uncontain之外的关键字。"
+				msg = f"{strcase:.255s}的assertion关键字下不能包含除{','.join(assertionKeys)}之外的关键字。"
 				raise Exception(msg)
 			elif i in ["equal", "unequal"]:
 				for key in ["expect", "actual"]:
@@ -75,15 +84,12 @@ def verifyCase(case):
 						if key not in j.keys():
 							msg = f"{strcase:.255s}的assertion关键字下的{i}关键字下必须包含expect,actual关键字。"
 							raise Exception(msg)
-						if j.get("actual_index") and not isinstance(j["actual_index"], int):
-							msg = f"{strcase:.255s}的assertion关键字下的{i}关键字下的actual_index必须为整数格式。"
-							raise Exception(msg)
 			elif i in ["contain", "uncontain"]:
 				if not isinstance(newCase["assertion"][i], list):
 					msg = f"{strcase:.255s}的assertion关键字下的{i}关键字必须为list格式。"
 					raise Exception(msg)
 	elif newCase.get("assertion") and not isinstance(newCase.get("assertion"), dict):
-		msg = f"{strcase:.255s}的assertion关键字必须是整数格式。"
+		msg = f"{strcase:.255s}的assertion关键字必须是字典格式。"
 		raise Exception(msg)
 	return case
 
