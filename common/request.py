@@ -72,6 +72,7 @@ def autoRequest(caseinfo, timeout=10):
 				except JSONDecodeError:
 					actual = response.text
 				for expect in value:
+					expect = re.sub(r"\[?\s?'(.*?)'\]?", r"\1", expect).split(",")
 					if method == "contain":
 						Assertion.contian(expect=expect, actual=actual)
 					else:
