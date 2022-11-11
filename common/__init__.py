@@ -7,7 +7,6 @@ from common.variable import Variables,Globals,Environment
 from common.session import session
 from common.thread import thread
 from common.assertion import Assertion
-from common.response import Response
 from common.read import read_data, read_config,read_case
 from common.extract import extractVariable
 
@@ -45,11 +44,6 @@ class dp:
 	def asserion(cls):
 		""" 断言 """
 		return Assertion
-
-	@classmethod
-	def response(cls,res):
-		""" 响应 """
-		return Response(res)
 
 	@classmethod
 	def variables(cls):
