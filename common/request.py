@@ -25,7 +25,7 @@ def autoRequest(caseinfo, timeout=10):
 	name = caseinfo["casename"]
 	# 发送请求
 	response = request(**newRequest, name=name, sess=sess, timeout=timeout)
-	# 从请求中提取内容
+	# 从请求或响应中提取内容
 	extractPool = {}
 	if caseinfo.get("extract"):
 		for who, val in caseinfo["extract"].items():
