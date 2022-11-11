@@ -1,4 +1,5 @@
 import json
+import re
 from json import JSONDecodeError
 from string import Template
 import allure
@@ -25,7 +26,7 @@ def autoRequest(caseinfo, timeout=10):
 	name = caseinfo["casename"]
 	# 发送请求
 	response = request(**newRequest, name=name, sess=sess, timeout=timeout)
-	# 从请求或响应中提取内容
+	# 从请求或响应中提取内容:
 	extractPool = {}
 	if caseinfo.get("extract"):
 		for who, val in caseinfo["extract"].items():
@@ -57,20 +58,24 @@ def autoRequest(caseinfo, timeout=10):
 			# 相等或不相等断言
 			if method in ["equal", "unequal"]:
 				for item in value:
-					expect = dict(item).get("expect")
-					actual = dict(item).get("actual")
+					expect = re.sub(r"\[?\s?'(.*?)'\]?", r"\1", dict(item).get("expect")).split(",")
+					actual = re.sub(r"\[?\s?'(.*?)'\]?", r"\1", dict(item).get("actual")).split(",")
+					name = dict(item).get("name")
 					if method == "equal":
-						Assertion.equal(expect=expect, actual=actual)
+						Assertion.equal(expect=expect, actual=actual,name=name)
 					else:
-						Assertion.unequal(expect=expect, actual=actual)
+						Assertion.unequal(expect=expect, actual=actual,name=name)
 			# 包含或不包含断言
 			elif method in ["contain", "uncontain"]:
+				try:
+					actual = response.json()
+				except JSONDecodeError:
+					actual = response.text
 				for expect in value:
-					try:
-						actual = response.json()
-					except JSONDecodeError:
-						actual = response.text
-					Assertion.contian(expect=expect, actual=actual)
+					if method == "contain":
+						Assertion.contian(expect=expect, actual=actual)
+					else:
+						Assertion.uncontian(expect=expect,actual=actual)
 	return response
 
 
