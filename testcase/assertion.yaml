@@ -31,6 +31,7 @@
   assertion:
     contain:
       - key
+      - value
 -
   casename: 数据库断言
   request:

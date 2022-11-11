@@ -28,6 +28,9 @@ class Assertion:
 				msg = f"{name or ''}断言失败:{str(expect)}不等于{str(actual)}"
 				logger.error(msg)
 				raise AssertionError(msg) from None
+		else:
+			msg = f"{expect}与{actual}类型不一致或类型格式不支持。"
+			raise Exception(msg)
 
 	@classmethod
 	def unequal(cls,expect,actual,name=None):
@@ -53,6 +56,9 @@ class Assertion:
 				msg = f"{name or ''}断言失败:{str(expect)}等于{str(actual)}"
 				logger.error(msg)
 				raise AssertionError(msg) from None
+		else:
+			msg = f"{expect}与{actual}类型不一致或类型格式不支持。"
+			raise Exception(msg)
 
 
 	@classmethod
@@ -79,6 +85,9 @@ class Assertion:
 				msg = f"{name or ''}断言失败:{expect}在{actual:.255s}中不存在"
 				logger.error(msg)
 				raise AssertionError(msg) from None
+		else:
+			msg = f"{expect}类型格式不支持。"
+			raise Exception(msg)
 
 	@classmethod
 	def uncontian(cls,expect,actual,name=None):
@@ -104,3 +113,6 @@ class Assertion:
 				msg = f"{name or ''}断言失败:{expect}在{actual:.255s}中存在"
 				logger.error(msg)
 				raise AssertionError(msg) from None
+		else:
+			msg = f"{expect}类型格式不支持。"
+			raise Exception(msg)
