@@ -39,7 +39,7 @@
     method: GET
     params:
       key: "{{mock().cname()}}"
-      name: 杨瑞
+      name: 齐霞
   extract:
     response:
       name: '$..name,0'
