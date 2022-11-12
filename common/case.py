@@ -53,15 +53,15 @@ def verifyCase(case):
 			raise Exception(msg)
 	# extract校验
 	if newCase.get("extract"):
-		extractKeys = ["request","response"]
-		if not isinstance(newCase.get("extract"),dict):
+		extractKeys = ["request", "response"]
+		if not isinstance(newCase.get("extract"), dict):
 			msg = f"{strcase:.255s}的extract关键字下必须为字典格式。"
 			raise Exception(msg)
-		for key,value in newCase.get("extract").items():
+		for key, value in newCase.get("extract").items():
 			if key not in extractKeys:
 				msg = f"{strcase:.255s}的extract关键字下不能包含除{','.join(extractKeys)}之外的关键字。"
 				raise Exception(msg)
-			if not isinstance(value,dict):
+			if not isinstance(value, dict):
 				msg = f"{strcase:.255s}的extract关键字下的{key}必须为字典格式。"
 				raise Exception(msg)
 	# session校验
@@ -94,32 +94,17 @@ def verifyCase(case):
 	return case
 
 
-def parse(reMatch):
+def parse(reMatch) -> str:
 	""" repl解析 """
-	charset = []
-	args = []
-	funcName = None
-	func = function
-	value = reMatch.group(1)
-	for i in str(value).split("."):
-		for char in i:
-			if char == "(":
-				funcName = "".join(charset)
-				charset.clear()
-			elif char == ")":
-				if charset:
-					args.append("".join(charset))
-				break
-			elif char == ",":
-				args.append("".join(charset))
-				charset.clear()
-			else:
-				charset.append(char)
+	obj = function
+	data = re.findall(r"\.?(.+?)\((.*?)\)", reMatch.group(1))
+	for i in data:
+		name, args = i[0], i[1]
 		if args:
-			func = getattr(func, funcName)(*args)
+			obj = getattr(obj, name)(*args.split(","))
 		else:
-			func = getattr(func, funcName)()
-	if not isinstance(func, str):
-		msg = f"function {value} must return a string"
+			obj = getattr(obj, name)()
+	if not isinstance(obj, str):
+		msg = f"function {reMatch.group(1)} must return a string"
 		raise TypeError(msg)
-	return func
+	return obj
