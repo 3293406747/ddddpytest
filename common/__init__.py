@@ -2,7 +2,7 @@ import json
 from string import Template
 import yaml
 from common import request,function
-from common.case import verifyCase
+from common.case import verifyCase, renderTemplate
 from common.variable import Variables,Globals,Environment
 from common.session import session
 from common.thread import thread
@@ -17,11 +17,6 @@ class dp:
 	def requests(cls):
 		""" 发送请求 """
 		return request
-
-	@classmethod
-	def function(cls):
-		""" python方法 """
-		return function
 
 	@classmethod
 	def read_testcase(cls,file_name,item=0,encoding="utf-8"):
@@ -46,6 +41,31 @@ class dp:
 		return Assertion
 
 	@classmethod
+	def extract(cls):
+		""" 提取 """
+		return extractVariable
+
+	@classmethod
+	def render(cls,data):
+		""" 渲染 """
+		return renderTemplate(data)
+
+	@classmethod
+	def session(cls):
+		""" session """
+		return session
+
+	@classmethod
+	def function(cls):
+		""" python方法 """
+		return function
+
+	@classmethod
+	def thread(cls):
+		""" 多线程装饰器 """
+		return thread
+
+	@classmethod
 	def variables(cls):
 		""" 变量 """
 		return Variables()
@@ -60,22 +80,3 @@ class dp:
 		""" 环境变量 """
 		return Environment()
 
-	@classmethod
-	def read_data(cls, file_name, encoding="utf-8"):
-		""" 读取case for csv文件"""
-		return read_data(file_name=file_name, encoding=encoding)
-
-	@classmethod
-	def session(cls):
-		""" session """
-		return session
-
-	@classmethod
-	def thread(cls):
-		""" 多线程装饰器 """
-		return thread
-
-	@classmethod
-	def extractVariable(cls):
-		""" 提取 """
-		return extractVariable
