@@ -7,13 +7,13 @@ class Session:
 		self.__sessPool = []
 		self.__seek = 0
 
-	def create(self,item=1):
+	def create(self, item=1):
 		""" 创建session对象 """
 		for _ in range(item):
 			sess = requests.session()
 			self.__sessPool.append(sess)
 
-	def __call__(self,seek=None):
+	def __call__(self, seek=None) -> requests.Session:
 		""" 返回session对象 """
 		self.__seek = self.__seek if seek is None else seek
 		return self.__sessPool[self.__seek]
@@ -32,13 +32,14 @@ class Session:
 		return self.__seek
 
 	@seek.setter
-	def seek(self,item):
+	def seek(self, item):
 		""" 修改session池中session指向 """
 		self.__seek = item
 
 	def sessions(self):
 		"""" 获取session池中所有session """
 		return self.__sessPool
+
 
 session = Session()
 session.create()

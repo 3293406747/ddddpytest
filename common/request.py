@@ -6,8 +6,6 @@ import allure
 import requests
 from common.assertion import Assertion
 from common.extract import extractVariable
-from common.read import read_config
-from common.variable import Variables
 from common.case import renderTemplate
 from common.logger import logger
 from common.session import session
@@ -15,17 +13,14 @@ from common.session import session
 
 def autoRequest(caseinfo, timeout=10) -> requests.Response:
 	""" 自动请求 """
-	# 设置base_url为变量
-	if not Variables().get("base_url"):
-		Variables().set(key="base_url", value=read_config()["base_url"])
 	# 渲染请求
-	newRequest = renderTemplate(caseinfo["request"])
+	caseinfo["request"] = renderTemplate(caseinfo["request"])
 	# 获取session
 	sess = caseinfo.get("session")
 	# 获取用例名称
 	name = caseinfo["casename"]
 	# 发送请求
-	response = request(**newRequest, name=name, sess=sess, timeout=timeout)
+	response = request(**caseinfo["request"], name=name, sess=sess, timeout=timeout)
 	# 从请求或响应中提取内容:
 	extractPool = {}
 	if caseinfo.get("extract"):
@@ -36,7 +31,7 @@ def autoRequest(caseinfo, timeout=10) -> requests.Response:
 				index = int(temp[0]) if temp else None
 				if pattern[0] == "$":
 					# json提取
-					value = extractVariable.json(data=newRequest if who == "request" else response.json(), expr=pattern,
+					value = extractVariable.json(data=caseinfo["request"] if who == "request" else response.json(), expr=pattern,
 												 index=index)
 				else:
 					# 正则提取
@@ -44,7 +39,7 @@ def autoRequest(caseinfo, timeout=10) -> requests.Response:
 						data = response.json()
 					except JSONDecodeError:
 						data = response.text
-					value = extractVariable.match(data=newRequest if who == "request" else data, pattern=pattern,
+					value = extractVariable.match(data=caseinfo["request"] if who == "request" else data, pattern=pattern,
 												  index=index)
 				extractPool[key] = value
 	# 断言
