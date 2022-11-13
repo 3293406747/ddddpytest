@@ -20,6 +20,10 @@ def read_data(file_name, encoding='utf-8'):
 		column = next(reader)
 		cases = []
 		for row in reader:
+			row: list
+			for i,val in enumerate(row):
+				if val == "null":
+					row[i] = None
 			case = dict(zip(column,row))
 			cases.append(case)
 	return cases
