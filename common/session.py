@@ -7,7 +7,7 @@ class Session:
 		self.__sessPool = []
 		self.__seek = 0
 
-	def create(self, item=1):
+	def new(self,item=1):
 		""" 创建session对象 """
 		for _ in range(item):
 			sess = requests.session()
@@ -42,4 +42,3 @@ class Session:
 
 
 session = Session()
-session.create()

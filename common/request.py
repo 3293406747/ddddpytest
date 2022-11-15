@@ -9,6 +9,7 @@ from common.extract import extractVariable
 from common.case import renderTemplate
 from common.logger import logger
 from common.session import session
+from pathlib import Path
 
 
 def autoRequest(caseinfo, timeout=10) -> requests.Response:
@@ -31,7 +32,8 @@ def autoRequest(caseinfo, timeout=10) -> requests.Response:
 				index = int(temp[0]) if temp else None
 				if pattern[0] == "$":
 					# json提取
-					value = extractVariable.json(data=caseinfo["request"] if who == "request" else response.json(), expr=pattern,
+					value = extractVariable.json(data=caseinfo["request"] if who == "request" else response.json(),
+												 expr=pattern,
 												 index=index)
 				else:
 					# 正则提取
@@ -39,7 +41,8 @@ def autoRequest(caseinfo, timeout=10) -> requests.Response:
 						data = response.json()
 					except JSONDecodeError:
 						data = response.text
-					value = extractVariable.match(data=caseinfo["request"] if who == "request" else data, pattern=pattern,
+					value = extractVariable.match(data=caseinfo["request"] if who == "request" else data,
+												  pattern=pattern,
 												  index=index)
 				extractPool[key] = value
 	# 断言
@@ -108,6 +111,8 @@ class fixture:
 		def wapper(url, sess=None, method=None, files=None, timeout=10, **kwargs):
 			if isinstance(files, dict):
 				for file, path in files.items():
+					project_path = Path(__file__).resolve().parent.parent
+					path = project_path / path
 					files[file] = open(path, "rb")
 			real = func(url=url, sess=sess, method=method, files=files, timeout=timeout, **kwargs)
 			return real
