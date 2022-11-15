@@ -8,9 +8,11 @@ from common import dp
 def prelogin(request):
 	# 设置base_url为变量
 	Variables().set(key="base_url", value=read_config()["base_url"])
+	# 创建session
+	dp.session().new()
 	# 设置cookie
 	dp.requests().autoRequest(request.param)
 	# 创建session
-	dp.session().create()
+	dp.session().new()
 
 

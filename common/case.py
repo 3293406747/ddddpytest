@@ -66,7 +66,7 @@ def verifyCase(case):
 				raise Exception(msg)
 	# session校验
 	if newCase.get("session") and not isinstance(newCase.get("session"), int):
-		msg = f"{strcase:.255s}的session关键字下必须为整数格式。"
+		msg = f"{strcase:.255s}的session关键字下必须整数格式。"
 		raise Exception(msg)
 	# assertion校验
 	if newCase.get("assertion") and isinstance(newCase.get("assertion"), dict):

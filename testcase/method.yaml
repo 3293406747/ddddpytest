@@ -28,6 +28,6 @@
     url: http://httpbin.org/post
     method: POST
     files:
-      file1: D:\RuanJian\pycharm\PycharmProjects\ddddpytest\pytest.ini
-      file2: D:\RuanJian\pycharm\PycharmProjects\ddddpytest\readme.md
+      file1: pytest.ini
+      file2: readme.md
 
