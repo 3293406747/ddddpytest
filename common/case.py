@@ -40,10 +40,10 @@ def verifyCase(case):
 			raise Exception(msg)
 		else:
 			request.pop(key)
-	requestOtherKeys = ["params", "data", "json", "files"]
+	requestOtherKeys = ["params", "data", "json", "files","headers"]
 	for i in request.keys():
 		if i not in requestOtherKeys:
-			msg = f"{strcase:.255s}的request关键字下不能包含除url,method,params,data,json,files之外的关键字。"
+			msg = f"{strcase:.255s}的request关键字下不能包含除{','.join(requestOtherKeys)}之外的关键字。"
 			raise Exception(msg)
 	# 非必选参数校验
 	otherKeys = ["data_path", "extract", "assertion", "session"]
