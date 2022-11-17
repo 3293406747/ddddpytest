@@ -8,7 +8,7 @@ from common.session import session
 from common.thread import thread
 from common.assertion import Assertion
 from common.read import read_data, read_config,read_case
-from common.extract import extractVariable
+from common.extract import extract
 
 
 class dp:
@@ -43,7 +43,7 @@ class dp:
 	@classmethod
 	def extract(cls):
 		""" 提取 """
-		return extractVariable
+		return extract
 
 	@classmethod
 	def render(cls,data):

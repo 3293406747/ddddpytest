@@ -5,7 +5,7 @@ from string import Template
 import allure
 import requests
 from common.assertion import Assertion
-from common.extract import extractVariable
+from common.extract import extract
 from common.case import renderTemplate
 from common.logger import logger
 from common.session import session
@@ -32,18 +32,16 @@ def autoRequest(caseinfo, timeout=10) -> requests.Response:
 				index = int(temp[0]) if temp else None
 				if pattern[0] == "$":
 					# json提取
-					value = extractVariable.json(data=caseinfo["request"] if who == "request" else response.json(),
-												 expr=pattern,
-												 index=index)
+					value = extract.json(data=caseinfo["request"] if who == "request" else response.json(),
+										 pattern=pattern, index=index)
 				else:
 					# 正则提取
 					try:
 						data = response.json()
 					except JSONDecodeError:
 						data = response.text
-					value = extractVariable.match(data=caseinfo["request"] if who == "request" else data,
-												  pattern=pattern,
-												  index=index)
+					value = extract.match(data=caseinfo["request"] if who == "request" else data, pattern=pattern,
+										  index=index)
 				extractPool[key] = value
 	# 断言
 	if isinstance(caseinfo.get("assertion"), dict):

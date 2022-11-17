@@ -82,6 +82,3 @@ class SqlSelect:
 		else:
 			value = dict(result[item]).get(key)
 			return value
-
-	def commit(self, sql):
-		self.__mysql.commit(sql)
