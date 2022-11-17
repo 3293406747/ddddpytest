@@ -30,49 +30,28 @@ class Factory:
 	@classmethod
 	def create(cls,method,expect,actual,name=None):
 		if method in ["equal","unequal"]:
+			if isinstance(expect,(str, int, float)):
+				expect = [expect]
+			if isinstance(actual,(str, int, float)):
+				actual = [actual]
 			# list|tuple|set
 			if isinstance(expect, (list, tuple, set)) and isinstance(actual, (list, tuple, set)):
 				for i in range(len(expect)):
-					# 相等断言
-					if method == "equal":
-						try:
+					try:
+						# 相等断言
+						if method == "equal":
 							assert expect[i] == actual[i]
 							msg = f"{name or ''}断言通过:{str(expect[i])}等于{str(actual[i])}"
-							logger.success(msg)
-						except AssertionError:
-							msg = f"{name or ''}断言失败:{str(expect[i])}不等于{str(actual[i])}"
-							logger.error(msg)
-							raise AssertionError(msg) from None
-					# 不相等断言
-					else:
-						try:
+						# 不相等断言
+						else:
 							assert expect[i] != actual[i]
 							msg = f"{name or ''}断言通过:{str(expect[i])}不等于{str(actual[i])}"
-							logger.success(msg)
-						except AssertionError:
+						logger.success(msg)
+					except AssertionError:
+						if method == "equal":
+							msg = f"{name or ''}断言失败:{str(expect[i])}不等于{str(actual[i])}"
+						else:
 							msg = f"{name or ''}断言失败:{str(expect[i])}等于{str(actual[i])}"
-							logger.error(msg)
-							raise AssertionError(msg) from None
-			# str|int|float
-			elif isinstance(expect, (str, int, float)) and isinstance(actual, (str, int, float)):
-				# 相等断言
-				if method == "equal":
-					try:
-						assert expect == actual
-						msg = f"{name or ''}断言通过:{str(expect)}等于{str(actual)}"
-						logger.success(msg)
-					except AssertionError:
-						msg = f"{name or ''}断言失败:{str(expect)}不等于{str(actual)}"
-						logger.error(msg)
-						raise AssertionError(msg) from None
-				# 不相等断言
-				else:
-					try:
-						assert expect != actual
-						msg = f"{name or ''}断言通过:{str(expect)}不等于{str(actual)}"
-						logger.success(msg)
-					except AssertionError:
-						msg = f"{name or ''}断言失败:{str(expect)}等于{str(actual)}"
 						logger.error(msg)
 						raise AssertionError(msg) from None
 			else:
@@ -81,47 +60,25 @@ class Factory:
 		elif method in ["contain","uncontain"]:
 			actual = json.dumps(actual, ensure_ascii=False) if isinstance(actual, dict) else actual
 			# list|tuple|set
+			if isinstance(expect,str):
+				expect = [expect]
 			if isinstance(expect, (list, tuple, set)):
 				for i in expect:
-					# 包含断言
-					if method == "contain":
-						try:
+					try:
+						# 包含断言
+						if method == "contain":
 							assert i in actual
 							msg = f"{name or ''}断言通过:{str(i)}在{actual:.255s}中存在"
-							logger.success(msg)
-						except AssertionError:
-							msg = f"{name or ''}断言失败:{str(i)}在{actual:.255s}中不存在"
-							logger.error(msg)
-							raise AssertionError(msg) from None
-					# 不包含断言
-					else:
-						try:
+						# 不包含断言
+						else:
 							assert i not in actual
 							msg = f"{name or ''}断言通过:{str(i)}在{actual:.255s}中不存在"
-							logger.success(msg)
-						except AssertionError:
+						logger.success(msg)
+					except AssertionError:
+						if method == "contain":
+							msg = f"{name or ''}断言失败:{str(i)}在{actual:.255s}中不存在"
+						else:
 							msg = f"{name or ''}断言失败:{str(i)}在{actual:.255s}中存在"
-							logger.error(msg)
-							raise AssertionError(msg) from None
-			elif isinstance(expect, str):
-				# 包含断言
-				if method == "contain":
-					try:
-						assert expect in actual
-						msg = f"{name or ''}断言通过:{expect}在{actual:.255s}中存在"
-						logger.success(msg)
-					except AssertionError:
-						msg = f"{name or ''}断言失败:{expect}在{actual:.255s}中不存在"
-						logger.error(msg)
-						raise AssertionError(msg) from None
-				# 不包含断言
-				else:
-					try:
-						assert expect not in actual
-						msg = f"{name or ''}断言通过:{expect}在{actual:.255s}中不存在"
-						logger.success(msg)
-					except AssertionError:
-						msg = f"{name or ''}断言失败:{expect}在{actual:.255s}中存在"
 						logger.error(msg)
 						raise AssertionError(msg) from None
 			else:
