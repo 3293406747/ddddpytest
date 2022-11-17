@@ -69,6 +69,10 @@ class Globals:
 		with path.joinpath("globals.yaml").open(mode="w",encoding=self.encoding) as f:
 			yaml.dump(data=self.__pool, stream=f)
 
+	def get(self,key):
+		""" 获取变量 """
+		return self.__pool.get(key)
+
 	def unset(self,key):
 		""" 删除变量 """
 		del self.__pool[key]
@@ -112,6 +116,10 @@ class Environment:
 		self.__pool[key] = value
 		with path.joinpath(self.file_name).open(mode="w",encoding=self.encoding) as f:
 			yaml.dump(data=self.__pool, stream=f)
+
+	def get(self,key):
+		""" 获取变量 """
+		return self.__pool.get(key)
 
 	def unset(self,key):
 		""" 删除变量 """
