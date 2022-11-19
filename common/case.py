@@ -7,7 +7,6 @@ from common.variable import Variables, Globals, Environment
 from common import function
 
 pattern: Pattern = re.compile(r"\{\{(.*?)\}\}")
-__all__ = ["renderTemplate"]
 
 
 def renderTemplate(data):

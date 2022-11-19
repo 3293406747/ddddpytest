@@ -11,7 +11,7 @@ def prelogin(request):
 	# 创建session
 	dp.session().new()
 	# 设置cookie
-	dp.requests().autoRequest(request.param)
+	dp.autoRequest(request.param)
 	# 创建session
 	dp.session().new()
 

@@ -59,16 +59,12 @@ pytest
 **demo**
 
 ```python
-import allure
 import pytest
 from common import dp
 
-
-@allure.story("get请求")
 @pytest.mark.parametrize("case", dp.read_testcase("method.yaml"))
-def test_get(self, case):
-    allure.dynamic.title(case["casename"])
-    dp.requests().autoRequest(case)
+def test_get(case):
+	dp.autoRequest(case)
 ```
 
 ```yaml
@@ -96,11 +92,7 @@ dp.read_testcase(file_name, [item=0])
 ```python
 # 自动请求;
 # 参数 caseinfo:读取出的单条用例,timeout:请求超时时间
-dp.requests().autoRequest(caseinfo, [timeout=10])
-# 发送get请求
-dp.requests().get(url,[files=None,sess=None,timeout=10,**kwargs])
-# 发送post请求
-dp.requests().post(url,[files=None,sess=None,timeout=10,**kwargs])
+dp.autoRequests().autoRequest(caseinfo, [timeout = 10])
 ```
 
 ### 变量
