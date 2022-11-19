@@ -10,16 +10,16 @@ class TestHttpbin:
 	@pytest.mark.parametrize("case", dp.read_testcase("cookie.yaml"))
 	def test_cookie0(self, case):
 		allure.dynamic.title(case["casename"])
-		dp.requests().autoRequest(case)
+		dp.autoRequest(case)
 
 	@allure.story("session1获取cookie")
 	@pytest.mark.parametrize("case", dp.read_testcase("cookie.yaml",1))
 	def test_cookie1(self, case):
 		allure.dynamic.title(case["casename"])
-		dp.requests().autoRequest(case)
+		dp.autoRequest(case)
 
 	@allure.story("session获取cookie_2")
 	@pytest.mark.parametrize("case", dp.read_testcase("cookie.yaml",2))
 	def test_cookie2(self, case):
 		allure.dynamic.title(case["casename"])
-		dp.requests().autoRequest(case)
+		dp.autoRequest(case)

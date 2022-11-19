@@ -1,39 +1,25 @@
-import json
-from string import Template
-import yaml
-from common import request,function
+from common import function
+from common.request import autoRequest
 from common.case import verifyCase, renderTemplate
 from common.variable import Variables,Globals,Environment
 from common.session import session
 from common.thread import thread
 from common.assertion import Assertion
-from common.read import read_data, read_config,read_case
+from common.read import read_testcase
 from common.extract import extract
 
 
 class dp:
 
 	@classmethod
-	def requests(cls):
+	def autoRequest(cls,caseinfo,timeout=10):
 		""" 发送请求 """
-		return request
+		return autoRequest(caseinfo=caseinfo,timeout=timeout)
 
 	@classmethod
 	def read_testcase(cls,file_name,item=0,encoding="utf-8"):
 		""" 读取测试用例 """
-		caseinfo = read_case(file_name=file_name, encoding=encoding)[item]
-		caseinfo = verifyCase(caseinfo)
-		if not caseinfo.get("data_path"):
-			return [caseinfo]
-		data_path = caseinfo.pop("data_path")
-		caseinfo = json.dumps(caseinfo, ensure_ascii=False)
-		caseList = []
-		data = read_data(data_path)
-		for i in data:
-			temp = Template(caseinfo).safe_substitute(i)
-			newCase = yaml.load(stream=temp, Loader=yaml.FullLoader)
-			caseList.append(newCase)
-		return caseList
+		return read_testcase(file_name=file_name,item=item,encoding=encoding)
 
 	@classmethod
 	def asserion(cls):
