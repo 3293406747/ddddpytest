@@ -16,11 +16,56 @@ def renderTemplate(data):
 	# 使用变量
 	merge = {**Variables().pool, **Globals().pool, **Environment().pool}
 	# merge = Variables().pool | Globals().pool | Environment().pool
-	data = Template(data).safe_substitute(merge)
+	data = renderVariables(obj=data, mapping=merge)
+	data = Template(json.dumps(data,ensure_ascii=False)).safe_substitute(merge)
 	# 调用python函数
-	data = pattern.sub(repl=parse, string=data)
+	data = renderFunction(data)
+	data = pattern.sub(repl=parse, string=json.dumps(data,ensure_ascii=False))
 	return json.loads(data)
 
+def renderVariables(obj,mapping:dict):
+	""" 使用变量 """
+	if isinstance(obj,str):
+		obj = json.loads(obj)
+	if isinstance(obj,list):
+		for key,value in enumerate(obj):
+			if isinstance(value,str):
+				res = re.match(r"^\$\{(.*?)\}$", value)
+				if res and mapping.get(res.group(1)):
+					obj[key] = mapping.get(res.group(1))
+			elif isinstance(value,(list,dict)):
+				obj[key] = renderVariables(value, mapping)
+	elif isinstance(obj,dict):
+		for key,value in obj.items():
+			if isinstance(value,str):
+				res = re.match(r"^\$\{(.*?)\}$", value)
+				if res and mapping.get(res.group(1)):
+					obj[key] = mapping.get(res.group(1))
+			elif isinstance(value,(list,dict)):
+				obj[key] = renderVariables(value, mapping)
+	return obj
+
+def renderFunction(obj):
+	""" 调用python函数 """
+	if isinstance(obj,str):
+		obj = json.loads(obj)
+	if isinstance(obj,list):
+		for key,value in enumerate(obj):
+			if isinstance(value,str):
+				res = re.match(r"^\{\{(.*?)\}\}$", value)
+				if res:
+					obj[key] = parse(res)
+			elif isinstance(value,(list,dict)):
+				obj[key] = renderFunction(value)
+	elif isinstance(obj,dict):
+		for key,value in obj.items():
+			if isinstance(value,str):
+				res = re.match(r"^\{\{(.*?)\}\}$", value)
+				if res:
+					obj[key] = parse(res)
+			elif isinstance(value,(list,dict)):
+				obj[key] = renderFunction(value)
+	return obj
 
 def verifyCase(case):
 	""" 校验用例格式 """
@@ -94,7 +139,7 @@ def verifyCase(case):
 	return case
 
 
-def parse(reMatch) -> str:
+def parse(reMatch):
 	""" repl解析 """
 	obj = function
 	data = re.findall(r"\.?(.+?)\((.*?)\)", reMatch.group(1))
@@ -104,7 +149,4 @@ def parse(reMatch) -> str:
 			obj = getattr(obj, name)(*args.split(","))
 		else:
 			obj = getattr(obj, name)()
-	if not isinstance(obj, str):
-		msg = f"function {reMatch.group(1)} must return a string"
-		raise TypeError(msg)
 	return obj
