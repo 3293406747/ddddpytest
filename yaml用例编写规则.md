@@ -1,5 +1,5 @@
 - 一级关键字：必须包含casename、request，可包含data_path、session、extract、assertion。其中casename为用例名，request为请求内容，data_path为关联的csv测试数据路径，session为要是用的session索引，默认使用索引为0的session。
-- 二级关键字：request中必须包含url、method关键字，可包含params、data、json、files关键字，session必须是整数，extract中可包含request、response关键字，assertion中可包含equal、unequal、contain、uncontain关键字，为equal或unequal关键字时，必须为列表形式，列表中必须包含expect、actual关键字，可包含actual_index关键字;为contain或uncontain关键字时必须为列表形式。
+- 二级关键字：request中必须包含url、method关键字，可包含params、data、json、files、headers关键字，session必须是整数，extract中可包含request、response关键字，assertion中可包含equal、unequal、contain、uncontain关键字，为equal或unequal关键字时，必须为列表形式，列表中字典必须包含expect、actual关键字;为contain或uncontain关键字时必须为列表形式。
 - 使用变量：${变量名}
 - 调用python函数：{{方法名(参数)}}
 - yaml关联csv测试数据：存在data_path参数时可使用csv中的列名，${csv中的列名},为csv文件中列名时将会被循环替换为对应的值，生成关联后的用例集。
