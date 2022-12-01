@@ -63,7 +63,7 @@ class Method:
 				logger.success(msg)
 			except AssertionError:
 				if method == "equal":
-					msg = f"{name or ''}断言通过:{str(expect[i])}不等于{str(actual[i])}"
+					msg = f"{name or ''}断言失败:{str(expect[i])}不等于{str(actual[i])}"
 				else:
 					msg = f"{name or ''}断言失败:{str(expect[i])}等于{str(actual[i])}"
 				logger.error(msg)
