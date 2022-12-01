@@ -31,7 +31,7 @@ class Mysql:
 			self.cursor.execute(sql)
 			self.conn.commit()
 		except Exception as why:
-			self.conn.rollback()
+			# self.conn.rollback()
 			msg = f"sql执行失败，原因:{why}"
 			raise Exception(msg) from None
 

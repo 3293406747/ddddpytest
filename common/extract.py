@@ -23,12 +23,10 @@ class Factory:
 	def create(cls,method,data,pattern,index):
 		# json提取
 		if method == "json":
-			obj = json.loads(data) if isinstance(data, str) else data
-			result = jsonpath.jsonpath(obj=obj, expr=pattern)
+			result = Method.json(data=data,pattern=pattern)
 		# 正则提取
 		elif method == "match":
-			obj = json.dumps(data, ensure_ascii=False) if isinstance(data, dict) else data
-			result = re.findall(pattern=pattern, string=obj)
+			result = Method.match(data=data,pattern=pattern)
 		else:
 			msg = "提取方式不支持。"
 			raise Exception(msg)
@@ -38,6 +36,21 @@ class Factory:
 		if index is not None:
 			result = result[index]
 		return result
+
+class Method:
+
+	@classmethod
+	def json(cls,data,pattern):
+		obj = json.loads(data) if isinstance(data, str) else data
+		result = jsonpath.jsonpath(obj=obj, expr=pattern)
+		return result
+
+	@classmethod
+	def match(cls,data,pattern):
+		obj = json.dumps(data, ensure_ascii=False) if isinstance(data, dict) else data
+		result = re.findall(pattern=pattern, string=obj)
+		return result
+
 
 
 extract = Extract()

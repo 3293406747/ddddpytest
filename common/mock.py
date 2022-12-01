@@ -23,7 +23,7 @@ class Mock:
 	def __init__(self):
 		if Mock.__init_flag:
 			self.__cn = self.__locales[0]
-			self.__us = self.__locales[1]
+			self.__en = self.__locales[1]
 			self.__faker = Faker(locale=self.__locales)
 			Mock.__init_flag = False
 
@@ -34,7 +34,7 @@ class Mock:
 				'card': 'credit_card_number'
 			}
 			attr = elems.get(attr) or attr
-			return getattr(self.__faker[self.__us], attr)
+			return getattr(self.__faker[self.__en], attr)
 		elif attr in cattrset:
 			elems = {
 				'cphone': 'phone_number',
