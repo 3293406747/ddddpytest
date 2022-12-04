@@ -1,4 +1,0 @@
-casename,foo
-使用data,bar
-使用变量,${base_url}
-使用python函数,{{md5(123456)}}

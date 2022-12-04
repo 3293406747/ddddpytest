@@ -19,7 +19,7 @@ class dp:
 	@classmethod
 	def read_testcase(cls,file_name,item=0,encoding="utf-8"):
 		""" 读取测试用例 """
-		return read_testcase(file_name=file_name,item=item,encoding=encoding)
+		return read_testcase(filename=file_name, item=item, encoding=encoding)
 
 	@classmethod
 	def asserion(cls):
