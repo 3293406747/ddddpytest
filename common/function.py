@@ -1,5 +1,6 @@
 import base64
 import hashlib
+import time
 from common.mock import Mock
 from common.mysql import SqlSelect
 
@@ -24,3 +25,7 @@ def mock():
 def sqlSelect(sql,key,item=None):
 	""" sql查询 """
 	return SqlSelect().execute(sql=sql,key=key,item=int(item))
+
+def gen_date_time(step):
+	str_date_time = time.strftime('%Y-%m-%d %H_%M_%S').split(' ')
+	return str_date_time[int(step)]

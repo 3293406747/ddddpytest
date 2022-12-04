@@ -2,7 +2,7 @@ base_url: http://httpbin.org
 
 logger:
   file:
-    sink: ./log/logger.log
+    sink: './logs/{{gen_date_time(0)}}/log_{{gen_date_time(1)}}.log'
     level: DEBUG
     format: <green>{time:YYYY-MM-DD HH:mm:ss}</green>[<level>{level}</level>]<level>{message}</level>
     rotation: "10 MB"

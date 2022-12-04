@@ -2,8 +2,7 @@ import json
 from string import Template
 import yaml,csv
 from pathlib import Path
-from common.case import verifyCase
-
+from common.case import verifyCase, renderTemplate
 
 path = Path(__file__).resolve().parent.parent
 instance = {}
@@ -14,7 +13,8 @@ def read_config(file_name="local.yaml",encoding="utf-8") ->dict:
 		with path.joinpath("config").joinpath(file_name).open(encoding=encoding) as f:
 			data = yaml.load(stream=f, Loader=yaml.FullLoader)
 		instance[file_name] = data
-	return instance[file_name]
+	config = renderTemplate(instance[file_name])
+	return config
 
 def read_data(file_name, encoding='utf-8'):
 	""" 读取测试数据 """
