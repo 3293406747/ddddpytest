@@ -40,12 +40,13 @@ pytest
 
 ## 项目结构
 
+```text
 - common >> 各种工具类
 - config >> 项目配置文件
 - data >> 存放测试数据
 - environment >> 环境变量
-- log >> 日志文件
-- report >> allure测试报告
+- logs >> 日志文件
+- reports >> allure测试报告
 - script >> 测试用例执行脚本
 - temp >> allure临时报告
 - testcase >> 存放测试用例
@@ -53,6 +54,7 @@ pytest
 - pytest.ini >> pytest配置文件
 - requirements.txt >> 相关依赖包文件
 - user.sql >> 初始化数据库表
+```
 
 ## 项目使用
 
