@@ -74,10 +74,7 @@ class SqlSelect:
 		""" 执行sql查询 """
 		result = self.__mysql.select(sql)
 		if item is None:
-			keylist = []
-			for dt in result:
-				value = dict(dt).get(key)
-				keylist.append(value)
+			keylist = [dict(dt).get(key) for dt in result]
 			return keylist
 		else:
 			value = dict(result[item]).get(key)

@@ -104,10 +104,10 @@ class VerifyCase:
 
 	def args_unmust(self):
 		# 非必选参数校验
-		otherKeys = ["data_path", "extract", "assertion", "session"]
+		otherKeys = ["data_path","data_sheet", "extract", "assertion", "session"]
 		for i in self.case_new.keys():
 			if i not in otherKeys:
-				msg = f"{self.case_str:.255s}不能包含除casename,request,data_path,extract,assertion,session之外的一级关键字。"
+				msg = f"{self.case_str:.255s}不能包含除casename,request,{','.join(otherKeys)}之外的一级关键字。"
 				raise Exception(msg)
 
 	def extract(self):

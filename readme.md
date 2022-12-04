@@ -1,15 +1,15 @@
 :link:[真希望你没见过什么世面，一生只爱我这张平凡的脸](https://music.163.com/#/song?id=1963720173)
 # 带带弟弟pytest
 
-本项目实现接口自动化的技术选型：**Python+Requests+Pytest+Allure+YAML+CSV+Loguru** ，
-通过 Python+Requests 来发送和处理HTTP协议的请求接口， 使用 Pytest 作为测试执行器，
-使用 Allure 生成测试报告，使用 YAML +CSV管理测试数据，使用Loguru管理日志。
+本项目实现接口自动化的技术选型：**Python+Requests+Pytest+Allure+Yaml+Excel+Loguru** ，
+通过Python+Requests来发送和处理HTTP协议的请求接口， 使用Pytest作为测试执行器，
+使用Allure生成测试报告，使用YAML管理测试用例，使用Excel管理测试数据，使用Loguru管理日志。
 
 - 采用统一请求封装，session自动关联
 - 支持多session之间切换
 - 多变量环境，可设置变量，全局变量及环境变量
 - 支持多套配置文件之间切换
-- Yaml文件可关联Csv文件，Yaml文件存放公共测试数据，Csv文件存放测试数据
+- Yaml文件可关联Excel文件，Yaml文件存放公共测试数据，Excel文件存放测试数据
 - yaml及Csv文件中均可使用变量、调用python函数
 - 支持mysql数据库连接及操作
 - 自动处理请求中的files数据，自动提取请求、响应中的内容、自动断言
