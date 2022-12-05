@@ -83,7 +83,6 @@ class fixture:
 		""" 日志记录 """
 
 		def wapper(url, name, files=None, sess=None, timeout=10, method=None, **kwargs):
-			logger.info(f"{'start':*^80s}")
 			logger.info(f"请求名称:{name:.255s}")
 			logger.info(f"请求url:{url:.255s}")
 			if method:
@@ -97,7 +96,6 @@ class fixture:
 			except JSONDecodeError:
 				data = real.text
 			logger.info(f"响应结果:{data:.255s}")
-			logger.info(f"{'end':*^80s}")
 			return real
 
 		return wapper
