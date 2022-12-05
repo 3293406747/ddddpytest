@@ -1,6 +1,6 @@
 import sys
 from loguru import logger as logging
-from common.read import read_config
+from common.read.read_config import read_config
 
 
 class Logger:

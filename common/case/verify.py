@@ -1,92 +1,8 @@
 import copy
 import json
-import re
-from string import Template
-from typing import Pattern
-from common.variable import Variables, Globals, Environment
-from common import function
-
-pattern: Pattern = re.compile(r"\{\{(.*?)\}\}")
 
 
-def renderTemplate(data):
-	""" 渲染用例 """
-	data = json.dumps(data, ensure_ascii=False)
-	# 使用变量
-	merge = {**Variables().pool, **Globals().pool, **Environment().pool}
-	# merge = Variables().pool | Globals().pool | Environment().pool
-	data = Factory.create(method="vary",obj=data,mapping=merge)
-	data = Template(json.dumps(data,ensure_ascii=False)).safe_substitute(merge)
-	# 调用python函数
-	data = Factory.create(method="func", obj=data, mapping=merge)
-	data = pattern.sub(repl=parse, string=json.dumps(data,ensure_ascii=False))
-	return json.loads(data)
-
-
-class Factory:
-
-	@classmethod
-	def create(cls,method,obj,mapping=None):
-		if isinstance(obj, str):
-			obj = json.loads(obj)
-		if isinstance(obj, list):
-			for key, value in enumerate(obj):
-				if method == "vary":
-					Method.vary(key=key,value=value,mapping=mapping,obj=obj)
-				elif method == "func":
-					Method.func(key=key,value=value,obj=obj)
-				else:
-					msg = "method not found"
-					raise Exception(msg)
-		elif isinstance(obj, dict):
-			for key, value in obj.items():
-				if method == "vary":
-					Method.vary(key=key,value=value,mapping=mapping,obj=obj)
-				elif method == "func":
-					Method.func(key=key,value=value,obj=obj)
-				else:
-					msg = "method not found"
-					raise Exception(msg)
-		return obj
-
-
-class Method:
-
-	@classmethod
-	def vary(cls,key,value,mapping,obj):
-		""" 使用变量 """
-		if isinstance(value, str):
-			res = re.match(r"^\$\{(.*?)\}$", value)
-			if res and mapping.get(res.group(1)):
-				obj[key] = mapping.get(res.group(1))
-		elif isinstance(value, (list, dict)):
-			obj[key] = Factory.create(method="vary",obj=value,mapping=mapping)
-
-	@classmethod
-	def func(cls,key,value,obj):
-		""" 调用python函数 """
-		if isinstance(value, str):
-			res = re.match(r"^\{\{(.*?)\}\}$", value)
-			if res:
-				obj[key] = parse(res)
-		elif isinstance(value, (list, dict)):
-			obj[key] = Factory.create(method="func",obj=value)
-
-
-def parse(reMatch):
-	""" repl解析 """
-	obj = function
-	data = re.findall(r"\.?(.+?)\((.*?)\)", reMatch.group(1))
-	for i in data:
-		name, args = i[0], i[1]
-		if args:
-			obj = getattr(obj, name)(*args.split(","))
-		else:
-			obj = getattr(obj, name)()
-	return obj
-
-
-class VerifyCase:
+class Verify:
 	""" 校验用例格式 """
 	def __init__(self,case):
 		self.case_new = copy.deepcopy(case)
@@ -170,9 +86,9 @@ class VerifyCase:
 			raise Exception(msg)
 
 
-def verifyCase(case):
+def verify(case):
 	""" 校验用例格式 """
-	ver = VerifyCase(case=case)
+	ver = Verify(case=case)
 	ver.args_must()
 	ver.request()
 	ver.args_unmust()

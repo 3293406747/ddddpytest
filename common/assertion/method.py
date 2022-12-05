@@ -1,45 +1,4 @@
-import json
-from common.logger import logger
-
-
-class Assertion:
-	""" 断言 """
-
-	@classmethod
-	def equal(cls, expect, actual, name=None):
-		""" 相等断言 """
-		return Factory.create(method="equal", expect=expect, actual=actual, name=name)
-
-	@classmethod
-	def unequal(cls, expect, actual, name=None):
-		""" 不相等断言 """
-		return Factory.create(method="unequal", expect=expect, actual=actual, name=name)
-
-	@classmethod
-	def contian(cls, expect, actual, name=None):
-		""" 包含断言 """
-		return Factory.create(method="contain", expect=expect, actual=actual, name=name)
-
-	@classmethod
-	def uncontian(cls, expect, actual, name=None):
-		""" 不包含断言 """
-		return Factory.create(method="uncontain", expect=expect, actual=actual, name=name)
-
-
-class Factory:
-
-	@classmethod
-	def create(cls, method, expect, actual, name=None):
-		if method in ["equal", "unequal"]:
-			list(map(lambda x: [x] if isinstance(x, (str, int, float)) else x, [expect, actual]))
-			Method.equal_unqual(method=method, expect=expect, actual=actual, name=name)
-		elif method in ["contain", "uncontain"]:
-			actual = json.dumps(actual, ensure_ascii=False) if isinstance(actual, dict) else actual
-			expect = [expect] if isinstance(expect, str) else expect
-			Method.contain_uncontain(method=method, expect=expect, actual=actual, name=name)
-		else:
-			msg = "断言格式不支持。"
-			raise Exception(msg)
+from common.logger.logger import logger
 
 
 class Method:

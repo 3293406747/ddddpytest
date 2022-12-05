@@ -1,5 +1,4 @@
 import pymysql
-from common.read import read_config
 
 
 class Mysql:
@@ -49,33 +48,3 @@ class Mysql:
 			except Exception as why:
 				msg = f"conn关闭失败，原因:{why}"
 				raise Exception(msg) from None
-
-class SqlSelect:
-	""" sql查询 """
-	__instance = None
-	__init_flag = True
-
-	def __new__(cls):
-		if cls.__instance is None:
-			cls.__instance = object.__new__(cls)
-			return cls.__instance
-		else:
-			return cls.__instance
-
-	def __init__(self):
-		if SqlSelect.__init_flag:
-			config = read_config()["mysql"]
-			if not config:
-				raise Exception("config.yaml中未配置数据库连接")
-			self.__mysql = Mysql(**config)
-			SqlSelect.__init_flag = False
-
-	def execute(self,sql,key,item=None):
-		""" 执行sql查询 """
-		result = self.__mysql.select(sql)
-		if item is None:
-			keylist = [dict(dt).get(key) for dt in result]
-			return keylist
-		else:
-			value = dict(result[item]).get(key)
-			return value
