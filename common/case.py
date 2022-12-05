@@ -73,6 +73,19 @@ class Method:
 			obj[key] = Factory.create(method="func",obj=value)
 
 
+def parse(reMatch):
+	""" repl解析 """
+	obj = function
+	data = re.findall(r"\.?(.+?)\((.*?)\)", reMatch.group(1))
+	for i in data:
+		name, args = i[0], i[1]
+		if args:
+			obj = getattr(obj, name)(*args.split(","))
+		else:
+			obj = getattr(obj, name)()
+	return obj
+
+
 class VerifyCase:
 	""" 校验用例格式 """
 	def __init__(self,case):
@@ -88,8 +101,8 @@ class VerifyCase:
 		self.case_new.pop("casename")
 
 	def request(self):
-		request = self.case_new.pop("request")
 		# request校验
+		request = self.case_new.pop("request")
 		for key in ["url", "method"]:
 			if not request.get(key):
 				msg = f"{self.case_str:.255s}的request关键字下必须包含二级关键字url,method"
@@ -167,16 +180,3 @@ def verifyCase(case):
 	ver.session()
 	ver.assertion()
 	return case
-
-
-def parse(reMatch):
-	""" repl解析 """
-	obj = function
-	data = re.findall(r"\.?(.+?)\((.*?)\)", reMatch.group(1))
-	for i in data:
-		name, args = i[0], i[1]
-		if args:
-			obj = getattr(obj, name)(*args.split(","))
-		else:
-			obj = getattr(obj, name)()
-	return obj
