@@ -1,8 +1,6 @@
-import base64
-import hashlib
-import time
-from common.mock import Mock
-from common.mysql import SqlSelect
+import base64,hashlib,time
+from common.function.mock import Mock
+from common.read.read_mysql import ReadMysql
 
 
 def md5(string):
@@ -24,7 +22,7 @@ def mock():
 
 def sqlSelect(sql,key,item=None):
 	""" sql查询 """
-	return SqlSelect().execute(sql=sql,key=key,item=int(item))
+	return ReadMysql().execute(sql=sql,key=key,item=int(item))
 
 def gen_date_time(step):
 	str_date_time = time.strftime('%Y-%m-%d %H_%M_%S').split(' ')

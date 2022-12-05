@@ -1,15 +1,21 @@
 from common import function
-from common.request import autoRequest
-from common.case import verifyCase, renderTemplate
-from common.variable import Variables,Globals,Environment
-from common.session import session
-from common.thread import thread
-from common.assertion import Assertion
-from common.read import read_testcase
+from common.request.autoRequest import autoRequest
+from common.case.verify import verify
+from common.case.render import renderTemplate
+from common.variable.variables import Variables
+from common.variable.environments import Environments
+from common.variable.globals import Globals
+from common.session.session import session
+from common.assertion.assertion import Assertion
+from common.read.read_testcase import read_testcase
 from common.extract import extract
+from common.logger.logger import logger
+from common.read.read_config import read_config
 
 
 class dp:
+
+	logger = logger
 
 	@classmethod
 	def autoRequest(cls,caseinfo,timeout=10):
@@ -47,11 +53,6 @@ class dp:
 		return function
 
 	@classmethod
-	def thread(cls):
-		""" 多线程装饰器 """
-		return thread
-
-	@classmethod
 	def variables(cls):
 		""" 变量 """
 		return Variables()
@@ -64,5 +65,9 @@ class dp:
 	@classmethod
 	def environment(cls):
 		""" 环境变量 """
-		return Environment()
+		return Environments()
+
+	@classmethod
+	def read_config(cls,filename="local.yaml",encoding="utf-8"):
+		return read_config(filename=filename,encoding=encoding)
 
