@@ -1,3 +1,4 @@
+import functools
 import json
 from json import JSONDecodeError
 import allure
@@ -11,7 +12,8 @@ class fixture:
 	def logfixture(cls, func):
 		""" 日志记录 """
 
-		def wapper(url, name, files=None, sess=None, timeout=10, method=None, **kwargs):
+		@functools.wraps(func)
+		def wrapper(url, name, files=None, sess=None, timeout=10, method=None, **kwargs):
 			logger.info(f"请求名称:{name:.255s}")
 			logger.info(f"请求url:{url:.255s}")
 			if method:
@@ -27,13 +29,14 @@ class fixture:
 			logger.info(f"响应结果:{data:.255s}")
 			return real
 
-		return wapper
+		return wrapper
 
 	@classmethod
 	def files(cls, func):
 		""" 文件处理 """
 
-		def wapper(url, sess=None, method=None, files=None, timeout=10, **kwargs):
+		@functools.wraps(func)
+		def wrapper(url, sess=None, method=None, files=None, timeout=10, **kwargs):
 			if isinstance(files, dict):
 				for file, path in files.items():
 					project_path = Path(__file__).resolve().parent.parent.parent
@@ -42,13 +45,14 @@ class fixture:
 			real = func(url=url, sess=sess, method=method, files=files, timeout=timeout, **kwargs)
 			return real
 
-		return wapper
+		return wrapper
 
 	@classmethod
 	def allure(cls, func):
 		""" allure记录 """
 
-		def wapper(url, sess=None, method=None, files=None, timeout=10, **kwargs):
+		@functools.wraps(func)
+		def wrapper(url, sess=None, method=None, files=None, timeout=10, **kwargs):
 			allure.attach(body=url, name="请求url:", attachment_type=allure.attachment_type.TEXT)
 			if method:
 				allure.attach(body=method, name="请求方式:", attachment_type=allure.attachment_type.TEXT)
@@ -74,4 +78,4 @@ class fixture:
 					allure.attach(body=response.content, name="pdf", attachment_type=allure.attachment_type.PDF)
 			return response
 
-		return wapper
+		return wrapper
