@@ -3,14 +3,15 @@
 
 本项目实现接口自动化的技术选型：**Python+Requests+Pytest+Allure+Yaml+Excel+Loguru** ，
 通过Python+Requests来发送和处理HTTP协议的请求接口， 使用Pytest作为测试执行器，
-使用Allure生成测试报告，使用YAML管理测试用例，使用Excel管理测试数据，使用Loguru管理日志。
+使用Allure生成测试报告，使用YAML+Excel管理测试数据，使用Loguru管理日志。
 
 - 采用统一请求封装，session自动关联
+- 采用关键字驱动设计
 - 支持多session之间切换
+- Yaml文件可关联Excel文件，Yaml文件存放公共测试数据，Excel文件存放测试数据
+- yaml及Excel文件中均可使用变量、调用python函数
 - 多变量环境，可设置变量，全局变量及环境变量
 - 支持多套配置文件之间切换
-- Yaml文件可关联Excel文件，Yaml文件存放公共测试数据，Excel文件存放测试数据
-- yaml及Csv文件中均可使用变量、调用python函数
 - 支持mysql数据库连接及操作
 - 自动处理请求中的files数据，自动提取请求、响应中的内容、自动断言
 - 项目运行自动生成Log日志文件、Allure报告
@@ -45,6 +46,7 @@ pytest
 - config >> 项目配置文件
 - data >> 存放测试数据
 - environment >> 环境变量
+- img >> 图像文件
 - logs >> 日志文件
 - reports >> allure测试报告
 - script >> 测试用例执行脚本

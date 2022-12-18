@@ -18,7 +18,7 @@ class ReadMysql:
 		if ReadMysql.__init_flag:
 			config = read_config()["mysql"]
 			if not config:
-				raise Exception("config.yaml中未配置数据库连接")
+				raise Exception("config/local.yaml中未配置数据库连接")
 			self.__mysql = Mysql(**config)
 			ReadMysql.__init_flag = False
 
