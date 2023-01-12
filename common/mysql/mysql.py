@@ -3,11 +3,27 @@ import pymysql
 
 class Mysql:
 	""" mysql数据库操作 """
+
+	conn = None
+	cursor = None
+
 	def __init__(self,host,port,user,password,db,charset='utf8'):
 		""" 连接mysql数据库 """
+		self.host = host
+		self.port = port
+		self.user = user
+		self.password = password
+		self.db = db
+		self.charset = charset
+
+	def __enter__(self):
+		self.connect()
+		return self
+
+	def connect(self):
 		try:
 			self.conn = pymysql.connect(
-				host=host,port=port,user=user,password=password,db=db, charset=charset
+				host=self.host,port=self.port,user=self.user,password=self.password,db=self.db, charset=self.charset
 			)
 			self.cursor = self.conn.cursor(cursor=pymysql.cursors.DictCursor)
 		except Exception as why:
@@ -18,8 +34,7 @@ class Mysql:
 		""" 读取table中数据 """
 		try:
 			self.cursor.execute(sql)
-			r = self.cursor.fetchall()
-			return r
+			return self.cursor.fetchall()
 		except Exception as why:
 			msg = f"数据查询失败，原因:{why}"
 			raise Exception(msg) from None
@@ -34,17 +49,10 @@ class Mysql:
 			msg = f"sql执行失败，原因:{why}"
 			raise Exception(msg) from None
 
+	def close(self):
+		self.cursor and self.cursor.close()
+		self.conn and self.conn.close()
 
-	def __del__(self):
-		if hasattr(Mysql, "cursor") and self.cursor:
-			try:
-				self.cursor.close()
-			except Exception as why:
-				msg = f"cursor关闭失败，原因:{why}"
-				raise Exception(msg) from None
-		if hasattr(Mysql, "conn") and self.conn:
-			try:
-				self.conn.close()
-			except Exception as why:
-				msg = f"conn关闭失败，原因:{why}"
-				raise Exception(msg) from None
+	def __exit__(self, exc_type, exc_val, exc_tb):
+		self.close()
+
