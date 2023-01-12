@@ -16,18 +16,13 @@ class ReadMysql:
 
 	def __init__(self):
 		if ReadMysql.__init_flag:
-			config = read_config()["mysql"]
-			if not config:
+			self.config = read_config()["mysql"]
+			if not self.config:
 				raise Exception("config/local.yaml中未配置数据库连接")
-			self.__mysql = Mysql(**config)
 			ReadMysql.__init_flag = False
 
 	def execute(self,sql,key,item=None):
 		""" 执行sql查询 """
-		result = self.__mysql.select(sql)
-		if item is None:
-			keylist = [dict(dt).get(key) for dt in result]
-			return keylist
-		else:
-			value = dict(result[item]).get(key)
-			return value
+		with Mysql(**self.config) as mysql:
+			result = mysql.select(sql)
+		return item is None and [dict(dt).get(key) for dt in result] or dict(result[item]).get(key)
