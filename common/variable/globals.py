@@ -1,27 +1,18 @@
 from pathlib import Path
 import yaml
-
+from utils.singleinstance import singleInstance
 
 path = Path(__file__).resolve().parent.parent.parent.joinpath('environment')
 
+
+@singleInstance
 class Globals:
 	"""" 全局变量 """
-	__instance = None
-	__init_flag = True
-
-	def __new__(cls):
-		if cls.__instance is None:
-			cls.__instance = object.__new__(cls)
-			return cls.__instance
-		else:
-			return cls.__instance
 
 	def __init__(self,encoding="utf-8"):
-		if Globals.__init_flag:
-			self.encoding = encoding
-			with path.joinpath("globals.yaml").open(encoding=self.encoding) as f:
-				self.__pool = yaml.load(stream=f, Loader=yaml.FullLoader) or {}
-			Globals.__init_flag = False
+		self.encoding = encoding
+		with path.joinpath("globals.yaml").open(encoding=self.encoding) as f:
+			self.__pool = yaml.load(stream=f, Loader=yaml.FullLoader) or {}
 
 	def set(self,key,value):
 		""" 设置变量 """

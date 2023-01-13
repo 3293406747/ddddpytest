@@ -8,5 +8,4 @@ from common.session.session import session
 @fixture.files
 def request(method, url, files=None, sess=None, timeout=10, **kwargs) -> requests.Response:
 	""" 发送请求 """
-	response = session(seek=sess).request(method=method, url=url, files=files, timeout=timeout, **kwargs)
-	return response
+	return session(seek=sess).request(method=method, url=url, files=files, timeout=timeout, **kwargs)
