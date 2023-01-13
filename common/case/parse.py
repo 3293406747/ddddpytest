@@ -9,8 +9,5 @@ def parse(reMatch):
 	data = re.findall(r"\.?(.+?)\((.*?)\)", reMatch.group(1))
 	for i in data:
 		name, args = i[0], i[1]
-		if args:
-			obj = getattr(obj, name)(*args.split(","))
-		else:
-			obj = getattr(obj, name)()
+		obj = args and getattr(obj, name)(*args.split(",")) or getattr(obj, name)()
 	return obj

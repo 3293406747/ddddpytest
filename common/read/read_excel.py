@@ -9,5 +9,4 @@ def read_excel(filename,sheet=None):
 	wb = load_workbook(filename=filename,read_only=True)
 	ws = wb[sheet] if sheet else wb.active
 	column = next(ws.iter_rows(values_only=True))
-	dataset = [dict(zip(column, row)) for row in ws.iter_rows(min_row=2,values_only=True)]
-	return dataset
+	return [dict(zip(column, row)) for row in ws.iter_rows(min_row=2,values_only=True)]

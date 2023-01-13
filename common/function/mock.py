@@ -3,29 +3,20 @@ import re
 import string
 from faker import Faker
 
+from utils.singleinstance import singleInstance
+
 attrset = ['name', 'phone', 'ssn', 'address', 'company', 'job', 'country', 'city', 'word', 'email', 'card']
 cattrset = ['cname', 'cphone', 'cssn', 'cjob', 'ccountry', 'ccity', 'cword', 'cemail', 'ccard', 'cprovince']
 
-
+@singleInstance
 class Mock:
 	""" 生成mock数据 """
 	__locales = ['zh-CN', 'en-US']
-	__instance = None
-	__init_flag = True
-
-	def __new__(cls):
-		if cls.__instance is None:
-			cls.__instance = object.__new__(cls)
-			return cls.__instance
-		else:
-			return cls.__instance
 
 	def __init__(self):
-		if Mock.__init_flag:
-			self.__cn = self.__locales[0]
-			self.__en = self.__locales[1]
-			self.__faker = Faker(locale=self.__locales)
-			Mock.__init_flag = False
+		self.__cn = self.__locales[0]
+		self.__en = self.__locales[1]
+		self.__faker = Faker(locale=self.__locales)
 
 	def __getattr__(self, attr):
 		if attr in attrset:

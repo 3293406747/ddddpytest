@@ -15,5 +15,4 @@ def read_testcase(filename, item=0, encoding="utf-8"):
 	sheet = caseinfo.pop("data_sheet") if caseinfo.get("data_sheet") else None
 	caseinfo = json.dumps(caseinfo, ensure_ascii=False)
 	data = read_excel(filename=data_path,sheet=sheet)
-	caseList = [yaml.load(stream=Template(caseinfo).safe_substitute(i), Loader=yaml.FullLoader) for i in data]
-	return caseList
+	return [yaml.load(stream=Template(caseinfo).safe_substitute(i), Loader=yaml.FullLoader) for i in data]
