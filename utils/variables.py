@@ -1,7 +1,4 @@
-from pathlib import Path
 from utils.singleinstance import singleInstance
-
-path = Path(__file__).resolve().parent.parent.parent.joinpath('environment')
 
 
 @singleInstance
@@ -15,9 +12,9 @@ class Variables:
 		""" 设置变量 """
 		self.__pool[key] = value
 
-	def get(self,key):
+	def get(self,key,default=None):
 		""" 获取变量 """
-		return self.__pool.get(key)
+		return self.__pool.get(key,default)
 
 	def unset(self,key):
 		""" 删除变量 """
