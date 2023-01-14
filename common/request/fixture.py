@@ -2,7 +2,7 @@ import functools
 import json
 from json import JSONDecodeError
 import allure
-from common.logger.logger import logger
+from utils.logger import logger
 from pathlib import Path
 
 
