@@ -7,10 +7,10 @@ from common.variable.environments import Environments
 from common.variable.globals import Globals
 from common.session.session import session
 from common.assertion.assertion import Assertion
-from common.read.read_testcase import read_testcase
+from common.read.readTestcase import read_testcase
 from common.extract import extract
-from common.logger.logger import logger
-from common.read.read_config import read_config
+from utils.logger import logger
+from common.read.readConfig import readConfig
 
 
 class dp:
@@ -69,5 +69,5 @@ class dp:
 
 	@classmethod
 	def read_config(cls,filename="local.yaml",encoding="utf-8"):
-		return read_config(filename=filename,encoding=encoding)
+		return readConfig(filename=filename, encoding=encoding)
 

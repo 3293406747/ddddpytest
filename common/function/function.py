@@ -1,6 +1,6 @@
 import base64,hashlib,time
-from common.function.mock import Mock
-from common.read.read_mysql import ReadMysql
+from utils.mock import Mock
+from common.read.readMysql import ReadMysql
 
 
 def md5(string):
