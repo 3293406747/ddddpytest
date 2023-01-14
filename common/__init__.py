@@ -2,7 +2,7 @@ from common import function
 from common.request.autoRequest import autoRequest
 from common.case.verify import verify
 from common.case.render import renderTemplate
-from common.variable.variables import Variables
+from utils.variables import Variables
 from common.variable.environments import Environments
 from common.variable.globals import Globals
 from common.session.session import session

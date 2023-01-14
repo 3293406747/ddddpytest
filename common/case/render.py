@@ -3,7 +3,7 @@ from string import Template
 from typing import Pattern
 from common.case.factory_method import Factory
 from common.case.parse import parse
-from common.variable.variables import Variables
+from utils.variables import Variables
 from common.variable.environments import Environments
 from common.variable.globals import Globals
 

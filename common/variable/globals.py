@@ -20,9 +20,9 @@ class Globals:
 		with path.joinpath("globals.yaml").open(mode="w",encoding=self.encoding) as f:
 			yaml.dump(data=self.__pool, stream=f)
 
-	def get(self,key):
+	def get(self,key,default=None):
 		""" 获取变量 """
-		return self.__pool.get(key)
+		return self.__pool.get(key,default)
 
 	def unset(self,key):
 		""" 删除变量 """
