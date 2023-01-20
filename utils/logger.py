@@ -9,10 +9,10 @@ class Logger:
 		self.logger = logging
 		self.logger.remove()
 		# 控制台日志
-		self.logger.add(
-			sink=sys.stderr,
-			**readConfig()["logger"]["console"],
-		)
+		# self.logger.add(
+		# 	sink=sys.stderr,
+		# 	**readConfig()["logger"]["console"],
+		# )
 	# 文件日志
 		self.logger.add(
 			sink = f'./logs/{time.strftime("%Y-%m-%d")}/log_{time.strftime("%H_%M_%S")}.log',
