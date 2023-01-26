@@ -1,3 +1,6 @@
+"""
+生成mock数据
+"""
 import random
 import re
 import string

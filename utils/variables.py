@@ -1,3 +1,6 @@
+"""
+变量池
+"""
 from utils.singleinstance import singleInstance
 
 

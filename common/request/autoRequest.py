@@ -3,9 +3,9 @@ from json import JSONDecodeError
 from string import Template
 import requests
 from common.case.render import renderTemplate
-from common.extract.extract import extract
+from utils.extract import extract
 from common.request.request import request
-from common.assertion.assertion import Assertion
+from utils.assertion import Assertion
 
 
 def autoRequest(caseinfo, timeout=10) -> requests.Response:

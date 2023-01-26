@@ -1,3 +1,6 @@
+"""
+单例模式装饰器
+"""
 import functools
 
 instances = {}
