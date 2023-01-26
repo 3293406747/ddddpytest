@@ -65,15 +65,16 @@ pytest
 
 ```python
 import pytest
-from common import dp
+from common.read.readTestcase import readTestcase
+from common.request.autoRequest import autoRequest
 
-@pytest.mark.parametrize("case", dp.read_testcase("method.yaml"))
+@pytest.mark.parametrize("case", readTestcase("method.yaml"))
 def test_get(case):
-	dp.autoRequest(case)
+	autoRequest(case)
 ```
 
 ```yaml
-# yaml
+# method.yaml
 -
   casename: get请求
   request:
@@ -87,7 +88,7 @@ def test_get(case):
 ## 高级使用
 
 1. 项目使用可参考[文档](doc/项目使用.md)
-2. 用例文件编写规则详见[yaml用例编写规则.md](doc/yaml用例编写规则.md)**
+2. 用例文件编写规则详见[yaml用例编写规则.md](doc/yaml用例编写规则.md)
 
 ## 支持
 
