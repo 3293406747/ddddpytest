@@ -1,4 +1,4 @@
-from common import function
+from utils import function
 from common.request.autoRequest import autoRequest
 from common.case.verify import verify
 from common.case.render import renderTemplate
