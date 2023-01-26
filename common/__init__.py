@@ -6,9 +6,9 @@ from utils.variables import Variables
 from common.variable.environments import Environments
 from common.variable.globals import Globals
 from common.session.session import session
-from common.assertion.assertion import Assertion
+from utils.assertion import Assertion
 from common.read.readTestcase import read_testcase
-from common.extract import extract
+from utils import extract
 from utils.logger import logger
 from common.read.readConfig import readConfig
 

@@ -1,3 +1,6 @@
+"""
+操作mysql数据库
+"""
 import pymysql
 
 
