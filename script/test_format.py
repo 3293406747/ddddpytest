@@ -1,6 +1,7 @@
 import allure
 import pytest
-from common import dp
+from common.read.readTestcase import readTestcase
+from common.request.autoRequest import autoRequest
 
 
 @allure.epic("ddddpytest接口自动化测试项目")
@@ -8,19 +9,19 @@ from common import dp
 class TestHttpbin:
 
 	@allure.story("返回html")
-	@pytest.mark.parametrize("case", dp.read_testcase("format.yaml"))
+	@pytest.mark.parametrize("case", readTestcase("format.yaml"))
 	def test_html(self, case):
 		allure.dynamic.title(case["casename"])
-		dp.autoRequest(case)
+		autoRequest(case)
 
 	@allure.story("返回png图片")
-	@pytest.mark.parametrize("case", dp.read_testcase("format.yaml",1))
+	@pytest.mark.parametrize("case", readTestcase("format.yaml",1))
 	def test_png(self, case):
 		allure.dynamic.title(case["casename"])
-		dp.autoRequest(case)
+		autoRequest(case)
 
 	@allure.story("返回jpeg图片")
-	@pytest.mark.parametrize("case", dp.read_testcase("format.yaml",2))
+	@pytest.mark.parametrize("case", readTestcase("format.yaml",2))
 	def test_jpeg(self, case):
 		allure.dynamic.title(case["casename"])
-		dp.autoRequest(case)
+		autoRequest(case)

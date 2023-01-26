@@ -5,6 +5,7 @@
 通过Python+Requests来发送和处理HTTP协议的请求接口， 使用Pytest作为测试执行器，
 使用Allure生成测试报告，使用YAML+Excel管理测试数据，使用Loguru管理日志。
 
+## 特征
 - 采用统一请求封装，session自动关联
 - 采用关键字驱动设计
 - 支持多session之间切换
@@ -45,6 +46,7 @@ pytest
 ├─common		公共方法
 ├─config		项目配置文件
 ├─data			存放测试数据
+├─doc                   项目文档
 ├─environment		环境变量
 ├─img			图像文件
 ├─logs			日志文件
@@ -59,9 +61,7 @@ pytest
 └─user.sql		初始化数据库表	
 ```
 
-## 项目使用
-
-**demo**
+## **demo**
 
 ```python
 import pytest
@@ -84,68 +84,15 @@ def test_get(case):
       foo2: bar2
 ```
 
-### 读取用例
+## 高级使用
 
-```python
-# 读取testcase目录下的yaml用例文件;
-# 参数 file_name:yaml用例文件名,yaml文件中的索引
-dp.read_testcase(file_name, [item=0])
-```
+1. 项目使用可参考[文档](doc/项目使用.md)
+2. 用例文件编写规则详见[yaml用例编写规则.md](doc/yaml用例编写规则.md)**
 
-### 发送请求
+## 支持
 
-```python
-# 自动请求;
-# 参数 caseinfo:读取出的单条用例,timeout:请求超时时间
-dp.autoRequests().autoRequest(caseinfo, [timeout = 10])
-```
-
-### 变量
-
-```python
-# 设置变量
-# 参数 key:变量名 value:变量值
-dp.variables().set(key,value)
-# # 获取变量
-dp.variables().get(key)
-# 设置环境变量
-dp.environment().set(key,value)
-# 获取环境变量
-dp.environment().get(key)
-# 设置全局变量
-dp.globals().set(key,value)
-# 获取全局变量
-dp.globals().get(key)
-```
-
-### session
-
-```python
-# 创建session
-# 参数 item:创建session数量
-dp.session().create([item=1])
-# 获取session
-# 参数 seek:session指向,默认为第一个session
-# 注意:切换seek指向后，不传seek参数时默认为上一次的seek
-dp.session()([seek=None])
-```
-
-### 使用内置函数
-
-```python
-# 使用内置函数
-# func()为具体的函数
-dp.function().func()
-```
-
-### 用例文件
-
-**使用方法详见[yaml用例编写规则.md](yaml用例编写规则.md)**
-
-## 联系作者
-
-如果喜欢该项目就:star2:下吧。:heart:本项目使用过程中遇到问题可添加微信或telegram进行沟通。
-
-Telegram: [qingtest](https://t.me/qingtest)
+1. 如果喜欢ddddpytest，可以在GitHub Star。
+2. 本项目使用过程中遇到问题或一起交流学习可添加微信或
+[telegram](https://t.me/qingtest) 进行沟通。
 
 ![vx](img/vx.jpg)
