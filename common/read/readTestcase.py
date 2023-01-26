@@ -8,7 +8,7 @@ from utils.readYaml import readYaml
 basePath = Path(__file__).resolve().parent.parent.parent
 
 
-def read_testcase(filename, item=0, encoding="utf-8"):
+def readTestcase(filename, item=0, encoding="utf-8"):
 	""" 读取测试用例 """
 	caseinfo = readYaml(file=basePath/"testcase"/filename, encoding=encoding)[item]
 	caseinfo = verify(caseinfo)

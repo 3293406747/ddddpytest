@@ -40,3 +40,5 @@ class Globals:
 	def pool(self) -> dict:
 		""" 获取所有变量 """
 		return self.__pool
+
+globals_ = Globals()
