@@ -16,10 +16,15 @@ class Logger:
 			sink=sys.stderr,
 			**readConfig()["logger"]["console"],
 		)
-	# 文件日志
+		# 文件日志
 		self.logger.add(
 			sink = f'./logs/{time.strftime("%Y-%m-%d")}/log_{time.strftime("%H_%M_%S")}.log',
 			**readConfig()["logger"]["file"],
+		)
+		# 文件错误日志
+		self.logger.add(
+			sink=f'./logs/{time.strftime("%Y-%m-%d")}/error.log',
+			**readConfig()["logger"]["errorFile"],
 		)
 
 

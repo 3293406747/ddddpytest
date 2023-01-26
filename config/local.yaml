@@ -2,6 +2,10 @@ base_url: http://httpbin.org
 
 logger:
   file:
+    level: DEBUG
+    format: <green>{time:YYYY-MM-DD HH:mm:ss}</green>[<level>{level}</level>]<level>{message}</level>
+    rotation: "10 MB"
+  errorFile:
     level: ERROR
     format: <green>{time:YYYY-MM-DD HH:mm:ss}</green>[<level>{level}</level>]<level>{message}</level>
     rotation: "10 MB"
