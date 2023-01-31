@@ -61,7 +61,7 @@ pytest
 └─user.sql		初始化数据库表	
 ```
 
-## **demo**
+## Example
 
 ```python
 import pytest
