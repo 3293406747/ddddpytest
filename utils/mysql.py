@@ -24,12 +24,14 @@ class Mysql:
 		return self
 
 	def connect(self):
+		"""建立数据库连接"""
 		try:
 			self.conn = pymysql.connect(
 				host=self.host,port=self.port,user=self.user,password=self.password,db=self.db, charset=self.charset
 			)
 			self.cursor = self.conn.cursor(cursor=pymysql.cursors.DictCursor)
 		except Exception as why:
+			self.close()
 			msg = f"数据库连接失败，原因:{why}"
 			raise Exception(msg) from None
 
@@ -39,6 +41,7 @@ class Mysql:
 			self.cursor.execute(sql)
 			return self.cursor.fetchall()
 		except Exception as why:
+			self.close()
 			msg = f"数据查询失败，原因:{why}"
 			raise Exception(msg) from None
 
@@ -49,12 +52,17 @@ class Mysql:
 			self.conn.commit()
 		except Exception as why:
 			# self.conn.rollback()
+			self.close()
 			msg = f"sql执行失败，原因:{why}"
 			raise Exception(msg) from None
 
 	def close(self):
-		self.cursor and self.cursor.close()
-		self.conn and self.conn.close()
+		"""销毁数据库连接"""
+		try:
+			self.cursor and self.cursor.close()
+			self.conn and self.conn.close()
+		except Exception:
+			pass
 
 	def __exit__(self, exc_type, exc_val, exc_tb):
 		self.close()

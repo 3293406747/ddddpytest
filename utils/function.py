@@ -1,6 +1,7 @@
 import base64,hashlib,time
 from utils.mock import Mock
 from common.read.readMysql import ReadMysql
+from functools import lru_cache
 
 
 def md5(string):
@@ -16,6 +17,7 @@ def bearer(string):
 		raise TypeError('string must be a string')
 	return base64.b64encode(string.encode()).decode()
 
+@lru_cache(maxsize=None)
 def mock():
 	""" 生成mock数据 """
 	return Mock()
