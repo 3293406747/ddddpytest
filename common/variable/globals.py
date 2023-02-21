@@ -1,11 +1,11 @@
 from pathlib import Path
 import yaml
-from utils.singleinstance import singleInstance
+from utils.singleinstance import singleton
 
 path = Path(__file__).resolve().parent.parent.parent.joinpath('environment')
 
 
-@singleInstance
+@singleton
 class Globals:
 	"""" 全局变量 """
 
