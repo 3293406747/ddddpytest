@@ -1,9 +1,9 @@
 from utils.mysql import Mysql
 from common.read.readConfig import readConfig
-from utils.singleinstance import singleInstance
+from utils.singleinstance import singleton
 
 
-@singleInstance
+@singleton
 class ReadMysql:
 	""" sql查询 """
 

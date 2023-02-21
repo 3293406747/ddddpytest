@@ -1,10 +1,10 @@
 """
 变量池
 """
-from utils.singleinstance import singleInstance
+from utils.singleinstance import singleton
 
 
-@singleInstance
+@singleton
 class Variables:
 	""" 变量 """
 

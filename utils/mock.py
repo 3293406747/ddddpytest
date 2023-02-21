@@ -6,12 +6,12 @@ import re
 import string
 from faker import Faker
 
-from utils.singleinstance import singleInstance
+from utils.singleinstance import singleton
 
 attrset = ['name', 'phone', 'ssn', 'address', 'company', 'job', 'country', 'city', 'word', 'email', 'card']
 cattrset = ['cname', 'cphone', 'cssn', 'cjob', 'ccountry', 'ccity', 'cword', 'cemail', 'ccard', 'cprovince']
 
-@singleInstance
+@singleton
 class Mock:
 	""" 生成mock数据 """
 	__locales = ['zh-CN', 'en-US']
