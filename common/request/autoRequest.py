@@ -3,7 +3,7 @@ from json import JSONDecodeError
 from string import Template
 import requests
 from common.case.render import renderTemplate
-from utils.extract import extract
+from utils.extract import Extract
 from common.request.request import request
 from utils.assertion import Assertion
 from functools import partial
@@ -37,7 +37,7 @@ def getExtracts(caseinfo, response) ->dict:
 				if pattern[0] == "$":
 					# json提取
 					data = caseinfo["request"] if who == "request" else response.json()
-					value = extract.json(data= data,pattern=pattern, index=index)
+					value = Extract.json(data= data,pattern=pattern, index=index)
 				else:
 					# 正则提取
 					try:
@@ -45,7 +45,7 @@ def getExtracts(caseinfo, response) ->dict:
 					except JSONDecodeError:
 						data = response.text
 					data = caseinfo["request"] if who == "request" else data
-					value = extract.match(data=data, pattern=pattern,index=index)
+					value = Extract.match(data=data, pattern=pattern,index=index)
 				extractPool[key] = value
 	return extractPool
 

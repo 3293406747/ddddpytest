@@ -7,6 +7,7 @@ import contextlib
 
 
 def singleton(cls):
+	"""单例模式装饰器"""
 	instances = {}
 	lock = threading.Lock()		# 生成锁
 
