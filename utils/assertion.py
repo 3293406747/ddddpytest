@@ -3,33 +3,9 @@
 """
 import json
 from abc import ABCMeta, abstractmethod
-from functools import lru_cache
 from utils.logger import logger
 import numbers
-
-
-class Assertion:
-	""" 断言 """
-
-	@classmethod
-	def equal(cls, expect, actual, name=None):
-		""" 相等断言 """
-		return AssertionFactory.create(method="equal").excute(expect=expect, actual=actual, name=name)
-
-	@classmethod
-	def unequal(cls, expect, actual, name=None):
-		""" 不相等断言 """
-		return AssertionFactory.create(method="unequal").excute(expect=expect, actual=actual, name=name)
-
-	@classmethod
-	def contian(cls, expect, actual, name=None):
-		""" 包含断言 """
-		return AssertionFactory.create(method="contain").excute(expect=expect, actual=actual, name=name)
-
-	@classmethod
-	def uncontian(cls, expect, actual, name=None):
-		""" 不包含断言 """
-		return AssertionFactory.create(method="uncontain").excute(expect=expect, actual=actual, name=name)
+# from functools import lru_cache
 
 
 class Mode(metaclass=ABCMeta):
@@ -161,45 +137,64 @@ class Contain(Mode):
 			raise AssertionError(msg) from None
 
 
-class AssertionFactory:
-	"""工厂类，根据传入的 method 创建相应的对象"""
+class AssertionStrategy:
+	"""策略类，根据传入的 strategy 执行相应的策略"""
 
-	methods = {
-		"equal": {"cls": Equal, "flag": False},
-		"unequal": {"cls": Equal, "flag": True},
-		"contain": {"cls": Contain, "flag": False},
-		"uncontain": {"cls": Contain, "flag": True},
-	}
+	def __init__(self,strategy:Mode):
+		self.strategy = strategy
+
+	def excute(self,expect,actual,name):
+		self.strategy.excute(expect,actual,name)
+
+
+class Assertion:
+	""" 断言 """
+
+	equal_strategy = AssertionStrategy(Equal())
+	not_equal_strategy = AssertionStrategy(Equal(True))
+	contain_strategy = AssertionStrategy(Contain())
+	not_contain_strategy = AssertionStrategy(Contain(True))
 
 	@classmethod
-	@lru_cache(maxsize=None)
-	def create(cls, method) -> Mode:
-		if method not in cls.methods:
-			msg = "不支持该类型的断言"
-			raise ValueError(msg)
-		config = cls.methods[method]
-		return config["cls"](config["flag"])
+	def equal(cls, expect, actual, name=None):
+		""" 相等断言 """
+		# return AssertionFactory.create(method="equal").excute(expect=expect, actual=actual, name=name)
+		return cls.equal_strategy.excute(expect=expect, actual=actual, name=name)
+
+	@classmethod
+	def unequal(cls, expect, actual, name=None):
+		""" 不相等断言 """
+		# return AssertionFactory.create(method="unequal").excute(expect=expect, actual=actual, name=name)
+		return cls.not_equal_strategy.excute(expect=expect, actual=actual, name=name)
+
+	@classmethod
+	def contian(cls, expect, actual, name=None):
+		""" 包含断言 """
+		# return AssertionFactory.create(method="contain").excute(expect=expect, actual=actual, name=name)
+		return cls.contain_strategy.excute(expect=expect, actual=actual, name=name)
+
+	@classmethod
+	def uncontian(cls, expect, actual, name=None):
+		""" 不包含断言 """
+		# return AssertionFactory.create(method="uncontain").excute(expect=expect, actual=actual, name=name)
+		return cls.not_contain_strategy.excute(expect=expect, actual=actual, name=name)
 
 
-if __name__ == '__main__':
-	Assertion.equal("test","test")
-	Assertion.equal(1,1)
-	Assertion.equal(["test"],["test"])
-	Assertion.equal(("test",),("test",))
-	Assertion.equal({"test"},{"test"})
-
-	Assertion.unequal("test","text")
-	Assertion.unequal(1,2)
-	Assertion.unequal(["test"],["text"])
-	Assertion.unequal(("test",),("text",))
-	Assertion.unequal({"test"},{"text"})
-
-	Assertion.contian("test","my test")
-	Assertion.contian(["test"],"my test")
-	Assertion.contian(("test",),"my test")
-	Assertion.contian({"test"},"my test")
-
-	Assertion.uncontian("text","my test")
-	Assertion.uncontian(["text"],"my test")
-	Assertion.uncontian(("text",),"my test")
-	Assertion.uncontian({"text"},"my test")
+# class AssertionFactory:
+# 	"""工厂类，根据传入的 method 创建相应的对象"""
+#
+# 	methods = {
+# 		"equal": {"cls": Equal, "flag": False},
+# 		"unequal": {"cls": Equal, "flag": True},
+# 		"contain": {"cls": Contain, "flag": False},
+# 		"uncontain": {"cls": Contain, "flag": True},
+# 	}
+#
+# 	@classmethod
+# 	@lru_cache(maxsize=None)
+# 	def create(cls, method) -> Mode:
+# 		if method not in cls.methods:
+# 			msg = "不支持该类型的断言"
+# 			raise ValueError(msg)
+# 		config = cls.methods[method]
+# 		return config["cls"](config["flag"])

@@ -3,21 +3,7 @@
 """
 import json, re, jsonpath
 from abc import ABCMeta, abstractmethod
-from functools import lru_cache
-
-
-class Extract:
-	""" 提取内容 """
-
-	@staticmethod
-	def json(data, pattern, index=None):
-		""" json提取 """
-		return ExtractFactory().create("json").execute(data=data, pattern=pattern, index=index)
-
-	@staticmethod
-	def match(data, pattern, index=None):
-		""" 正则提取 """
-		return ExtractFactory().create("match").execute(data=data, pattern=pattern, index=index)
+# from functools import lru_cache
 
 
 class Mode(metaclass=ABCMeta):
@@ -27,7 +13,7 @@ class Mode(metaclass=ABCMeta):
 	def extract(self, data, pattern):
 		pass
 
-	def execute(self, data, pattern, index):
+	def templet_method(self, data, pattern, index):
 		data = json.dumps(data, ensure_ascii=False) if isinstance(data, dict) else data		# 转换为json格式
 		result = self.extract(data, pattern)		# 提取
 		if result is None:
@@ -55,21 +41,47 @@ class Match(Mode):
 		return re.findall(pattern=pattern, string=data)
 
 
-class ExtractFactory:
-	"""工厂类，根据传入的 method 创建相应的对象"""
+class ExtractStrategy:
+	"""策略类，根据传入的 strategy 执行相应的策略"""
 
-	methods = {
-		"json": Json,
-		"match": Match
-	}
+	def __init__(self,strategy:Mode):
+		self.strategy = strategy
+
+	def excute(self, data, pattern, index):
+		return self.strategy.templet_method(data, pattern, index)
+
+
+class Extract:
+	""" 提取内容 """
+
+	json_extract_strategy = ExtractStrategy(Json())
+	match_extract_strategy = ExtractStrategy(Match())
 
 	@classmethod
-	@lru_cache(maxsize=None)
-	def create(cls, method) -> Mode:
-		if method not in cls.methods:
-			msg = f"不支持该类型的提取方式:{method}"
-			raise ValueError(msg)
-		return cls.methods[method]()
+	def json(cls,data, pattern, index=None):
+		""" json提取 """
+		# return ExtractFactory().create("json").templet_method(data=data, pattern=pattern, index=index)
+		return cls.json_extract_strategy.excute(data,pattern,index)
+
+	@classmethod
+	def match(cls,data, pattern, index=None):
+		""" 正则提取 """
+		# return ExtractFactory().create("match").templet_method(data=data, pattern=pattern, index=index)
+		return cls.match_extract_strategy.excute(data, pattern, index)
 
 
-extract = Extract()
+# class ExtractFactory:
+# 	"""工厂类，根据传入的 method 创建相应的对象"""
+#
+# 	methods = {
+# 		"json": Json,
+# 		"match": Match
+# 	}
+#
+# 	@classmethod
+# 	@lru_cache(maxsize=None)
+# 	def create(cls, method) -> Mode:
+# 		if method not in cls.methods:
+# 			msg = f"不支持该类型的提取方式:{method}"
+# 			raise ValueError(msg)
+# 		return cls.methods[method]()
