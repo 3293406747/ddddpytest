@@ -86,7 +86,7 @@ class Mock:
 		result = {
 			"身份证号": id_card,
 			"所在地区": location,
-			"出生年月": f"{birth_year:04}-{birth_month:02}-{birth_day:02}",
+			"出生日期": f"{birth_year:04}-{birth_month:02}-{birth_day:02}",
 			"年龄": age,
 			"性别": gender,
 		}
