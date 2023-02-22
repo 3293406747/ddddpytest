@@ -5,7 +5,6 @@ reports
 .idea
 temp
 *.html
-*.json
 *.log
 *.css
 *.js
