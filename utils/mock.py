@@ -4,7 +4,9 @@
 import random
 import re
 import string
+from datetime import datetime
 from faker import Faker
+from utils.getAreas import get_areas
 from utils.singleinstance import singleton
 from utils.sucreditcode import CreditIdentifier
 
@@ -64,3 +66,28 @@ class Mock:
 		random_credit_code = creditIdentifier.gen_random_credit_code()
 		assert creditIdentifier.valid(random_credit_code["code"])
 		return random_credit_code["code"]
+
+	@staticmethod
+	def analyze_id_card(id_card):
+		""" 获取身份证号信息 """
+		# 解析身份证号码
+		district_code = id_card[:6]
+		birth_year = int(id_card[6:10])
+		birth_month = int(id_card[10:12])
+		birth_day = int(id_card[12:14])
+		gender_code = int(id_card[-2])
+		gender = "女" if gender_code % 2 == 0 else "男"
+		# 计算年龄
+		now = datetime.now()
+		age = now.year - birth_year - ((now.month, now.day) < (birth_month, birth_day))
+		# 获取所在地名称
+		location = get_areas(district_code) or "未知"
+		# 构造结果字典
+		result = {
+			"身份证号": id_card,
+			"所在地区": location,
+			"出生年月": f"{birth_year:04}-{birth_month:02}-{birth_day:02}",
+			"年龄": age,
+			"性别": gender,
+		}
+		return result
