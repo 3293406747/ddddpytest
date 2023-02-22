@@ -9,6 +9,8 @@ from utils.singleinstance import singleton
 from utils.sucreditcode import CreditIdentifier
 
 _faker = Faker(locale='zh-CN')
+emails = ['126.com', 'sina.com', 'qq.com', '163.com', 'gmail.com', 'outlook.com', 'hostmail.com', 'aliyun.com']
+
 
 @singleton
 class Mock:
@@ -24,7 +26,7 @@ class Mock:
 		'country': 'country',
 		'city': 'city',
 		'word': 'word',
-		'email': 'email',
+		'email': lambda: Mock().generate_random_string(random.randint(6, 16)) + "@" + random.choice(emails),
 		'card': 'card',
 		'province': 'province'
 	}
@@ -32,7 +34,7 @@ class Mock:
 	def __getattr__(self, attr):
 		if attr in self._attrset:
 			if callable(self._attrset[attr]):
-				return self._attrset[attr]()
+				return self._attrset[attr]
 			return getattr(_faker, self._attrset[attr])
 		raise AttributeError(f'Attribute {attr} not found')
 
@@ -62,4 +64,3 @@ class Mock:
 		random_credit_code = creditIdentifier.gen_random_credit_code()
 		assert creditIdentifier.valid(random_credit_code["code"])
 		return random_credit_code["code"]
-
