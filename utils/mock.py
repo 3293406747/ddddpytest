@@ -81,7 +81,10 @@ class Mock:
 		now = datetime.now()
 		age = now.year - birth_year - ((now.month, now.day) < (birth_month, birth_day))
 		# 获取所在地名称
-		location = get_areas(district_code).replace("市辖区", "").replace("地区", "市") or "未知"
+		location = get_areas(district_code)
+		if not location.endswith("市辖区"):
+			location = location.replace("市辖区", "")
+		location = location.replace("地区", "市") or "未知"
 		# 构造结果字典
 		result = {
 			"身份证号": id_card,
