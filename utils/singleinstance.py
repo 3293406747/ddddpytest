@@ -3,26 +3,32 @@
 """
 import functools
 import threading
-import contextlib
+# import contextlib
 
 
-def singleton(cls):
+def singleton(cls:type):
 	"""单例模式装饰器"""
-	instances = {}
+	if not isinstance(cls,type):
+		raise TypeError
+	instance = None
 	lock = threading.Lock()		# 生成锁
 
-	@contextlib.contextmanager	# 上下文管理器 与yield一起用
-	def get_lock():
-		lock.acquire()		# 获取锁
-		try:
-			yield
-		finally:
-			lock.release()		# 解锁
-
 	@functools.wraps(cls)
-	def getInstance(*args, **kwargs):
-		with get_lock():
-			if not cls in instances:
-				instances[cls] = cls(*args,**kwargs)
-			return instances[cls]
-	return getInstance
+	def get_instance(*args, **kwargs):
+		nonlocal instance
+		if instance is None:		# double-checked locking
+			with lock:
+			# with get_lock():
+				if instance is None:		# double-checked locking
+					instance = cls(*args,**kwargs)
+		return instance
+
+	# @contextlib.contextmanager	# 上下文管理器 与yield一起用
+	# def get_lock():
+	# 	lock.acquire()		# 获取锁
+	# 	try:
+	# 		yield
+	# 	finally:
+	# 		lock.release()		# 解锁
+
+	return get_instance

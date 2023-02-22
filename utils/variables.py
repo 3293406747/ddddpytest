@@ -9,28 +9,29 @@ class Variables:
 	""" 变量 """
 
 	def __init__(self):
-		self.__pool = {}
+		self._pool = {}
 
 	def set(self,key,value):
 		""" 设置变量 """
-		self.__pool[key] = value
+		self._pool[key] = value
 
 	def get(self,key,default=None):
 		""" 获取变量 """
-		return self.__pool.get(key,default)
+		return self._pool.get(key, default)
 
 	def unset(self,key):
 		""" 删除变量 """
-		del self.__pool[key]
+		if key in self._pool:
+			del self._pool[key]
 
 	def clear(self):
 		""" 清空所有变量 """
-		self.__pool.clear()
+		self._pool.clear()
 
 	@property
 	def pool(self) ->dict:
 		""" 获取所有变量 """
-		return self.__pool
+		return self._pool
 
 
 variables = Variables()
