@@ -9,19 +9,15 @@ from utils.variables import variables
 
 
 @pytest.fixture(scope="session",autouse=True,params=readTestcase("setcookie.yaml"))
-def prelogin(request):
-	# 设置base_url为变量
-	variables.set(key="base_url", value=readConfig()["base_url"])
-	# 创建session
-	session.new()
-	# 设置cookie
-	autoRequest(request.param)
-	# 创建session
-	session.new()
+def setup_login(request):
+	variables.set(key="base_url", value=readConfig()["base_url"])		# 设置base_url为变量
+	session.new()														# 创建session
+	autoRequest(request.param)											# 设置cookie
+	session.new()														# 创建session
 
 
 @pytest.fixture(autouse=True)
-def caselog_start_end():
+def case_timer():
 	start_time = time.time()
 	logger.info(f"{'测试用例开始执行':*^60s}")
 	yield

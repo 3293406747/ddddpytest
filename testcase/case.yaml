@@ -34,4 +34,4 @@
     method: GET
     params:
       foo1: "{{md5(123456)}}"
-      foo2: "{{mock().cname()}}"
+      foo2: "{{mock().name()}}"

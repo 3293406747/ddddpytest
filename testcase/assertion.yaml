@@ -38,7 +38,7 @@
     url: "${base_url}/get"
     method: GET
     params:
-      key: "{{mock().cname()}}"
+      key: "{{mock().name()}}"
       name: 齐霞
   extract:
     response:
