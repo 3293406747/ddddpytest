@@ -1,10 +1,17 @@
 import copy
-from abc import abstractmethod, ABCMeta
+from abc import abstractmethod, ABC
 from utils.singleinstance import singleton
 
 
-class CaseVerification(metaclass=ABCMeta):
+class CaseVerification(ABC):
 	"""用例格式校验器"""
+
+	def __init__(self):
+		self._next_handler = None
+
+	def set_next_handler(self, handler):
+		self._next_handler = handler
+		return handler
 
 	@abstractmethod
 	def verify_case(self,case):
@@ -21,7 +28,7 @@ class VerifyMustKeys(CaseVerification):
 				msg = f"用例必须包含一级关键字casename,request"
 				raise Exception(msg)
 		new_case.pop("casename")
-		VerifyRequestKeys().verify_case(new_case)
+		self._next_handler.verify_case(new_case)
 		return case
 
 
@@ -42,7 +49,7 @@ class VerifyRequestKeys(CaseVerification):
 			if i not in requestOtherKeys:
 				msg = f"用例的request关键字下不能包含除{','.join(requestOtherKeys)}之外的关键字。"
 				raise Exception(msg)
-		VerifyNotMustKeys().verify_case(case)
+		self._next_handler.verify_case(case)
 		return case
 
 
@@ -56,7 +63,7 @@ class VerifyNotMustKeys(CaseVerification):
 			if i not in otherKeys:
 				msg = f"用例不能包含除casename,request,{','.join(otherKeys)}之外的一级关键字。"
 				raise Exception(msg)
-		VerifyExtractKeys().verify_case(case)
+		self._next_handler.verify_case(case)
 		return case
 
 
@@ -77,7 +84,7 @@ class VerifyExtractKeys(CaseVerification):
 				if not isinstance(value, dict):
 					msg = f"用例的extract关键字下的{key}必须为字典格式。"
 					raise Exception(msg)
-		VerifySessionKeys().verify_case(case)
+		self._next_handler.verify_case(case)
 		return case
 
 
@@ -89,7 +96,7 @@ class VerifySessionKeys(CaseVerification):
 		if case.get("session") and not isinstance(case.get("session"), int):
 			msg = f"用例的session关键字下必须整数格式。"
 			raise Exception(msg)
-		VerifyAssertionKeys().verify_case(case)
+		self._next_handler.verify_case(case)
 		return case
 
 
@@ -125,4 +132,11 @@ class VerifyAssertionKeys(CaseVerification):
 
 def verification_case(case):
 	""" 校验用例格式 """
-	return VerifyMustKeys().verify_case(case)
+	handler1 = VerifyMustKeys()
+	handler2 = VerifyRequestKeys()
+	handler3 = VerifyNotMustKeys()
+	handler4 = VerifyExtractKeys()
+	handler5 = VerifySessionKeys()
+	handler6 = VerifyAssertionKeys()
+	handler1.set_next_handler(handler2).set_next_handler(handler3).set_next_handler(handler4).set_next_handler(handler5).set_next_handler(handler6)
+	return handler1.verify_case(case)
