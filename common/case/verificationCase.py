@@ -1,5 +1,6 @@
 import copy
 from abc import abstractmethod, ABC
+
 from utils.singleinstance import singleton
 
 
@@ -14,8 +15,9 @@ class CaseVerification(ABC):
 		return handler
 
 	@abstractmethod
-	def verify_case(self,case):
+	def verify_case(self, case):
 		pass
+
 
 @singleton
 class VerifyMustKeys(CaseVerification):
@@ -36,7 +38,7 @@ class VerifyMustKeys(CaseVerification):
 class VerifyRequestKeys(CaseVerification):
 	"""请求参数校验"""
 
-	def verify_case(self,case):
+	def verify_case(self, case):
 		request = case.pop("request")
 		for key in ["url", "method"]:
 			if not request.get(key):
@@ -57,7 +59,7 @@ class VerifyRequestKeys(CaseVerification):
 class VerifyNotMustKeys(CaseVerification):
 	"""非必选参数校验"""
 
-	def verify_case(self,case):
+	def verify_case(self, case):
 		otherKeys = ["data_path", "data_sheet", "extract", "assertion", "session"]
 		for i in case.keys():
 			if i not in otherKeys:
@@ -71,7 +73,7 @@ class VerifyNotMustKeys(CaseVerification):
 class VerifyExtractKeys(CaseVerification):
 	"""提取参数校验"""
 
-	def verify_case(self,case):
+	def verify_case(self, case):
 		if case.get("extract"):
 			extractKeys = ["request", "response"]
 			if not isinstance(case.get("extract"), dict):
@@ -92,7 +94,7 @@ class VerifyExtractKeys(CaseVerification):
 class VerifySessionKeys(CaseVerification):
 	"""session参数校验"""
 
-	def verify_case(self,case):
+	def verify_case(self, case):
 		if case.get("session") and not isinstance(case.get("session"), int):
 			msg = f"用例的session关键字下必须整数格式。"
 			raise Exception(msg)
@@ -104,7 +106,7 @@ class VerifySessionKeys(CaseVerification):
 class VerifyAssertionKeys(CaseVerification):
 	"""断言参数校验"""
 
-	def verify_case(self,case):
+	def verify_case(self, case):
 		if case.get("assertion") and isinstance(case.get("assertion"), dict):
 			assertionKeys = ["contain", "uncontain", "equal", "unequal"]
 			for i in case.get("assertion").keys():
@@ -138,5 +140,6 @@ def verification_case(case):
 	handler4 = VerifyExtractKeys()
 	handler5 = VerifySessionKeys()
 	handler6 = VerifyAssertionKeys()
-	handler1.set_next_handler(handler2).set_next_handler(handler3).set_next_handler(handler4).set_next_handler(handler5).set_next_handler(handler6)
+	handler1.set_next_handler(handler2).set_next_handler(handler3).set_next_handler(handler4).set_next_handler(
+		handler5).set_next_handler(handler6)
 	return handler1.verify_case(case)
