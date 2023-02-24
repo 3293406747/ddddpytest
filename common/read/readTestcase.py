@@ -1,7 +1,7 @@
 import json,yaml
 from string import Template
 from pathlib import Path
-from common.case.verify import verify
+from common.case.verificationCase import verification_case
 from utils.readExcel import readExcel
 from utils.readYaml import readYaml
 
@@ -11,7 +11,7 @@ basePath = Path(__file__).resolve().parent.parent.parent
 def readTestcase(filename, item=0, encoding="utf-8"):
 	""" 读取测试用例 """
 	caseinfo = readYaml(file=basePath/"testcase"/filename, encoding=encoding)[item]
-	caseinfo = verify(caseinfo)
+	caseinfo = verification_case(caseinfo)
 	if not caseinfo.get("data_path"):
 		return [caseinfo]
 	dataPath = caseinfo.pop("data_path")

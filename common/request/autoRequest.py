@@ -2,7 +2,7 @@ import json,re
 from json import JSONDecodeError
 from string import Template
 import requests
-from common.case.render import renderTemplate
+from common.case.renderTemplate import renderTemplate
 from utils.extract import Extract
 from common.request.request import request
 from utils.assertion import Assertion
