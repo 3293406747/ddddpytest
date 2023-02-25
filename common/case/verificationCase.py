@@ -132,7 +132,7 @@ class VerifyAssertionKeys(CaseVerification):
 		return case
 
 
-def verification_case(case):
+def verificationCase(case):
 	""" 校验用例格式 """
 	handler1 = VerifyMustKeys()
 	handler2 = VerifyRequestKeys()
