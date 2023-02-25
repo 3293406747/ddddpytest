@@ -12,7 +12,9 @@ def renderTemplate(data) -> dict:
 	merge = {**Variables().pool, **Globals().pool, **Environments().pool}
 	# merge = Variables().pool | Globals().pool | Environments().pool
 	# jsonString = json.dumps(data, ensure_ascii=False)
-	# data = Render().excute(obj=jsonString, mapping=merge)
+	# data = RenderTemplate(VariablesStrategy()).excute(obj=jsonString, mapping=merge)
+	# jsonString = json.dumps(data, ensure_ascii=False)
+	# data = RenderTemplate(FunctionStrategy()).excute(obj=jsonString, mapping=merge)
 	# 使用变量
 	jsonString = json.dumps(data, ensure_ascii=False)
 	data = Template(jsonString).safe_substitute(merge)
@@ -36,32 +38,51 @@ def parse(target: re.Match):
 		obj = args and getattr(obj, name)(*args.split(",")) or getattr(obj, name)()
 	return obj
 
-# class Render:
+
+# from abc import ABC,abstractmethod
+
+# class Strategy(ABC):
+#
+# 	@abstractmethod
+# 	def excute(self,key, value, obj, mapping):
+# 		pass
+#
+# class VariablesStrategy(Strategy):
+# 	"""使用变量"""
+# 	def __init__(self):
+# 		self.renderTemplate = RenderTemplate(self)
+#
+# 	def excute(self,key, value, obj, mapping):
+# 		if isinstance(value, str) and value.startswith("${") and value.endswith("}"):
+# 			if mapping.get(value[2:-1]):
+# 				obj[key] = mapping.get(value[2:-1])
+# 		elif isinstance(value, (list, dict)):
+# 			obj[key] = self.renderTemplate.excute(obj=value, mapping=mapping)
+#
+# class FunctionStrategy(Strategy):
+# 	"""调用python函数"""
+# 	def __init__(self):
+# 		self.renderTemplate = RenderTemplate(self)
+#
+# 	def excute(self,key, value, obj, mapping=None):
+# 		if isinstance(value, str) and value.startswith("{{") and value.endswith("}}"):
+# 			obj[key] = parse(re.match(pattern=r"^\{\{(.+?)\}\}$", string=value))
+# 		elif isinstance(value, (list, dict)):
+# 			obj[key] = self.renderTemplate.excute(obj=value)
+#
+#
+# class RenderTemplate:
+#
+# 	def __init__(self,strategy:Strategy):
+# 		self.strategy = strategy
 #
 # 	def excute(self, obj, mapping=None):
 # 		if isinstance(obj, str):
 # 			obj = json.loads(obj)
 # 		if isinstance(obj, list):
 # 			for key, value in enumerate(obj):
-# 				self.excute_by_variables(key=key, value=value, mapping=mapping, obj=obj)
-# 				self.excute_by_function(key=key, value=value, obj=obj)
+# 				self.strategy.excute(key=key, value=value, mapping=mapping, obj=obj)
 # 		elif isinstance(obj, dict):
 # 			for key, value in obj.items():
-# 				self.excute_by_variables(key=key, value=value, mapping=mapping, obj=obj)
-# 				self.excute_by_function(key=key, value=value, obj=obj)
+# 				self.strategy.excute(key=key, value=value, mapping=mapping, obj=obj)
 # 		return obj
-#
-# 	def excute_by_variables(self,key, value, obj, mapping):
-# 		"""使用变量"""
-# 		if isinstance(value, str) and value.startswith("${") and value.endswith("}"):
-# 			if mapping.get(value[2:-1]):
-# 				obj[key] = mapping.get(value[2:-1])
-# 		elif isinstance(value, (list, dict)):
-# 			obj[key] = self.excute(obj=value, mapping=mapping)
-#
-# 	def excute_by_function(self,key, value, obj):
-# 		"""调用python函数"""
-# 		if isinstance(value, str) and value.startswith("{{") and value.endswith("}}"):
-# 			obj[key] = parse(re.match(pattern=r"^\{\{(.+?)\}\}$", string=value))
-# 		elif isinstance(value, (list, dict)):
-# 			obj[key] = self.excute(obj=value)
