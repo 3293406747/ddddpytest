@@ -3,6 +3,9 @@ from abc import abstractmethod, ABC
 from utils.singleinstance import singleton
 
 
+class VerificationError(Exception):
+	pass
+
 class CaseVerification(ABC):
 	"""用例格式校验器"""
 
@@ -29,7 +32,7 @@ class VerifyMustKeys(CaseVerification):
 		for key in VerifyMustKeys.REQUIRED_KEYS:
 			if key not in new_case:
 				msg = f"用例必须包含一级关键字{key}"
-				raise ValueError(msg)
+				raise VerificationError(msg)
 		new_case.pop("casename")
 
 		self._next_handler.verify_case(new_case)
@@ -48,14 +51,14 @@ class VerifyRequestKeys(CaseVerification):
 		for key in VerifyRequestKeys.REQUIRED_KEYS:
 			if key not in request:
 				msg = f"用例的request关键字下必须包含二级关键字{key}"
-				raise ValueError(msg)
+				raise VerificationError(msg)
 			else:
 				request.pop(key)
 
 		unexpected_keys = set(request) - set(VerifyRequestKeys.ALLOWED_KEYS)  # 集合时间复杂度比遍历时间复杂度低
 		if unexpected_keys:
 			msg = f"用例的request关键字下不能包含以下关键字：{', '.join(unexpected_keys)}"
-			raise ValueError(msg)
+			raise VerificationError(msg)
 
 		self._next_handler.verify_case(case)
 		return case
@@ -71,7 +74,7 @@ class VerifyNotMustKeys(CaseVerification):
 		unexpected_keys = set(case) - set(VerifyNotMustKeys.ALLOWED_KEYS)
 		if unexpected_keys:
 			msg = f"用例的一级关键字不能包含以下关键字：{', '.join(unexpected_keys)}"
-			raise ValueError(msg)
+			raise VerificationError(msg)
 
 		self._next_handler.verify_case(case)
 		return case
@@ -90,17 +93,17 @@ class VerifyExtractKeys(CaseVerification):
 
 		if not isinstance(case.get("extract"), dict):
 			msg = f"用例的extract关键字下必须为字典格式。"
-			raise TypeError(msg)
+			raise VerificationError(msg)
 
 		unexpected_keys = set(case.get("extract")) - set(VerifyExtractKeys.ALLOWED_KEYS)
 		if unexpected_keys:
 			msg = f"用例的extract关键字下不能包含以下关键字：{', '.join(unexpected_keys)}"
-			raise ValueError(msg)
+			raise VerificationError(msg)
 
 		for value in case.get("extract").values():
 			if not isinstance(value,dict):
 				msg = f"用例的extract关键字下的值{value}必须为字典格式。"
-				raise TypeError(msg)
+				raise VerificationError(msg)
 
 		self._next_handler.verify_case(case)
 		return case
@@ -113,7 +116,7 @@ class VerifySessionKeys(CaseVerification):
 	def verify_case(self, case):
 		if case.get("session") and not isinstance(case.get("session"), int):
 			msg = f"用例的session关键字下必须整数格式。"
-			raise TypeError(msg)
+			raise VerificationError(msg)
 
 		self._next_handler.verify_case(case)
 		return case
@@ -132,28 +135,27 @@ class VerifyAssertionKeys(CaseVerification):
 
 		if not isinstance(assertion, dict):
 			msg = f"用例的assertion关键字必须是字典格式。"
-			raise TypeError(msg)
+			raise VerificationError(msg)
 
 		unexpected_keys = set(assertion) - set(VerifyAssertionKeys.ALLOWED_KEYS)
 		if unexpected_keys:
 			msg = f"用例的assertion关键字下不能包含以下关键字：{', '.join(unexpected_keys)}"
-			raise ValueError(msg)
+			raise VerificationError(msg)
 
 		for key,value in assertion.items():
 			if not isinstance(value, list):
 				msg = f"用例的assertion关键字下的{key}必须是list格式。"
-				raise Exception(msg)
+				raise VerificationError(msg)
 
 			if key in ("equal", "unequal"):
-				for item1 in value:
-					unexpected_keys = set(item1) - {"expect", "actual"}
-					if unexpected_keys:
-						msg = f"用例的{key}关键字下不能包含以下关键字：{', '.join(unexpected_keys)}"
-						raise ValueError(msg)
+				for item in value:
+					if len(item) != 2:
+						msg = f"用例的assertion关键字下的{key}关键字下必须包含2个元素。"
+						raise VerificationError(msg)
 
-				if not all(k in item for k in ("expect","actual") for item in value):
-					msg = f"用例的assertion关键字下的{key}关键字下必须包含expect和actual关键字。"
-					raise Exception(msg)
+					if not all(k in item for k in ("expect","actual")):
+						msg = f"用例的assertion关键字下的{key}关键字下必须包含expect和actual关键字。"
+						raise VerificationError(msg)
 
 		return case
 
