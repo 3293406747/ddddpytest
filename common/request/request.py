@@ -1,6 +1,6 @@
 import requests
 from common.request.fixture import *
-from common.session.session import session
+from common.session.sessionManager import session
 
 
 @allureFixture

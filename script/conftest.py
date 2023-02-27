@@ -3,7 +3,7 @@ import pytest
 from common.read.readConfig import readConfig
 from common.read.readTestcase import readTestcase
 from common.request.autoRequest import autoRequest
-from common.session.session import session
+from common.session.sessionManager import session
 from utils.logger import logger
 from utils.variables import variables
 
