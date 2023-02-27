@@ -1,6 +1,5 @@
 import copy
 from abc import abstractmethod, ABC
-
 from utils.singleinstance import singleton
 
 
@@ -15,7 +14,7 @@ class CaseVerification(ABC):
 		return handler
 
 	@abstractmethod
-	def verify_case(self, case):
+	def verify_case(self, case) -> str:
 		pass
 
 
@@ -23,13 +22,16 @@ class CaseVerification(ABC):
 class VerifyMustKeys(CaseVerification):
 	"""必选参数校验"""
 
+	REQUIRED_KEYS = ("casename", "request")
+
 	def verify_case(self, case):
 		new_case = copy.deepcopy(case)
-		for key in ["casename", "request"]:
-			if not new_case.get(key):
-				msg = f"用例必须包含一级关键字casename,request"
-				raise Exception(msg)
+		for key in VerifyMustKeys.REQUIRED_KEYS:
+			if key not in new_case:
+				msg = f"用例必须包含一级关键字{key}"
+				raise ValueError(msg)
 		new_case.pop("casename")
+
 		self._next_handler.verify_case(new_case)
 		return case
 
@@ -38,19 +40,23 @@ class VerifyMustKeys(CaseVerification):
 class VerifyRequestKeys(CaseVerification):
 	"""请求参数校验"""
 
+	REQUIRED_KEYS = ("url", "method")
+	ALLOWED_KEYS = ("params", "data", "json", "files", "headers")
+
 	def verify_case(self, case):
 		request = case.pop("request")
-		for key in ["url", "method"]:
-			if not request.get(key):
-				msg = f"用例的request关键字下必须包含二级关键字url,method"
-				raise Exception(msg)
+		for key in VerifyRequestKeys.REQUIRED_KEYS:
+			if key not in request:
+				msg = f"用例的request关键字下必须包含二级关键字{key}"
+				raise ValueError(msg)
 			else:
 				request.pop(key)
-		requestOtherKeys = ["params", "data", "json", "files", "headers"]
-		for i in request.keys():
-			if i not in requestOtherKeys:
-				msg = f"用例的request关键字下不能包含除{','.join(requestOtherKeys)}之外的关键字。"
-				raise Exception(msg)
+
+		unexpected_keys = set(request) - set(VerifyRequestKeys.ALLOWED_KEYS)  # 集合时间复杂度比遍历时间复杂度低
+		if unexpected_keys:
+			msg = f"用例的request关键字下不能包含以下关键字：{', '.join(unexpected_keys)}"
+			raise ValueError(msg)
+
 		self._next_handler.verify_case(case)
 		return case
 
@@ -59,12 +65,14 @@ class VerifyRequestKeys(CaseVerification):
 class VerifyNotMustKeys(CaseVerification):
 	"""非必选参数校验"""
 
+	ALLOWED_KEYS = ("data_path", "data_sheet", "extract", "assertion", "session")
+
 	def verify_case(self, case):
-		otherKeys = ["data_path", "data_sheet", "extract", "assertion", "session"]
-		for i in case.keys():
-			if i not in otherKeys:
-				msg = f"用例不能包含除casename,request,{','.join(otherKeys)}之外的一级关键字。"
-				raise Exception(msg)
+		unexpected_keys = set(case) - set(VerifyNotMustKeys.ALLOWED_KEYS)
+		if unexpected_keys:
+			msg = f"用例的一级关键字不能包含以下关键字：{', '.join(unexpected_keys)}"
+			raise ValueError(msg)
+
 		self._next_handler.verify_case(case)
 		return case
 
@@ -73,19 +81,27 @@ class VerifyNotMustKeys(CaseVerification):
 class VerifyExtractKeys(CaseVerification):
 	"""提取参数校验"""
 
+	ALLOWED_KEYS = ("request", "response")
+
 	def verify_case(self, case):
-		if case.get("extract"):
-			extractKeys = ["request", "response"]
-			if not isinstance(case.get("extract"), dict):
-				msg = f"用例的extract关键字下必须为字典格式。"
-				raise Exception(msg)
-			for key, value in case.get("extract").items():
-				if key not in extractKeys:
-					msg = f"用例的extract关键字下不能包含除{','.join(extractKeys)}之外的关键字。"
-					raise Exception(msg)
-				if not isinstance(value, dict):
-					msg = f"用例的extract关键字下的{key}必须为字典格式。"
-					raise Exception(msg)
+		extract = case.get("extract")
+		if extract is None:
+			return case
+
+		if not isinstance(case.get("extract"), dict):
+			msg = f"用例的extract关键字下必须为字典格式。"
+			raise TypeError(msg)
+
+		unexpected_keys = set(case.get("extract")) - set(VerifyExtractKeys.ALLOWED_KEYS)
+		if unexpected_keys:
+			msg = f"用例的extract关键字下不能包含以下关键字：{', '.join(unexpected_keys)}"
+			raise ValueError(msg)
+
+		for value in case.get("extract").values():
+			if not isinstance(value,dict):
+				msg = f"用例的extract关键字下的值{value}必须为字典格式。"
+				raise TypeError(msg)
+
 		self._next_handler.verify_case(case)
 		return case
 
@@ -97,7 +113,8 @@ class VerifySessionKeys(CaseVerification):
 	def verify_case(self, case):
 		if case.get("session") and not isinstance(case.get("session"), int):
 			msg = f"用例的session关键字下必须整数格式。"
-			raise Exception(msg)
+			raise TypeError(msg)
+
 		self._next_handler.verify_case(case)
 		return case
 
@@ -106,29 +123,38 @@ class VerifySessionKeys(CaseVerification):
 class VerifyAssertionKeys(CaseVerification):
 	"""断言参数校验"""
 
+	ALLOWED_KEYS = ("contain", "uncontain", "equal", "unequal")
+
 	def verify_case(self, case):
-		if case.get("assertion") and isinstance(case.get("assertion"), dict):
-			assertionKeys = ["contain", "uncontain", "equal", "unequal"]
-			for i in case.get("assertion").keys():
-				if i not in assertionKeys:
-					msg = f"用例的assertion关键字下不能包含除{','.join(assertionKeys)}之外的关键字。"
-					raise Exception(msg)
-				elif i in ["equal", "unequal"]:
-					for key in ["expect", "actual"]:
-						if not isinstance(case["assertion"][i], list):
-							msg = f"用例的assertion关键字下的{i}必须是list格式。"
-							raise Exception(msg)
-						for j in case["assertion"][i]:
-							if key not in j.keys():
-								msg = f"用例的assertion关键字下的{i}关键字下必须包含expect,actual关键字。"
-								raise Exception(msg)
-				elif i in ["contain", "uncontain"]:
-					if not isinstance(case["assertion"][i], list):
-						msg = f"用例的assertion关键字下的{i}关键字必须为list格式。"
-						raise Exception(msg)
-		elif case.get("assertion") and not isinstance(case.get("assertion"), dict):
+		assertion = case.get("assertion")
+		if assertion is None:
+			return case
+
+		if not isinstance(assertion, dict):
 			msg = f"用例的assertion关键字必须是字典格式。"
-			raise Exception(msg)
+			raise TypeError(msg)
+
+		unexpected_keys = set(assertion) - set(VerifyAssertionKeys.ALLOWED_KEYS)
+		if unexpected_keys:
+			msg = f"用例的assertion关键字下不能包含以下关键字：{', '.join(unexpected_keys)}"
+			raise ValueError(msg)
+
+		for key,value in assertion.items():
+			if not isinstance(value, list):
+				msg = f"用例的assertion关键字下的{key}必须是list格式。"
+				raise Exception(msg)
+
+			if key in ("equal", "unequal"):
+				for item1 in value:
+					unexpected_keys = set(item1) - {"expect", "actual"}
+					if unexpected_keys:
+						msg = f"用例的{key}关键字下不能包含以下关键字：{', '.join(unexpected_keys)}"
+						raise ValueError(msg)
+
+				if not all(k in item for k in ("expect","actual") for item in value):
+					msg = f"用例的assertion关键字下的{key}关键字下必须包含expect和actual关键字。"
+					raise Exception(msg)
+
 		return case
 
 
