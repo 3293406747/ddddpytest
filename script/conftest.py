@@ -5,7 +5,7 @@ from common.read.readTestcase import readTestcase
 from common.request.autoRequest import autoRequest
 from common.session.sessionManager import session
 from utils.logger import logger
-from utils.variables import variables
+from utils.variablesManager import variables
 
 
 @pytest.fixture(scope="session",autouse=True,params=readTestcase("setcookie.yaml"))
