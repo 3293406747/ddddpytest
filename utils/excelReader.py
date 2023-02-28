@@ -4,7 +4,7 @@
 from openpyxl import load_workbook
 
 
-def ExcelReader(file, sheet=None):
+def excelReader(file, sheet=None):
 	""" 读取excel文件 """
 	wb = load_workbook(filename=file, read_only=True)
 	ws = wb[sheet] if sheet else wb.active

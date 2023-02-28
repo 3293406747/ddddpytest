@@ -4,7 +4,7 @@
 import yaml
 
 
-def YamlReader(file, encoding='utf-8'):
+def yamlReader(file, encoding='utf-8'):
 	""" 读取yaml文件 """
 	with open(file=file,encoding=encoding) as f:
 		return yaml.safe_load(f)
