@@ -1,16 +1,14 @@
 import importlib
 import json, re
 from string import Template
-from utils.variables import Variables
-from common.variable.environments import Environments
-from common.variable.globals import Globals
+from utils.variablesManager import variables, environments
 
 
 def renderTemplate(data) -> dict:
 	""" 渲染模板 """
 	# 合并变量池
-	merge = {**Variables().pool, **Globals().pool, **Environments().pool}
-	# merge = Variables().pool | Globals().pool | Environments().pool
+	merge = {**variables.pool, **environments.pool}
+	# merge = variables.pool | environments.pool
 	# jsonString = json.dumps(data, ensure_ascii=False)
 	# data = RenderTemplate(VariablesStrategy()).excute(obj=jsonString, mapping=merge)
 	# jsonString = json.dumps(data, ensure_ascii=False)
@@ -27,6 +25,8 @@ def renderTemplate(data) -> dict:
 
 
 utils_function = importlib.import_module("utils.function")
+
+
 # utils_function = __import__("utils.function",fromlist=True)
 
 
@@ -37,7 +37,6 @@ def parse(target: re.Match):
 	for name, args in data:
 		obj = args and getattr(obj, name)(*args.split(",")) or getattr(obj, name)()
 	return obj
-
 
 # from abc import ABC,abstractmethod
 

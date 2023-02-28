@@ -6,6 +6,7 @@ from utils.singleinstance import singleton
 class VerificationError(Exception):
 	pass
 
+
 class CaseVerification(ABC):
 	"""用例格式校验器"""
 
@@ -101,7 +102,7 @@ class VerifyExtractKeys(CaseVerification):
 			raise VerificationError(msg)
 
 		for value in case.get("extract").values():
-			if not isinstance(value,dict):
+			if not isinstance(value, dict):
 				msg = f"用例的extract关键字下的值{value}必须为字典格式。"
 				raise VerificationError(msg)
 
@@ -142,7 +143,7 @@ class VerifyAssertionKeys(CaseVerification):
 			msg = f"用例的assertion关键字下不能包含以下关键字：{', '.join(unexpected_keys)}"
 			raise VerificationError(msg)
 
-		for key,value in assertion.items():
+		for key, value in assertion.items():
 			if not isinstance(value, list):
 				msg = f"用例的assertion关键字下的{key}必须是list格式。"
 				raise VerificationError(msg)
@@ -153,7 +154,7 @@ class VerifyAssertionKeys(CaseVerification):
 						msg = f"用例的assertion关键字下的{key}关键字下必须包含2个元素。"
 						raise VerificationError(msg)
 
-					if not all(k in item for k in ("expect","actual")):
+					if not all(k in item for k in ("expect", "actual")):
 						msg = f"用例的assertion关键字下的{key}关键字下必须包含expect和actual关键字。"
 						raise VerificationError(msg)
 

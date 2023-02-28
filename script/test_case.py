@@ -2,7 +2,7 @@ import allure
 import pytest
 from common.read.readTestcase import readTestcase
 from common.request.autoRequest import autoRequest
-from utils.variables import variables
+from utils.variablesManager import variables
 from functools import partial
 
 
