@@ -1,6 +1,6 @@
 import base64, hashlib, time
 from utils.mock import Mock
-from common.read.readMysql import ReadMysql
+from common.read.readMysql import readMysql
 from functools import lru_cache
 
 
@@ -27,7 +27,7 @@ def mock():
 
 def sqlSelect(sql, key, item=None):
 	""" sql查询 """
-	return ReadMysql().execute(sql=sql, key=key, item=int(item))
+	return readMysql(sql=sql, key=key, item=int(item) if item else None)
 
 
 def gen_date_time(step):
