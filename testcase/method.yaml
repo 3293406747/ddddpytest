@@ -28,6 +28,5 @@
     url: http://httpbin.org/post
     method: POST
     files:
-      file1: pytest.ini
-      file2: readme.md
+      file1: img\allure.png
 
