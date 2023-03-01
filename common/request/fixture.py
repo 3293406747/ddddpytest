@@ -3,7 +3,6 @@ import json
 from json import JSONDecodeError
 import allure
 from utils.logger import logger
-from pathlib import Path
 
 
 def logFixture(func):
@@ -16,8 +15,6 @@ def logFixture(func):
 		if method:
 			logger.info(f"请求方式:{method}")
 		logger.info(f"请求参数:{json.dumps(kwargs, ensure_ascii=False):.255s}")
-		if files:
-			logger.info(f"文件上传:{json.dumps(files, ensure_ascii=False):.255s}")
 		response = func(url=url, files=files, sess=sess, timeout=timeout, method=method, **kwargs)
 		try:
 			data = json.dumps(response.json(), ensure_ascii=False)
@@ -25,20 +22,6 @@ def logFixture(func):
 			data = response.text
 		logger.info(f"响应结果:{data:.255s}")
 		return response
-
-	return wrapper
-
-
-def fileFixture(func):
-	""" 文件处理 """
-
-	@functools.wraps(func)
-	def wrapper(url, sess=None, method=None, files=None, timeout=10, **kwargs):
-		if isinstance(files, dict):
-			for file, path in files.items():
-				project_path = Path(__file__).resolve().parent.parent.parent
-				files[file] = open(project_path / path, "rb")
-		return func(url=url, sess=sess, method=method, files=files, timeout=timeout, **kwargs)
 
 	return wrapper
 
@@ -53,16 +36,8 @@ def allureFixture(func):
 			allure.attach(body=method, name="请求方式:", attachment_type=allure.attachment_type.TEXT)
 		allure.attach(body=json.dumps(kwargs, ensure_ascii=False), name="请求参数:",
 					  attachment_type=allure.attachment_type.TEXT)
-		if files:
-			allure.attach(body=json.dumps(files, ensure_ascii=False), name="文件上传:",
-						  attachment_type=allure.attachment_type.TEXT)
 		response = func(method=method, url=url, sess=sess, files=files, timeout=timeout, **kwargs)
 		allure.attach(body=str(response.status_code), name="响应状态码:", attachment_type=allure.attachment_type.TEXT)
-		try:
-			data = json.dumps(response.json(), ensure_ascii=False)
-		except JSONDecodeError:
-			data = response.text
-		allure.attach(body=data, name="响应数据:", attachment_type=allure.attachment_type.TEXT)
 		if isinstance(response.content, bytes) and response.headers.get("Content-Type"):
 			ct = response.headers["Content-Type"]
 			if ct == "image/jpeg":
@@ -71,6 +46,12 @@ def allureFixture(func):
 				allure.attach(body=response.content, name="image", attachment_type=allure.attachment_type.PNG)
 			elif ct == "application/pdf":
 				allure.attach(body=response.content, name="pdf", attachment_type=allure.attachment_type.PDF)
+			else:
+				try:
+					data = json.dumps(response.json(), ensure_ascii=False)
+				except JSONDecodeError:
+					data = response.text
+				allure.attach(body=data, name="响应数据:", attachment_type=allure.attachment_type.TEXT)
 		return response
 
 	return wrapper
