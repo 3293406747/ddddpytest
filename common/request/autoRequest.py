@@ -105,6 +105,6 @@ def read_files(files:dict) -> None:
 
 @allureFixture
 @logFixture
-def request(method, url, files=None, sess=None, timeout=10, **kwargs) -> requests.Response:
+def request(method, url, files=None, sess=None, timeout=10,name=None, **kwargs) -> requests.Response:
 	""" 发送请求 """
 	return session(seek=sess).request(method=method, url=url, files=files, timeout=timeout, **kwargs)
