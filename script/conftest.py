@@ -1,29 +1,46 @@
-import time
+import asyncio
 import pytest
 from common.read.readConfig import readConfig
 from common.read.readTestcase import readTestcase
 from common.request.autoRequest import autoRequest
-from common.session.sessionManager import session
-from utils.logger import logger
+from common.session.sessionManager import asyncSession
 from utils.variablesManager import variables
 
-
-@pytest.fixture(scope="session",autouse=True,params=readTestcase("setcookie.yaml"))
-def setup_login(request):
-	variables.set(key="base_url", value=readConfig()["base_url"])		# 设置base_url为变量
-	session.new()														# 创建session
-	autoRequest(request.param)											# 设置cookie
-	session.new()														# 创建session
+loop = asyncio.new_event_loop()
+tasks = []
 
 
-@pytest.fixture(autouse=True)
-def case_timer():
-	start_time = time.time()
-	logger.info(f"{'测试用例开始执行':*^60s}")
+@pytest.fixture(scope='session', autouse=True)
+def event_loop():
+	yield loop
+	loop.close()
+
+
+@pytest.fixture(scope='session', autouse=True, params=readTestcase("setcookie.yaml"))
+def session(request):
+	async def close_session():
+		await asyncSession.close()
+
+	async def setup(case):
+		variables.set(key="base_url", value=readConfig()["base_url"])  # 设置base_url为变量
+		asyncSession.create_session()  # 创建session
+		asyncSession.create_session()
+		await autoRequest(case)  # 设置cookie
+
+	loop.run_until_complete(setup(request.param))
 	yield
-	logger.info(f"{'测试用例执行结束':*^60s}")
-	end_time = time.time()
-	logger.info(f"测试用例执行耗时：{end_time - start_time:.3f}秒")
+	loop.run_until_complete(asyncio.gather(*tasks))
+	loop.run_until_complete(close_session())
 
 
+def asyncio_append_to_tasks(params=None):
+	def _asyncio_append_to_tasks(func):
+		def wapper(*args, **kwargs):
+			if params:
+				[tasks.append(loop.create_task(func(*args, param, **kwargs))) for param in params]
+			else:
+				tasks.append(loop.create_task(func(*args, **kwargs)))
 
+		return wapper
+
+	return _asyncio_append_to_tasks

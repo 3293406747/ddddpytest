@@ -1,11 +1,12 @@
 :link:[真希望你没见过什么世面，一生只爱我这张平凡的脸](https://music.163.com/#/song?id=1963720173)
+
 # 带带弟弟pytest
 
-本项目实现接口自动化的技术选型：**Python+Requests+Pytest+Allure+Yaml+Excel+Loguru** ，
-通过Python+Requests来发送和处理HTTP协议的请求接口， 使用Pytest作为测试执行器，
-使用Allure生成测试报告，使用YAML+Excel管理测试数据，使用Loguru管理日志。
+本项目实现接口自动化的技术选型：**Python+Requests+Pytest+Allure+Yaml+Excel+Loguru** ， 通过Python+Requests来发送和处理HTTP协议的请求接口，
+使用Pytest作为测试执行器， 使用Allure生成测试报告，使用YAML+Excel管理测试数据，使用Loguru管理日志。
 
 ## 特征
+
 - 采用统一请求封装，session自动关联
 - 采用关键字驱动设计
 - 支持多session之间切换
@@ -30,6 +31,7 @@
 ```shell
 pip3 install -r requirements.txt
 ```
+
 - 下载并配置allure2，下载安装教程如下：https://blog.csdn.net/lixiaomei0623/article/details/120185069
 
 - 在**config/local.yaml**文件中配置数据库参数，运行**user.sql**初始化数据库。
@@ -64,19 +66,24 @@ pytest
 ## Example
 
 ```python
+from functools import partial
 import pytest
 from common.read.readTestcase import readTestcase
 from common.request.autoRequest import autoRequest
+from script.conftest import asyncio_append_to_tasks
 
-@pytest.mark.parametrize("case", readTestcase("method.yaml"))
-def test_get(case):
-	autoRequest(case)
+rt = partial(readTestcase, "method.yaml")
+
+
+@asyncio_append_to_tasks(rt())
+@pytest.mark.parametrize("case", rt())
+async def test_get(case):
+	await autoRequest(case)
 ```
 
 ```yaml
 # method.yaml
--
-  casename: get请求
+- casename: get请求
   request:
     url: http://httpbin.org/get
     method: GET
@@ -94,6 +101,6 @@ def test_get(case):
 
 1. 如果喜欢ddddpytest，可以在GitHub Star。
 2. 本项目使用过程中遇到问题或一起交流学习可添加微信或
-[telegram](https://t.me/qingtest) 进行沟通。
+   [telegram](https://t.me/qingtest) 进行沟通。
 
 ![vx](img/vx.jpg)

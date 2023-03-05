@@ -1,22 +1,21 @@
 import json
-from json import JSONDecodeError
 from pathlib import Path
 from string import Template
-import requests
+import aiohttp
 from common.case.renderTemplate import renderTemplate
 from common.request.fixture import allureFixture, logFixture
-from common.session.sessionManager import session
+from common.session.sessionManager import asyncSession
 from utils.extract import Extract
 from utils.assertion import Assertion
 from functools import partial
 
 
-def autoRequest(caseinfo, timeout=10) -> requests.Response:
+async def autoRequest(caseinfo):
 	""" 自动请求 """
 	# 渲染请求
 	caseinfo["request"] = renderTemplate(caseinfo["request"])
 	# 获取session
-	sess = caseinfo.get("session")
+	sess = caseinfo.get("session", 0)
 	# 获取用例名称
 	name = caseinfo["casename"]
 	# 文件处理
@@ -24,11 +23,11 @@ def autoRequest(caseinfo, timeout=10) -> requests.Response:
 	if files:
 		read_files(files)
 	# 发送请求
-	response = request(**caseinfo["request"], name=name, sess=sess, timeout=timeout)
-	# 从请求或响应中提取内容:
-	extractPool = getExtracts(caseinfo, response)
+	response = await asyncioRequest(**caseinfo["request"], sess=sess, files=files)
+	# # 从请求或响应中提取内容:
+	extractPool = getExtracts(caseinfo, response[0])
 	# 断言
-	assertion(caseinfo, response, extractPool)
+	assertion(caseinfo, response[0], extractPool)
 	return response
 
 
@@ -38,10 +37,7 @@ def getExtracts(caseinfo, response) -> dict:
 	if caseinfo.get("extract") is None:
 		return extractPool
 
-	try:
-		data = response.json()
-	except JSONDecodeError:
-		data = response.text
+	data = response
 
 	for method, value in caseinfo["extract"].items():
 		data = caseinfo["request"] if method == "request" else data
@@ -79,17 +75,14 @@ def assertion(caseinfo, response, extractPool):
 		# 包含或不包含断言
 		elif method in ["contain", "uncontain"]:
 			assert_fn = partial(Assertion.contian if method == "contain" else Assertion.uncontian)
-			try:
-				actual = response.json()
-			except JSONDecodeError:
-				actual = response.text
+			actual = response
 
 			for expect in value:
 				expect = expect.split(",")
 				assert_fn(expect, actual)
 
 
-def read_files(files:dict) -> None:
+def read_files(files: dict) -> None:
 	"""文件处理"""
 	project_dir = Path(__file__).resolve().parent.parent.parent
 	if not isinstance(files, dict):
@@ -103,8 +96,29 @@ def read_files(files:dict) -> None:
 		with open(file_path, "rb") as f:
 			files[file] = f.read()
 
-@allureFixture
-@logFixture
-def request(method, url, files=None, sess=None, timeout=10,name=None, **kwargs) -> requests.Response:
-	""" 发送请求 """
-	return session(seek=sess).request(method=method, url=url, files=files, timeout=timeout, **kwargs)
+
+# @allureFixture
+# @logFixture
+# def request(method, url, files=None, sess=None, timeout=10, name=None, **kwargs) -> requests.Response:
+# 	""" 发送请求 """
+# 	return session(seek=sess).request(method=method, url=url, files=files, timeout=timeout, **kwargs)
+
+
+# @allureFixture
+# @logFixture
+async def asyncioRequest(method, url, files=None, sess=0, **kwargs):
+	async with asyncSession.get_session(sess).request(method=method, url=url, **kwargs) as response:
+		content_type = response.headers.get("Content-Type")
+		if not content_type:
+			result = await response.text()
+			content_type = None
+			return result, content_type
+
+		content_type = content_type.split(";")[0].strip()
+		if content_type in ["text/html", "text/plain"]:
+			result = await response.text()
+		elif content_type == "application/json":
+			result = await response.json()
+		else:
+			result = await response.read()
+		return result, content_type
