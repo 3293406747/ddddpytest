@@ -12,15 +12,12 @@ def logFixture(func):
 
 	@functools.wraps(func)
 	async def wrapper(method, url, files=None, sess=0, **kwargs):
-		async with lock:
-			# logger.info(f"请求名称:{name:.255s}")
-			logger.info(f"请求url:{url:.255s}")
-			logger.info(f"请求方式:{method}")
-			logger.info(f"请求参数:{json.dumps(kwargs, ensure_ascii=False):.255s}")
-
 		response = await func(method, url, files=files, sess=sess, **kwargs)
 
 		async with lock:
+			logger.info(f"请求url:{url:.255s}")
+			logger.info(f"请求方式:{method}")
+			logger.info(f"请求参数:{json.dumps(kwargs, ensure_ascii=False):.255s}")
 			content_type_maps = {
 				"application/json": lambda: json.dumps(response[0], ensure_ascii=False),
 				"text/html": lambda: response[0],
