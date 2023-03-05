@@ -32,7 +32,7 @@ class TestcaseReader(ABC):
 		"""读取测试用例"""
 		caseinfo = self._read_testcase(filename, item, encoding)
 		self._validate_caseinfo(caseinfo)
-		yield from self._read_caseinfo(caseinfo)
+		return self._read_caseinfo(caseinfo)
 
 
 @singleton

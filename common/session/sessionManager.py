@@ -1,4 +1,38 @@
+import aiohttp
 import requests
+
+class AsyncSessionManager:
+
+	def __init__(self):
+		self.sessionPool = []
+
+	def create_session(self):
+		sess = aiohttp.ClientSession()
+		self.sessionPool.append(sess)
+		return sess
+
+	def get_session(self, index=0):
+		return self.sessionPool[index]
+
+	async def close(self):
+		for i in self.sessionPool:
+			await i.close()
+
+	def clear(self) -> None:
+		""" 清空session池 """
+		self.sessionPool.clear()
+
+	def __delitem__(self, index:int) -> None:
+		""" 删除session """
+		del self.sessionPool[index]
+
+	def __getitem__(self, index: int):
+		""" 获取session池中的session """
+		return self.sessionPool[index]
+
+	def __setitem__(self, index: int, value):
+		""" 修改session池中的session """
+		self.sessionPool[index] = value
 
 
 class SessionManager:
@@ -7,7 +41,7 @@ class SessionManager:
 		self.__sessPool: [requests.Session] = []
 		self.__seek = 0
 
-	def new(self, item=1) -> None:
+	def create_session(self, item=1) -> None:
 		""" 创建session对象 """
 		for _ in range(item):
 			sess = requests.session()
@@ -54,3 +88,4 @@ class SessionManager:
 
 
 session = SessionManager()
+asyncSession = AsyncSessionManager()

@@ -14,13 +14,6 @@
     params:
       foo: "${variable}"
 -
-  casename: 使用自定义全局变量
-  request:
-    url: "${base_url}/get"
-    method: GET
-    params:
-      foo: "${global}"
--
   casename: 使用自定义环境变量
   request:
     url: "${base_url}/get"

@@ -16,10 +16,10 @@ def singleton(cls:type):
 	@functools.wraps(cls)
 	def get_instance(*args, **kwargs):
 		nonlocal instance
-		if instance is None:		# double-checked locking
+		if instance is None:		# 避免每次获取锁消耗资源
 			with lock:
 			# with get_lock():
-				if instance is None:		# double-checked locking
+				if instance is None:		# 对这段代码加锁
 					instance = cls(*args,**kwargs)
 		return instance
 
