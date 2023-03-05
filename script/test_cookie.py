@@ -16,18 +16,18 @@ class TestHttpbin:
 	@pytest.mark.parametrize("case", rt())
 	async def test_cookie0(self, case):
 		allure.dynamic.title(case["casename"])
-		await autoRequest(case)
+		return await autoRequest(case)
 
 	@allure.story("session1获取cookie")
 	@asyncio_append_to_tasks(rt(1))
 	@pytest.mark.parametrize("case", rt(1))
 	async def test_cookie1(self,case):
 		allure.dynamic.title(case["casename"])
-		await autoRequest(case)
+		return await autoRequest(case)
 
 	@allure.story("session获取cookie_2")
 	@asyncio_append_to_tasks(rt(2))
 	@pytest.mark.parametrize("case", rt(2))
 	async def test_cookie2(self,case):
 		allure.dynamic.title(case["casename"])
-		await autoRequest(case)
+		return await autoRequest(case)

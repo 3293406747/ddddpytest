@@ -26,21 +26,21 @@ class TestHttpbin:
 		# 用例名称
 		allure.dynamic.title(case["casename"])
 		# 发送请求
-		await autoRequest(case)
+		return await autoRequest(case)
 
 	@allure.story("post请求data传参")
 	@asyncio_append_to_tasks(rt(1))
 	@pytest.mark.parametrize("case", rt(1))
 	async def test_postdata(self,case):
 		allure.dynamic.title(case["casename"])
-		await autoRequest(case)
+		return await autoRequest(case)
 
 	@allure.story("post请求json传参")
 	@asyncio_append_to_tasks(rt(2))
 	@pytest.mark.parametrize("case", rt(2))
 	async def test_postjson(self,case):
 		allure.dynamic.title(case["casename"])
-		await autoRequest(case)
+		return await autoRequest(case)
 
 	# @allure.story("post请求文件上传")
 	# @asyncio_append_to_tasks

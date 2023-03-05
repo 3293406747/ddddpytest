@@ -18,7 +18,7 @@ class TestHttpbin:
 	@pytest.mark.parametrize("case", rt())
 	async def test_innervariable(self,case):
 		allure.dynamic.title(case["casename"])
-		await autoRequest(case)
+		return await autoRequest(case)
 
 	@allure.story("使用自定义变量")
 	@asyncio_append_to_tasks(rt(1))
@@ -26,18 +26,18 @@ class TestHttpbin:
 	async def test_variable(self,case):
 		allure.dynamic.title(case["casename"])
 		variables.set("variable","variable_value")
-		await autoRequest(case)
+		return await autoRequest(case)
 
 	@allure.story("使用自定义环境变量")
 	@asyncio_append_to_tasks
 	@pytest.mark.parametrize("case", rt(2))
 	async def test_envirenment(self,case):
 		allure.dynamic.title(case["casename"])
-		await autoRequest(case)
+		return await autoRequest(case)
 
 	@allure.story("调用python函数")
 	@asyncio_append_to_tasks
 	@pytest.mark.parametrize("case", rt(3))
 	async def test_python(self,case):
 		allure.dynamic.title(case["casename"])
-		await autoRequest(readTestcase(case))
+		return await autoRequest(readTestcase(case))
