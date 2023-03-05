@@ -104,8 +104,7 @@ def read_files(files: dict) -> None:
 # 	return session(seek=sess).request(method=method, url=url, files=files, timeout=timeout, **kwargs)
 
 
-# @allureFixture
-# @logFixture
+@logFixture
 async def asyncioRequest(method, url, files=None, sess=0, **kwargs):
 	async with asyncSession.get_session(sess).request(method=method, url=url, **kwargs) as response:
 		content_type = response.headers.get("Content-Type")
