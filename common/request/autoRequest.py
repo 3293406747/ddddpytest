@@ -1,34 +1,49 @@
 import json
+from functools import partial
 from pathlib import Path
 from string import Template
-import aiohttp
 from common.case.renderTemplate import renderTemplate
-from common.request.fixture import allureFixture, logFixture
+from common.request.fixture import logFixture, allureFixture
 from common.session.sessionManager import asyncSession
-from utils.extract import Extract
 from utils.assertion import Assertion
-from functools import partial
+from utils.extract import Extract
 
 
 async def autoRequest(caseinfo):
 	""" 自动请求 """
 	# 渲染请求
 	caseinfo["request"] = renderTemplate(caseinfo["request"])
-	# 获取session
-	sess = caseinfo.get("session", 0)
 	# 获取用例名称
 	name = caseinfo["casename"]
+	request = caseinfo["request"]
+	# 请求url
+	url = request.pop("url")
+	# 请求方法
+	method = request.pop("method")
+	# 获取session index
+	sess = caseinfo.get("session", 0)
 	# 文件处理
-	files = caseinfo["request"].get("files")
+	files = request.pop("files", None)
 	if files:
 		read_files(files)
-	# 发送请求
-	response = await asyncioRequest(**caseinfo["request"], sess=sess, files=files)
-	# # 从请求或响应中提取内容:
+		response = await asyncioRequest(method=method, url=url, **caseinfo["request"], sess=sess, data=files)
+	else:
+		# 发送请求
+		response = await asyncioRequest(method=method, url=url, **caseinfo["request"], sess=sess)
+	# 从请求或响应中提取内容:
 	extractPool = getExtracts(caseinfo, response[0])
 	# 断言
 	assertion(caseinfo, response[0], extractPool)
-	return response
+
+	result = {
+		"用例名称": name,
+		"请求url": url,
+		"请求方法": method,
+		"请求参数": caseinfo["request"],
+		"响应结果类型": response[1],
+		"响应结果": response[0]
+	}
+	return result
 
 
 def getExtracts(caseinfo, response) -> dict:
@@ -103,10 +118,10 @@ def read_files(files: dict) -> None:
 # 	""" 发送请求 """
 # 	return session(seek=sess).request(method=method, url=url, files=files, timeout=timeout, **kwargs)
 
-
+@allureFixture
 @logFixture
-async def asyncioRequest(method, url, files=None, sess=0, **kwargs):
-	async with asyncSession.get_session(sess).request(method=method, url=url, **kwargs) as response:
+async def asyncioRequest(method, url, data=None, sess=0, **kwargs):
+	async with asyncSession.get_session(sess).request(method=method, url=url, data=data, **kwargs) as response:
 		content_type = response.headers.get("Content-Type")
 		if not content_type:
 			result = await response.text()

@@ -2,9 +2,9 @@ PyYAML
 Faker
 PyMySQL
 loguru
-requests
 jsonpath
 allure-pytest
 pathlib2
 pytest
 openpyxl
+aiohttp

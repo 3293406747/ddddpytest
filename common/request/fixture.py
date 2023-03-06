@@ -11,8 +11,8 @@ def logFixture(func):
 	lock = asyncio.Lock()
 
 	@functools.wraps(func)
-	async def wrapper(method, url, files=None, sess=0, **kwargs):
-		response = await func(method, url, files=files, sess=sess, **kwargs)
+	async def wrapper(method, url, data=None, sess=0, **kwargs):
+		response = await func(method, url, data=data, sess=sess, **kwargs)
 
 		async with lock:
 			logger.info(f"请求url:{url:.255s}")
@@ -44,13 +44,13 @@ def allureFixture(func):
 	lock = asyncio.Lock()
 
 	@functools.wraps(func)
-	async def wrapper(method, url, files=None, sess=0, **kwargs):
+	async def wrapper(method, url, data=None, sess=0, **kwargs):
 		async with lock:
 			allure.attach(url, "请求url", allure.attachment_type.TEXT)
 			allure.attach(method, "请求方式", allure.attachment_type.TEXT)
 			allure.attach(json.dumps(kwargs, ensure_ascii=False), "请求参数", allure.attachment_type.JSON)
 
-		response = await func(method=method, url=url, sess=sess, files=files, **kwargs)
+		response = await func(method=method, url=url, data=data, sess=sess, **kwargs)
 
 		async with lock:
 			content_type_maps = {
@@ -71,7 +71,7 @@ def allureFixture(func):
 
 			if response_content_type in content_type_maps:
 				data = response[0]
-				body = data if not isinstance(data,dict) else json.dumps(data,ensure_ascii=False)
+				body = data if not isinstance(data, dict) else json.dumps(data, ensure_ascii=False)
 				allure.attach(body, response_content_type, content_type_maps[response_content_type])
 			else:
 				allure.attach(f"响应结果格式 {response_content_type} 暂不支持", "响应数据", allure.attachment_type.TEXT)
