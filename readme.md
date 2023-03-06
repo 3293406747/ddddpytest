@@ -67,7 +67,6 @@ pytest
 
 ```python
 from functools import partial
-import pytest
 from common.read.readTestcase import readTestcase
 from common.request.autoRequest import autoRequest
 from script.conftest import parametrize
@@ -76,7 +75,6 @@ rt = partial(readTestcase, "method.yaml")
 
 
 @parametrize(rt())
-@pytest.mark.parametrize("case", rt())
 async def test_get(case):
 	await autoRequest(case)
 ```
