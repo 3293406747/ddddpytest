@@ -45,14 +45,12 @@ def allureFixture(func):
 
 	@functools.wraps(func)
 	async def wrapper(method, url, data=None, sess=0, **kwargs):
+		response = await func(method=method, url=url, data=data, sess=sess, **kwargs)
+
 		async with lock:
 			allure.attach(url, "请求url", allure.attachment_type.TEXT)
 			allure.attach(method, "请求方式", allure.attachment_type.TEXT)
 			allure.attach(json.dumps(kwargs, ensure_ascii=False), "请求参数", allure.attachment_type.JSON)
-
-		response = await func(method=method, url=url, data=data, sess=sess, **kwargs)
-
-		async with lock:
 			content_type_maps = {
 				"image/jpeg": allure.attachment_type.JPG,
 				"image/png": allure.attachment_type.PNG,
