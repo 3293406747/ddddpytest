@@ -11,20 +11,20 @@ class TestHttpbin:
 
 	rt = partial(readTestcase,"format.yaml")
 
-	@allure.story("返回html")
 	@parametrize(rt())
+	@allure.story("返回html")
 	async def test_html(self,case):
 		allure.dynamic.title(case["casename"])
 		return await autoRequest(case)
 
-	@allure.story("返回png图片")
 	@parametrize(rt(1))
+	@allure.story("返回png图片")
 	async def test_png(self,case):
 		allure.dynamic.title(case["casename"])
 		return await autoRequest(case)
 
-	@allure.story("返回jpeg图片")
 	@parametrize(rt(2))
+	@allure.story("返回jpeg图片")
 	async def test_jpeg(self,case):
 		allure.dynamic.title(case["casename"])
 		return await autoRequest(case)

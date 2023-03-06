@@ -37,7 +37,6 @@ def logFixture(func):
 
 	return wrapper
 
-
 def allureFixture(func):
 	""" allure记录 """
 

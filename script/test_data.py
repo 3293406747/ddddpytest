@@ -8,8 +8,8 @@ from script.conftest import parametrize
 @allure.feature("测试data")
 class TestHttpbin:
 
-	@allure.story("测试data")
 	@parametrize(readTestcase("data.yaml"))
+	@allure.story("测试data")
 	async def test_data(self,case):
 		allure.dynamic.title(case["casename"])
 		return await autoRequest(case)

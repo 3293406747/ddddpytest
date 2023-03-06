@@ -1,5 +1,3 @@
-base_url: http://httpbin.org
-
 logger:
   file:
     level: DEBUG
