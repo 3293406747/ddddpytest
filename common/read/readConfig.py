@@ -2,7 +2,7 @@ from functools import lru_cache
 from pathlib import Path
 from utils.yamlReader import yamlReader
 
-CONFIG_DIR = Path(__file__).resolve().parent.parent.parent.joinpath("config")
+CONFIG_DIR = Path(__file__).resolve().parent.parent.parent.joinpath("system","config")
 
 
 @lru_cache(None)  # 缓存

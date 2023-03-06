@@ -55,7 +55,7 @@ class SystemVariablesManager(VariablesManager):
 		return self._pool
 
 
-ENVIRONMENT_DIR = Path(__file__).resolve().parent.parent.joinpath('environment')
+ENVIRONMENT_DIR = Path(__file__).resolve().parent.parent.joinpath('system', 'environment')
 
 
 @singleton
