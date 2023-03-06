@@ -2,8 +2,8 @@
 
 # 带带弟弟pytest
 
-本项目实现接口自动化的技术选型：**Python+Requests+Pytest+Allure+Yaml+Excel+Loguru** ， 通过Python+Requests来发送和处理HTTP协议的请求接口，
-使用Pytest作为测试执行器， 使用Allure生成测试报告，使用YAML+Excel管理测试数据，使用Loguru管理日志。
+本项目实现接口自动化的技术选型：**Python+Requests+Pytest+Yaml+Excel+Loguru** ， 通过Python+Requests来发送和处理HTTP协议的请求接口，
+使用Pytest作为测试执行器，使用YAML+Excel管理测试数据，使用Loguru管理日志。
 
 ## 特征
 
@@ -16,13 +16,13 @@
 - 支持多套配置文件之间切换
 - 支持mysql数据库连接及操作
 - 自动处理请求中的files数据，自动提取请求、响应中的内容、自动断言
-- 项目运行自动生成Log日志文件、Allure报告
+- 项目运行自动生成Log日志文件
 
 :loudspeaker:项目测试环境：win11+python3.10
 
-## Allure报告
+[comment]: <> (## Allure报告)
 
-![allure](img/allure.png)
+[comment]: <> (![allure]&#40;img/allure.png&#41;)
 
 ## Demo部署
 
@@ -32,7 +32,7 @@
 pip3 install -r requirements.txt
 ```
 
-- 下载并配置allure2，下载安装教程如下：https://blog.csdn.net/lixiaomei0623/article/details/120185069
+[comment]: <> (- 下载并配置allure2，下载安装教程如下：https://blog.csdn.net/lixiaomei0623/article/details/120185069)
 
 - 在**config/local.yaml**文件中配置数据库参数，运行**user.sql**初始化数据库。
 
@@ -52,9 +52,7 @@ pytest
 ├─environment		环境变量
 ├─img			图像文件
 ├─logs			日志文件
-├─reports		allure测试报告	
 ├─script		测试用例执行脚本
-├─temp			allure临时报告
 ├─testcase		存放测试用例
 ├─utils			各种工具类
 ├─main.py		项目运行入口	
