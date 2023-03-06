@@ -30,8 +30,9 @@
       key: value
   assertion:
     contain:
-      - key
-      - value
+      -
+        expect: key
+        actual: response
 -
   casename: 数据库断言
   request:
