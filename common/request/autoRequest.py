@@ -4,7 +4,7 @@ from functools import partial
 from pathlib import Path
 from string import Template
 from common.case.renderTemplate import renderTemplate
-from common.request.fixture import logFixture, allureFixture
+from common.request.fixture import logFixture
 from common.session.sessionManager import asyncSession
 from utils.assertion import Assertion
 from utils.extract import Extract
@@ -113,7 +113,6 @@ def read_files(files: dict) -> None:
 # 	""" 发送请求 """
 # 	return session(seek=sess).request(method=method, url=url, files=files, timeout=timeout, **kwargs)
 
-@allureFixture
 @logFixture
 async def asyncioRequest(method, url, sess=0, **kwargs):
 	params = copy.deepcopy(kwargs)

@@ -3,7 +3,6 @@ Faker
 PyMySQL
 loguru
 jsonpath
-allure-pytest
 pathlib2
 pytest
 openpyxl

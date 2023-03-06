@@ -1,10 +1,8 @@
 import asyncio
 import pytest
-from common.read.readConfig import readConfig
 from common.read.readTestcase import readTestcase
 from common.request.autoRequest import autoRequest
 from common.session.sessionManager import asyncSession
-from utils.variablesManager import variables
 
 loop = asyncio.new_event_loop()
 tasks = []
