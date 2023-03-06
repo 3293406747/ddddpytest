@@ -22,7 +22,6 @@ def session(request):
 		await asyncSession.close()
 
 	async def setup(case):
-		variables.set(key="base_url", value=readConfig()["base_url"])  # 设置base_url为变量
 		asyncSession.create_session()  # 创建session
 		asyncSession.create_session()
 		await autoRequest(case)  # 设置cookie

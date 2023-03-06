@@ -10,20 +10,20 @@ from script.conftest import parametrize
 class TestHttpbin:
 	rt = partial(readTestcase, "cookie.yaml")
 
-	@allure.story("session0获取cookie_1")
 	@parametrize(rt())
+	@allure.story("session0获取cookie_1")
 	async def test_cookie0(self, case):
 		allure.dynamic.title(case["casename"])
 		return await autoRequest(case)
 
-	@allure.story("session1获取cookie")
 	@parametrize(rt(1))
+	@allure.story("session1获取cookie")
 	async def test_cookie1(self,case):
 		allure.dynamic.title(case["casename"])
 		return await autoRequest(case)
 
-	@allure.story("session获取cookie_2")
 	@parametrize(rt(2))
+	@allure.story("session获取cookie_2")
 	async def test_cookie2(self,case):
 		allure.dynamic.title(case["casename"])
 		return await autoRequest(case)

@@ -16,30 +16,30 @@ class TestHttpbin:
 
 	rt = partial(readTestcase,"method.yaml")
 
-	# 接口名称
-	@allure.story("get请求")
 	# 读取用例文件
 	@parametrize(rt())
+	# 接口名称
+	@allure.story("get请求")
 	async def test_get(self,case):
 		# 用例名称
 		allure.dynamic.title(case["casename"])
 		# 发送请求
 		return await autoRequest(case)
 
-	@allure.story("post请求data传参")
 	@parametrize(rt(1))
+	@allure.story("post请求data传参")
 	async def test_postdata(self,case):
 		allure.dynamic.title(case["casename"])
 		return await autoRequest(case)
 
-	@allure.story("post请求json传参")
 	@parametrize(rt(2))
+	@allure.story("post请求json传参")
 	async def test_postjson(self,case):
 		allure.dynamic.title(case["casename"])
 		return await autoRequest(case)
 
-	@allure.story("post请求文件上传")
 	@parametrize(rt(3))
+	@allure.story("post请求文件上传")
 	async def test_postfiles(self,case):
 		allure.dynamic.title(case["casename"])
 		return await autoRequest(case)
