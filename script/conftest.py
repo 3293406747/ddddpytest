@@ -33,8 +33,8 @@ def session(request):
 	loop.run_until_complete(close_session())
 
 
-def asyncio_append_to_tasks(params=None):
-	def _asyncio_append_to_tasks(func):
+def parametrize(params=None):
+	def asyncio_append_to_tasks(func):
 		def wapper(*args, **kwargs):
 			if params:
 				[tasks.append(loop.create_task(func(*args, param, **kwargs))) for param in params]
@@ -43,4 +43,4 @@ def asyncio_append_to_tasks(params=None):
 
 		return wapper
 
-	return _asyncio_append_to_tasks
+	return asyncio_append_to_tasks
