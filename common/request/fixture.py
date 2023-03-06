@@ -11,8 +11,8 @@ def logFixture(func):
 	lock = asyncio.Lock()
 
 	@functools.wraps(func)
-	async def wrapper(method, url, data=None, sess=0, **kwargs):
-		response = await func(method, url, data=data, sess=sess, **kwargs)
+	async def wrapper(method, url, sess=0, **kwargs):
+		response = await func(method, url, sess=sess, **kwargs)
 
 		async with lock:
 			logger.info(f"请求url:{url:.255s}")
@@ -44,8 +44,8 @@ def allureFixture(func):
 	lock = asyncio.Lock()
 
 	@functools.wraps(func)
-	async def wrapper(method, url, data=None, sess=0, **kwargs):
-		response = await func(method=method, url=url, data=data, sess=sess, **kwargs)
+	async def wrapper(method, url, sess=0, **kwargs):
+		response = await func(method=method, url=url, sess=sess, **kwargs)
 
 		async with lock:
 			allure.attach(url, "请求url", allure.attachment_type.TEXT)

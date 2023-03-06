@@ -1,7 +1,7 @@
 """
 logger日志
 """
-import sys,time
+import sys, time
 from loguru import logger as logging
 from common.read.readConfig import readConfig
 from utils.singleinstance import singleton
@@ -19,20 +19,11 @@ class Logger:
 		self.logger = logging
 		self.logger.remove()
 		# 控制台日志
-		self.logger.add(
-			sink=sys.stderr,
-			**self.console_config,
-		)
+		self.logger.add(sink=sys.stderr, **self.console_config)
 		# 文件日志
-		self.logger.add(
-			sink = f'./logs/{time.strftime("%Y-%m-%d")}/log_{time.strftime("%H_%M_%S")}.log',
-			**self.file_config,
-		)
+		self.logger.add(**self.file_config)
 		# 文件错误日志
-		self.logger.add(
-			sink=f'./logs/{time.strftime("%Y-%m-%d")}/error.log',
-			**self.error_file_config,
-		)
+		self.logger.add(**self.error_file_config)
 
 
 logger = Logger().logger

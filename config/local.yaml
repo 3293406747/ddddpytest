@@ -3,12 +3,18 @@ base_url: http://httpbin.org
 logger:
   file:
     level: DEBUG
+    sink: ./logs/{time:YYYY-MM-DD}/log_{time:HH_mm_ss}.log
     format: <green>{time:YYYY-MM-DD HH:mm:ss}</green>[<level>{level}</level>]<level>{message}</level>
-    rotation: "10 MB"
+    rotation: "5 MB"
+    retention: "1 days"
+
   errorFile:
     level: ERROR
+    sink: ./logs/{time:YYYY-MM-DD}/error.log
     format: <green>{time:YYYY-MM-DD HH:mm:ss}</green>[<level>{level}</level>]<level>{message}</level>
-    rotation: "10 MB"
+    rotation: "5 MB"
+    retention: "1 days"
+
   console:
     level: DEBUG
     format: <green>{time:YYYY-MM-DD HH:mm:ss}</green>[<level>{level}</level>]<level>{message}</level>

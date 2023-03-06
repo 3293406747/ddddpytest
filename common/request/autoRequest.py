@@ -1,3 +1,4 @@
+import copy
 import json
 from functools import partial
 from pathlib import Path
@@ -22,14 +23,8 @@ async def autoRequest(caseinfo):
 	method = request.pop("method")
 	# 获取session index
 	sess = caseinfo.get("session", 0)
-	# 文件处理
-	files = request.pop("files", None)
-	if files:
-		read_files(files)
-		response = await asyncioRequest(method=method, url=url, **caseinfo["request"], sess=sess, data=files)
-	else:
-		# 发送请求
-		response = await asyncioRequest(method=method, url=url, **caseinfo["request"], sess=sess)
+	# 发送请求
+	response = await asyncioRequest(method=method, url=url, **caseinfo["request"], sess=sess)
 	# 从请求或响应中提取内容:
 	extractPool = getExtracts(caseinfo, response[0])
 	# 断言
@@ -120,8 +115,16 @@ def read_files(files: dict) -> None:
 
 @allureFixture
 @logFixture
-async def asyncioRequest(method, url, data=None, sess=0, **kwargs):
-	async with asyncSession.get_session(sess).request(method=method, url=url, data=data, **kwargs) as response:
+async def asyncioRequest(method, url, sess=0, **kwargs):
+	params = copy.deepcopy(kwargs)
+
+	# 文件处理
+	files = params.pop("files", None)
+	if files:
+		read_files(files)
+		params["data"] = files
+
+	async with asyncSession.get_session(sess).request(method=method, url=url, **params) as response:
 		content_type = response.headers.get("Content-Type")
 		if not content_type:
 			result = await response.text()
