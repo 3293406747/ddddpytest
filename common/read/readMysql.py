@@ -48,7 +48,7 @@ class MysqlReader:
 			raise Exception("当前没有可用的数据库连接")
 		result = self.current_connection.select(sql)
 		# return item is None and [dict(dt).get(key) for dt in result] or dict(result[item]).get(key)
-		return [dict(dt).get(key) for dt in result] if item is None else dict(result[item]).get(key)
+		return ",".join([dict(dt).get(key) for dt in result]) if item is None else dict(result[item]).get(key)
 
 	def __del__(self):
 		for connection in self.mysqlConnectionPool:

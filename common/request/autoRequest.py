@@ -28,7 +28,14 @@ async def autoRequest(caseinfo):
 	# 从请求或响应中提取内容:
 	extractPool = getExtracts(caseinfo, response[0])
 	# 断言
-	assertion(caseinfo, response[0], extractPool)
+	assert_result = assertion(caseinfo, response, extractPool)
+
+	if response[1] in ["text/html", "text/plain"]:
+		response_result = response[0]
+	elif response[1] == "application/json":
+		response_result = json.dumps(response[0],ensure_ascii=False)
+	else:
+		response_result = "响应结果类型不支持"
 
 	result = {
 		"用例名称": name,
@@ -36,7 +43,8 @@ async def autoRequest(caseinfo):
 		"请求方法": method,
 		"请求参数": caseinfo["request"],
 		"响应结果类型": response[1],
-		"响应结果": response[0]
+		"响应结果": response_result,
+		"断言": assert_result
 	}
 	return result
 
@@ -64,9 +72,10 @@ def getExtracts(caseinfo, response) -> dict:
 
 def assertion(caseinfo, response, extractPool):
 	""" 断言 """
+	assertion_map = []
 	assertions = caseinfo.get("assertion")
 	if not assertions:
-		return
+		return assertion_map
 
 	# 使用从请求中提取的内容进行渲染
 	temp = Template(json.dumps(assertions, ensure_ascii=False)).safe_substitute(extractPool)
@@ -75,21 +84,33 @@ def assertion(caseinfo, response, extractPool):
 	data = json.loads(data) if isinstance(data, str) else data
 
 	for method, value in data.items():
-		# 相等或不相等断言
-		if method in ["equal", "unequal"]:
-			assert_fn = partial(Assertion.equal if method == "equal" else Assertion.unequal)
-			for item in value:
-				expect, actual, name = item.get("expect"), item.get("actual"), item.get("name")
-				expect, actual = expect.split(","), actual.split(",")
-				assert_fn(expect, actual, name)
-		# 包含或不包含断言
-		elif method in ["contain", "uncontain"]:
-			assert_fn = partial(Assertion.contian if method == "contain" else Assertion.uncontian)
-			actual = response
+		tmpPool = {"method": method, "value": []}
 
-			for expect in value:
-				expect = expect.split(",")
-				assert_fn(expect, actual)
+		methods = {
+			"equal": Assertion.equal,
+			"unequal": Assertion.unequal,
+			"contain": Assertion.contian,
+			"uncontain": Assertion.uncontian
+		}
+		for item in value:
+			expect, actual = item.get("expect"), item.get("actual")
+			expect = expect.split(",")
+			if actual == "response":
+				if response[1] in ["text/html", "text/plain"]:
+					actual = response[0]
+				elif response[1] == "application/json":
+					actual = json.dumps(response[0], ensure_ascii=False)
+				else:
+					msg = f"{response[1]}类型的数据不支持断言"
+					raise ValueError(msg)
+			elif method in ["equal", "unequal"]:
+				actual = actual.split(",")
+			msg = methods[method](expect, actual)
+
+			tmpPool["value"].append({"expect": expect, "actual": actual, "result": msg})
+		assertion_map.append(tmpPool)
+
+	return assertion_map
 
 
 def read_files(files: dict) -> None:

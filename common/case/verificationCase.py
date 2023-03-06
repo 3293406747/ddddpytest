@@ -148,15 +148,14 @@ class VerifyAssertionKeys(CaseVerification):
 				msg = f"用例的assertion关键字下的{key}必须是list格式。"
 				raise VerificationError(msg)
 
-			if key in ("equal", "unequal"):
-				for item in value:
-					if len(item) != 2:
-						msg = f"用例的assertion关键字下的{key}关键字下必须包含2个元素。"
-						raise VerificationError(msg)
+			for item in value:
+				if len(item) != 2:
+					msg = f"用例的assertion关键字下的{key}关键字下必须包含2个元素。"
+					raise VerificationError(msg)
 
-					if not all(k in item for k in ("expect", "actual")):
-						msg = f"用例的assertion关键字下的{key}关键字下必须包含expect和actual关键字。"
-						raise VerificationError(msg)
+				if not all(k in item for k in ("expect", "actual")):
+					msg = f"用例的assertion关键字下的{key}关键字下必须包含expect和actual关键字。"
+					raise VerificationError(msg)
 
 		return case
 
