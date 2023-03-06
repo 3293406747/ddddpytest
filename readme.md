@@ -42,24 +42,39 @@ pip3 install -r requirements.txt
 pytest
 ```
 
-## 项目结构
+[comment]: <> (## 项目结构)
 
-```text
-├─common		公共方法
-├─config		项目配置文件
-├─data			存放测试数据
-├─doc                   项目文档
-├─environment		环境变量
-├─img			图像文件
-├─logs			日志文件
-├─script		测试用例执行脚本
-├─testcase		存放测试用例
-├─utils			各种工具类
-├─main.py		项目运行入口	
-├─pytest.ini		pytest配置文件
-├─requirements.txt	相关依赖包文件
-└─user.sql		初始化数据库表	
-```
+[comment]: <> (```text)
+
+[comment]: <> (├─common		公共方法)
+
+[comment]: <> (├─config		项目配置文件)
+
+[comment]: <> (├─data			存放测试数据)
+
+[comment]: <> (├─doc                   项目文档)
+
+[comment]: <> (├─environment		环境变量)
+
+[comment]: <> (├─img			图像文件)
+
+[comment]: <> (├─logs			日志文件)
+
+[comment]: <> (├─script		测试用例执行脚本)
+
+[comment]: <> (├─testcase		存放测试用例)
+
+[comment]: <> (├─utils			各种工具类)
+
+[comment]: <> (├─main.py		项目运行入口	)
+
+[comment]: <> (├─pytest.ini		pytest配置文件)
+
+[comment]: <> (├─requirements.txt	相关依赖包文件)
+
+[comment]: <> (└─user.sql		初始化数据库表	)
+
+[comment]: <> (```)
 
 ## Example
 
@@ -90,8 +105,8 @@ async def test_get(case):
 
 ## 高级使用
 
-1. 项目使用可参考[文档](doc/项目使用.md)
-2. 用例文件编写规则详见[yaml用例编写规则.md](doc/yaml用例编写规则.md)
+1. 项目使用可参考[文档](system/doc/项目使用.md)
+2. 用例文件编写规则详见[yaml用例编写规则.md](system/doc/yaml用例编写规则.md)
 
 ## 支持
 
@@ -99,4 +114,4 @@ async def test_get(case):
 2. 本项目使用过程中遇到问题或一起交流学习可添加微信或
    [telegram](https://t.me/qingtest) 进行沟通。
 
-![vx](img/vx.jpg)
+![vx](system/img/vx.jpg)
