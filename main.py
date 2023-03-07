@@ -1,6 +1,4 @@
 #! /usr/bin/env python
-import json
-import os
 import pytest
 
 msg = r"""

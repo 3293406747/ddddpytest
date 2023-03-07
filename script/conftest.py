@@ -7,7 +7,6 @@ from common.reporter.reporter import ExcelReport
 from common.request.autoRequest import autoRequest
 from common.session.sessionManager import asyncSession
 from pathlib import Path
-
 loop = asyncio.new_event_loop()
 tasks = []
 REPORTS_DIR = Path(__file__).parent.parent.joinpath("reports").resolve()
@@ -53,3 +52,14 @@ def parametrize(params=None):
 		return wapper
 
 	return asyncio_append_to_tasks
+
+def pytest_exception_interact(node, call, report):
+	if report.failed:
+		exc_info = call.excinfo
+		with open('error_log.txt', 'a') as f:
+			f.write(f'测试用例执行异常\n')
+			f.write(f'报错位置: {node.nodeid}\n')
+			f.write(f"概要信息: {str(exc_info.getrepr(style='normal'))}\n")
+			f.write(f"详细信息:\n {str(exc_info.getrepr(style='short'))}\n")
+			f.write(f"完整报错信息:\n {str(exc_info.getrepr('long'))}")
+			f.write('='*20 + '\n')

@@ -77,6 +77,6 @@ class ExcelReport(Report):
 		for column_cells in self.ws.columns:
 			# 设置单元格自动换行选项和对齐方式
 			for elem in column_cells:
-				elem.alignment = openpyxl.styles.Alignment(vertical='top', horizontal='left', wrapText=True)
+				elem.alignment = openpyxl.styles.Alignment(vertical='top', horizontal='left', wrapText=False)
 
 		self.wb.save(self.file_path)
