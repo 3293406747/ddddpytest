@@ -7,7 +7,8 @@ class AsyncSessionManager:
 		self.sessionPool = []
 
 	def create_session(self):
-		sess = aiohttp.ClientSession()
+		timeout = aiohttp.ClientTimeout(total=10)
+		sess = aiohttp.ClientSession(timeout=timeout)
 		self.sessionPool.append(sess)
 		return sess
 
