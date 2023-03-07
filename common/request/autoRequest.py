@@ -27,8 +27,6 @@ async def autoRequest(caseinfo):
 	response = await asyncioRequest(method=method, url=url, **caseinfo["request"], sess=sess)
 	# 从请求或响应中提取内容:
 	extractPool = getExtracts(caseinfo, response[0])
-	# 断言
-	assert_result = assertion(caseinfo, response, extractPool)
 
 	if response[1] in ["text/html", "text/plain"]:
 		response_result = response[0]
@@ -37,15 +35,27 @@ async def autoRequest(caseinfo):
 	else:
 		response_result = "响应结果类型不支持"
 
+	# 断言
+	assert_result = assertion(caseinfo, response_result, extractPool)
+
+	request_params = caseinfo["request"]
+	if isinstance(request_params,str):
+		request_params = request_params
+	elif isinstance(request_params,dict):
+		request_params  = json.dumps(request_params,ensure_ascii=False)
+	else:
+		request_params = "请求参数类型不支持"
+
 	result = {
 		"用例名称": name,
 		"请求url": url,
 		"请求方法": method,
-		"请求参数": caseinfo["request"],
+		"请求参数": request_params,
 		"响应结果类型": response[1],
 		"响应结果": response_result,
 		"断言": assert_result
 	}
+
 	return result
 
 
@@ -96,13 +106,10 @@ def assertion(caseinfo, response, extractPool):
 			expect, actual = item.get("expect"), item.get("actual")
 			expect = expect.split(",")
 			if actual == "response":
-				if response[1] in ["text/html", "text/plain"]:
-					actual = response[0]
-				elif response[1] == "application/json":
-					actual = json.dumps(response[0], ensure_ascii=False)
+				if response != "响应结果类型不支持":
+					actual = response
 				else:
-					msg = f"{response[1]}类型的数据不支持断言"
-					raise ValueError(msg)
+					raise TypeError("响应结果类型不支持")
 			elif method in ["equal", "unequal"]:
 				actual = actual.split(",")
 			msg = methods[method](expect, actual)

@@ -20,9 +20,9 @@
 
 :loudspeaker:项目测试环境：win11+python3.10
 
-[comment]: <> (## Allure报告)
+## 测试报告
 
-[comment]: <> (![allure]&#40;img/allure.png&#41;)
+![report](system/img/excel_report.png)
 
 ## Demo部署
 
