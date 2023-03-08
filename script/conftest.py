@@ -7,9 +7,13 @@ from common.reporter.reporter import ExcelReport
 from common.request.autoRequest import autoRequest
 from common.session.sessionManager import asyncSession
 from pathlib import Path
+
 loop = asyncio.new_event_loop()
 tasks = []
-REPORTS_DIR = Path(__file__).parent.parent.joinpath("reports").resolve()
+REPORTS_DIR = Path(__file__).parent.parent.joinpath("reports").joinpath(time.strftime('%Y-%m-%d')).resolve()
+REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+REPORT_PATH = ""
+ERROR_LOG_PATH = ""
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -33,12 +37,16 @@ def session(request):
 	data_map = loop.run_until_complete(asyncio.gather(*tasks))
 	loop.run_until_complete(close_session())
 	# 生成报告
-	path = REPORTS_DIR.joinpath(time.strftime('%Y-%m-%d'))
-	path.mkdir(parents=True, exist_ok=True)
-	report = ExcelReport(path.joinpath(f"report_{time.strftime('%H_%M_%S')}.xlsx"))
-	for data in data_map:
-		report.write_to_container(data)
-	report.save()
+	global REPORT_PATH
+	REPORT_PATH = REPORTS_DIR.joinpath(f"report_{time.strftime('%H_%M_%S')}.xlsx")
+	report = ExcelReport(REPORT_PATH)
+	try:
+		for data in data_map:
+			report.write_to_container(data)
+	finally:
+		report.save()
+		if report.failed_number != 0:
+			raise AssertionError("测试用例执行未全部通过")
 
 
 def parametrize(params=None):
@@ -53,13 +61,27 @@ def parametrize(params=None):
 
 	return asyncio_append_to_tasks
 
+
+# pytest hook
 def pytest_exception_interact(node, call, report):
 	if report.failed:
 		exc_info = call.excinfo
-		with open('error_log.txt', 'a') as f:
+		global ERROR_LOG_PATH
+		ERROR_LOG_PATH = REPORTS_DIR.joinpath(f"error_log_{time.strftime('%H_%M_%S')}.log")
+		with open(ERROR_LOG_PATH, 'w') as f:
 			f.write(f'测试用例执行异常\n')
 			f.write(f'报错位置: {node.nodeid}\n')
 			f.write(f"概要信息: {str(exc_info.getrepr(style='normal'))}\n")
 			f.write(f"详细信息:\n {str(exc_info.getrepr(style='short'))}\n")
 			f.write(f"完整报错信息:\n {str(exc_info.getrepr('long'))}")
-			f.write('='*20 + '\n')
+			f.write('=' * 20 + '\n')
+
+
+# pytest hook
+def pytest_terminal_summary(terminalreporter):
+	if 'error' in terminalreporter.stats:
+		terminalreporter.write_line("测试用例执行失败了")
+		print(ERROR_LOG_PATH)
+	else:
+		terminalreporter.write_line("测试用例全部执行通过了")
+		print(REPORT_PATH)
