@@ -1,9 +1,10 @@
 import asyncio
 import time
-
 import pytest
+from common.read.readConfig import readConfig
 from common.read.readTestcase import readTestcase
 from common.reporter.reporter import ExcelReport
+from common.reporter.sendEmail import send_email
 from common.request.autoRequest import autoRequest
 from common.session.sessionManager import asyncSession
 from pathlib import Path
@@ -12,8 +13,8 @@ loop = asyncio.new_event_loop()
 tasks = []
 REPORTS_DIR = Path(__file__).parent.parent.joinpath("reports").joinpath(time.strftime('%Y-%m-%d')).resolve()
 REPORTS_DIR.mkdir(parents=True, exist_ok=True)
-REPORT_PATH = ""
-ERROR_LOG_PATH = ""
+REPORT_PATH = None
+ERROR_LOG_PATH = None
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -79,9 +80,19 @@ def pytest_exception_interact(node, call, report):
 
 # pytest hook
 def pytest_terminal_summary(terminalreporter):
+	email_config = readConfig()["email"]
+	filename_map = []
+
 	if 'error' in terminalreporter.stats:
-		terminalreporter.write_line("测试用例执行失败了")
-		print(ERROR_LOG_PATH)
+		# 构造文本内容
+		text = email_config.pop("failed_text")
+		email_config.pop("success_text")
+		if str(REPORT_PATH):
+			filename_map.append(REPORT_PATH)
+		filename_map.append(ERROR_LOG_PATH)
 	else:
-		terminalreporter.write_line("测试用例全部执行通过了")
-		print(REPORT_PATH)
+		# 构造文本内容
+		text = email_config.pop("success_text")
+		email_config.pop("failed_text")
+		filename_map.append(REPORT_PATH)
+	send_email(text=text, filename_map=filename_map, **email_config)

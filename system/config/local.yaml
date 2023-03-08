@@ -18,8 +18,29 @@ logger:
     format: <green>{time:YYYY-MM-DD HH:mm:ss}</green>[<level>{level}</level>]<level>{message}</level>
 
 mysql:
+  # mysql数据库服务器地址和端口号
   host: 127.0.0.1
   port: 3306
+  # 用户名和密码
   user: root
   password: "111111"
+  # 数据库名
   db: test_db
+
+email:
+  # 邮件服务器地址和端口号
+  smtp_server: smtp.163.com
+  port: 25
+  # 发件人地址
+  from_addr: qingtest85329140@163.com
+  # 收件人地址
+  to_addr: qingtest85329140@163.com
+  # 发件人邮箱的用户名和密码
+  username: qingtest85329140@163.com
+  password: # 授权密码
+  # 邮件主题
+  subject: ddddpytest测试报告
+  # 用例执行通过文本
+  success_text: 测试用例全部执行通过了
+  # 用例执行失败文本
+  failed_text: 测试用例执行失败了

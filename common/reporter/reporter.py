@@ -89,3 +89,4 @@ class ExcelReport(Report):
 				elem.alignment = openpyxl.styles.Alignment(vertical='top', horizontal='left', wrapText=False)
 
 		self.wb.save(self.file_path)
+		self.wb.close()
