@@ -43,7 +43,7 @@ class Equal(Mode):
 			msg = assert_fn(expect_item, actual_item)
 			if msg:
 				return msg
-		msg = "断言通过。"
+		msg = "断言通过"
 		return msg
 
 	@staticmethod
@@ -90,14 +90,14 @@ class Contain(Mode):
 	def assert_contain(expect, actual):
 		"""包含断言"""
 		if expect not in actual:
-			msg = f"断言失败:{expect}在实际结果中不存在"
+			msg = f"断言失败，{expect}在实际结果中不存在"
 			return msg
 
 	@staticmethod
 	def assert_not_contain(expect, actual):
 		"""不包含断言"""
 		if expect in actual:
-			msg = f"断言失败:{expect}在实际结果中存在"
+			msg = f"断言失败，{expect}在实际结果中存在"
 			return msg
 
 

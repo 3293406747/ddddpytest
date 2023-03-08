@@ -21,6 +21,9 @@ class ExcelReport(Report):
 		self.wb = Workbook()
 		self.ws = self.wb.active
 		self.ws.append(['用例名称', '请求url', '请求方式', '请求参数', '响应结果类型', '响应结果', '断言方式', '预期结果', '实际结果', '断言结果'])
+		self.failed_number = 0
+		self.failed_casenames = []
+		self.all_number = 0
 
 	def handle_data(self, data):
 		assert_data = data.pop("断言")
@@ -59,7 +62,9 @@ class ExcelReport(Report):
 					sub_actual_array.append(sub_mark + ",".join(actual))
 				elif isinstance(actual, str):
 					sub_actual_array.append(sub_mark + actual)
-
+			if "断言失败，" in ",".join(sub_result_array):
+				self.failed_number += 1
+				self.failed_casenames.append(data.get("用例名称"))
 			method_array.append(mark + method + "\n" * j)
 			expect_array.append("\n".join(sub_expect_array) + "\n")
 			actual_array.append("\n".join(sub_actual_array) + "\n")
@@ -72,11 +77,15 @@ class ExcelReport(Report):
 			[*data.values(), "\n".join(method_array), '\n'.join(expect_array), '\n'.join(actual_array),
 			 "\n".join(result_array)]
 		)
+		self.all_number += 1
 
 	def save(self):
+		self.ws.append([f"用例执行共{str(self.all_number)}条，失败共{str(self.failed_number)}条"])
+		if self.failed_casenames:
+			self.ws.append([f"失败用例名称如下：{','.join(self.failed_casenames)}"])
 		for column_cells in self.ws.columns:
 			# 设置单元格自动换行选项和对齐方式
 			for elem in column_cells:
-				elem.alignment = openpyxl.styles.Alignment(vertical='top', horizontal='left', wrapText=True)
+				elem.alignment = openpyxl.styles.Alignment(vertical='top', horizontal='left', wrapText=False)
 
 		self.wb.save(self.file_path)
