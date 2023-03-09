@@ -4,7 +4,7 @@ import pytest
 from common.read.readConfig import readConfig
 from common.read.readTestcase import readTestcase
 from common.reporter.reporter import ExcelReport
-from common.reporter.sendEmail import send_email
+from utils.sendEmail import send_email
 from common.request.autoRequest import autoRequest
 from common.session.sessionManager import asyncSession
 from pathlib import Path
