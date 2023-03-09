@@ -2,8 +2,7 @@
 
 # 带带弟弟pytest
 
-本项目实现接口自动化的技术选型：**Aiohttp+Pytest+Yaml+Excel+Smtplib** 。
-其中Aiohttp用于发送和处理HTTP协议的请求接口，Pytest作为测试执行器，
+本项目实现接口自动化的技术选型：**Aiohttp+Pytest+Yaml+Excel+Smtplib** 。 其中Aiohttp用于发送和处理HTTP协议的请求接口，Pytest作为测试执行器，
 YAML和Excel文件用于测试数据的管理和测试报告的生成，最后使用Smtplib发送测试报告邮件。
 
 ## 特征
@@ -44,23 +43,19 @@ pytest
 ## 示例
 
 ```python
-from functools import partial
 from common.read.readTestcase import readTestcase
 from common.request.autoRequest import autoRequest
 from script.conftest import parametrize
 
-rt = partial(readTestcase, "method.yaml")
 
-
-@parametrize(rt())
+@parametrize(readTestcase("method.yaml"))
 async def test_get(case):
-    await autoRequest(case)
+	await autoRequest(case)
 ```
 
 ```yaml
 # method.yaml
--
-  casename: get请求
+- casename: get请求
   request:
     url: http://httpbin.org/get
     method: GET
@@ -71,8 +66,8 @@ async def test_get(case):
 
 ## 高级使用
 
-[comment]: <> (1. 项目使用可参考[文档]&#40;system/doc/项目使用.md&#41;)
 1. 用例文件编写规则详见[yaml用例编写规则.md](system/doc/yaml用例编写规则.md)
+2. 项目使用可参考[项目使用](system/doc/项目使用.md)
 
 ## 支持
 
