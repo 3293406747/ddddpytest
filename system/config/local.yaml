@@ -37,7 +37,7 @@ email:
   to_addr: qingtest85329140@163.com
   # 发件人邮箱的用户名和密码
   username: qingtest85329140@163.com
-  password: # 授权密码
+  password: ""
   # 邮件主题
   subject: ddddpytest测试报告
   # 用例执行通过文本
