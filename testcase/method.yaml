@@ -28,5 +28,5 @@
     url: http://httpbin.org/post
     method: POST
     files:
-      file1: system\img\allure.png
+      file1: system/img/allure.png
 
