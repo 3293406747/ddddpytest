@@ -46,6 +46,7 @@ def session(request):
 			report.write_to_container(data)
 	finally:
 		report.save()
+		print("测试报告已生成,路径:\n", REPORT_PATH)
 		if report.failed_number != 0:
 			raise AssertionError("测试用例执行未全部通过")
 
@@ -81,8 +82,10 @@ def pytest_exception_interact(node, call, report):
 # pytest hook
 def pytest_terminal_summary(terminalreporter):
 	email_config = readConfig()["email"]
-	filename_map = []
+	if not email_config["flag"]:
+		return
 
+	filename_map = []
 	if 'error' in terminalreporter.stats:
 		# 构造文本内容
 		text = email_config.pop("failed_text")

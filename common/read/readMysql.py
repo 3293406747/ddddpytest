@@ -46,7 +46,7 @@ class MysqlReader:
 		""" 执行sql查询 """
 		if not self.current_connection:
 			raise Exception("当前没有可用的数据库连接")
-		result = self.current_connection.select(sql)
+		result = self.current_connection.query(sql)
 		# return item is None and [dict(dt).get(key) for dt in result] or dict(result[item]).get(key)
 		return ",".join([dict(dt).get(key) for dt in result]) if item is None else dict(result[item]).get(key)
 

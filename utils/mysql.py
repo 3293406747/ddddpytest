@@ -35,7 +35,7 @@ class Mysql:
 			msg = f"数据库连接失败，原因:{why}"
 			raise Exception(msg) from None
 
-	def select(self, sql):
+	def query(self, sql):
 		""" 读取table中数据 """
 		try:
 			self.cursor.execute(sql)
@@ -45,7 +45,7 @@ class Mysql:
 			msg = f"数据查询失败，原因:{why}"
 			raise Exception(msg) from None
 
-	def commit(self, sql):
+	def modify(self, sql):
 		""" 执行sql """
 		try:
 			self.cursor.execute(sql)

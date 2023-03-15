@@ -2,18 +2,20 @@ import copy
 import json
 from functools import partial
 from pathlib import Path
-from string import Template
 from common.case.renderTemplate import renderTemplate
 from common.request.fixture import logFixture
 from common.session.sessionManager import asyncSession
 from utils.assertion import Assertion
 from utils.extract import Extract
+from utils.variablesManager import variables, environments
 
 
 async def autoRequest(caseinfo):
 	""" 自动请求 """
+	# 合并变量池
+	mapping = {**variables.pool, **environments.pool}
 	# 渲染请求
-	caseinfo["request"] = renderTemplate(caseinfo["request"])
+	caseinfo["request"] = renderTemplate(caseinfo["request"], mapping)
 	# 获取用例名称
 	name = caseinfo["casename"]
 	request = caseinfo["request"]
@@ -31,18 +33,20 @@ async def autoRequest(caseinfo):
 	if response[1] in ["text/html", "text/plain"]:
 		response_result = response[0]
 	elif response[1] == "application/json":
-		response_result = json.dumps(response[0],ensure_ascii=False)
+		response_result = json.dumps(response[0], ensure_ascii=False)
 	else:
 		response_result = "响应结果类型不支持"
 
+	# 合并变量池
+	mapping = {**mapping, **extractPool}
 	# 断言
-	assert_result = assertion(caseinfo, response_result, extractPool)
+	assert_result = assertion(caseinfo, response_result, mapping)
 
 	request_params = caseinfo["request"]
-	if isinstance(request_params,str):
+	if isinstance(request_params, str):
 		request_params = request_params
-	elif isinstance(request_params,dict):
-		request_params  = json.dumps(request_params,ensure_ascii=False)
+	elif isinstance(request_params, dict):
+		request_params = json.dumps(request_params, ensure_ascii=False)
 	else:
 		request_params = "请求参数类型不支持"
 
@@ -80,16 +84,15 @@ def getExtracts(caseinfo, response) -> dict:
 	return extractPool
 
 
-def assertion(caseinfo, response, extractPool):
+def assertion(caseinfo, response, mapping):
 	""" 断言 """
 	assertion_map = []
 	assertions = caseinfo.get("assertion")
 	if not assertions:
 		return assertion_map
 
-	# 使用从请求中提取的内容进行渲染
-	temp = Template(json.dumps(assertions, ensure_ascii=False)).safe_substitute(extractPool)
-	data = renderTemplate(temp)
+	# 使用提取的内容和变量池进行渲染
+	data = renderTemplate(assertions, mapping)
 	# 不懂啊 不知道为何有时候json.loads后还是str
 	data = json.loads(data) if isinstance(data, str) else data
 
@@ -104,14 +107,16 @@ def assertion(caseinfo, response, extractPool):
 		}
 		for item in value:
 			expect, actual = item.get("expect"), item.get("actual")
-			expect = expect.split(",")
+			if isinstance(expect,str):
+				expect = expect.split(",")
 			if actual == "response":
 				if response != "响应结果类型不支持":
 					actual = response
 				else:
 					raise TypeError("响应结果类型不支持")
 			elif method in ["equal", "unequal"]:
-				actual = actual.split(",")
+				if isinstance(actual,str):
+					actual = actual.split(",")
 			msg = methods[method](expect, actual)
 
 			tmpPool["value"].append({"expect": expect, "actual": actual, "result": msg})
