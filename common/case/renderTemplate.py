@@ -2,21 +2,18 @@ import importlib
 import json, re
 from string import Template
 from abc import ABC, abstractmethod
-from utils.variablesManager import variables, environments
 
 
-def renderTemplate(data) -> dict:
+def renderTemplate(data, mapping) -> dict:
 	""" 渲染模板 """
-	# 合并变量池
-	merge = {**variables.pool, **environments.pool}
 	# merge = variables.pool | environments.pool
 	jsonString = json.dumps(data, ensure_ascii=False)
-	data = RenderTemplate(VariablesStrategy()).excute(obj=jsonString, mapping=merge)
+	data = RenderTemplate(VariablesStrategy()).excute(obj=jsonString, mapping=mapping)
 	jsonString = json.dumps(data, ensure_ascii=False)
-	data = RenderTemplate(FunctionStrategy()).excute(obj=jsonString, mapping=merge)
+	data = RenderTemplate(FunctionStrategy()).excute(obj=jsonString, mapping=mapping)
 	# 使用变量
 	jsonString = json.dumps(data, ensure_ascii=False)
-	data = Template(jsonString).safe_substitute(merge)
+	data = Template(jsonString).safe_substitute(mapping)
 	# 调用python函数
 	jsonString = json.dumps(data, ensure_ascii=False)
 	data = re.sub(pattern=r"\{\{(.*?)\}\}", repl=parse, string=jsonString)

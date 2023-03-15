@@ -28,16 +28,18 @@ mysql:
   db: test_db
 
 email:
+  # 开启发送邮件
+  flag: false
   # 邮件服务器地址和端口号
   smtp_server: smtp.163.com
   port: 25
   # 发件人地址
-  from_addr: qingtest85329140@163.com
+  from_addr: your email address
   # 收件人地址
-  to_addr: qingtest85329140@163.com
+  to_addr: receive email address
   # 发件人邮箱的用户名和密码
-  username: qingtest85329140@163.com
-  password: ''
+  username: your username
+  password: your password
   # 邮件主题
   subject: ddddpytest测试报告
   # 用例执行通过文本
