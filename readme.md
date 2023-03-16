@@ -23,7 +23,7 @@ YAML和Excel文件用于测试数据的管理和测试报告的生成，最后�
 
 ![report](system/img/excel_report.png)
 
-## Demo部署
+## 部署
 
 1. 下载项目源码后，在根目录下找到**requirements.txt**文件，然后通过 pip 工具安装 requirements.txt 依赖，执行命令：
 
