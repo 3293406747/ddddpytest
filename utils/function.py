@@ -1,6 +1,6 @@
 import base64, hashlib, time
 from utils.mock import Mock
-from common.read.readMysql import readMysql
+from common.read.mysql import readMysql
 from functools import lru_cache
 
 

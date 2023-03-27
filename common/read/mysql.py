@@ -1,5 +1,5 @@
 from utils.mysql import Mysql
-from common.read.readConfig import readConfig
+from common.read.config import readConfig
 from utils.singleinstance import singleton
 
 

@@ -4,7 +4,7 @@ from functools import partial
 from pathlib import Path
 from common.case.renderTemplate import renderTemplate
 from common.request.fixture import logWriter
-from common.session.sessionManager import asyncSession
+from common.session.manager import asyncSession
 from utils.assertion import Assertion
 from utils.extract import Extract
 from utils.variablesManager import variables, environments
