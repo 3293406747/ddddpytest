@@ -14,23 +14,23 @@ DATA_DIR = Path(__file__).resolve().parent.parent.parent.joinpath("data")
 class TestcaseReader(ABC):
 
 	@abstractmethod
-	def _validate_caseinfo(self, caseinfo: dict):
+	def _validate_caseinfo(self, caseinfo: dict) -> None:
 		"""校验测试用例信息"""
 		pass
 
 	@abstractmethod
-	def _read_testcase(self, filename: str, item: int, encoding: str):
+	def _read_testcase(self, filename: str, index: int, encoding: str) -> dict:
 		"""读取测试用例"""
 		pass
 
 	@abstractmethod
-	def _read_caseinfo(self, caseinfo: dict):
+	def _read_caseinfo(self, caseinfo: dict) -> list:
 		"""读取测试用例信息"""
 		pass
 
-	def read(self, filename: str, item: int = 0, encoding: str = "utf-8"):
+	def read(self, filename: str, index: int = 0, encoding: str = "utf-8") -> list:
 		"""读取测试用例"""
-		caseinfo = self._read_testcase(filename, item, encoding)
+		caseinfo = self._read_testcase(filename, index, encoding)
 		self._validate_caseinfo(caseinfo)
 		return self._read_caseinfo(caseinfo)
 
@@ -38,27 +38,27 @@ class TestcaseReader(ABC):
 @singleton
 class YamlTestcaseReader(TestcaseReader):
 
-	def _read_testcase(self, filename: str, item: int, encoding: str):
-		return yamlReader(TESTCASE_DIR.joinpath(filename), encoding)[item]
+	def _read_testcase(self, filename: str, index: int, encoding: str) -> dict:
+		return yamlReader(TESTCASE_DIR.joinpath(filename), encoding)[index]
 
-	def _validate_caseinfo(self, caseinfo: dict):
+	def _validate_caseinfo(self, caseinfo: dict) -> None:
 		verificationCase(caseinfo)
 
-	def _read_caseinfo(self, caseinfo: dict):
+	def _read_caseinfo(self, caseinfo: dict) -> list:
 		dataPath = caseinfo.pop("data_path", None)
 		if dataPath is None:
 			return [caseinfo]
 
 		sheet = caseinfo.pop("data_sheet", None)
 		caseinfo = json.dumps(caseinfo, ensure_ascii=False)
-		data = excelReader(DATA_DIR.joinpath(dataPath), sheet)
-		return [yaml.safe_load(self._render_template(caseinfo, i)) for i in data]
+		datas = excelReader(DATA_DIR.joinpath(dataPath), sheet)
+		return [yaml.safe_load(self._render_template(caseinfo, data)) for data in datas]
 
 	@staticmethod
 	def _render_template(template: str, data: dict):
 		return Template(template).safe_substitute(data)
 
 
-def readTestcase(filename, item=0, encoding="utf-8"):
+def readTestcase(filename: str, index: int = 0, encoding: str = "utf-8") -> list:
 	""" 读取测试用例 """
-	return YamlTestcaseReader().read(filename, item, encoding)
+	return YamlTestcaseReader().read(filename, index, encoding)

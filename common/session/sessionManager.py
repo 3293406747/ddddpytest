@@ -6,18 +6,18 @@ class AsyncSessionManager:
 	def __init__(self):
 		self.sessionPool = []
 
-	def create_session(self):
+	def create_session(self) -> aiohttp.ClientSession:
 		timeout = aiohttp.ClientTimeout(total=20)
-		sess = aiohttp.ClientSession(timeout=timeout)
-		self.sessionPool.append(sess)
-		return sess
+		session = aiohttp.ClientSession(timeout=timeout)
+		self.sessionPool.append(session)
+		return session
 
-	def get_session(self, index=0):
+	def get_session(self, index: int = 0) -> aiohttp.ClientSession:
 		return self.sessionPool[index]
 
-	async def close(self):
-		for i in self.sessionPool:
-			await i.close()
+	async def close(self) -> None:
+		for session in self.sessionPool:
+			await session.close()
 
 	def clear(self) -> None:
 		""" 清空session池 """

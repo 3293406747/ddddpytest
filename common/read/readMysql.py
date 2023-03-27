@@ -8,9 +8,9 @@ class MysqlReader:
 	""" sql查询 """
 
 	def __init__(self):
+		# if not (config := readConfig()["mysql"]):
 		config = readConfig()["mysql"]
 		if not config:
-			# if not (config := readConfig()["mysql"]):
 			msg = "config/local.yaml中未配置数据库连接"
 			raise Exception(msg)
 
@@ -32,23 +32,36 @@ class MysqlReader:
 		return self._current_connection
 
 	@current_connection.setter
-	def current_connection(self, pink: int):
+	def current_connection(self, index: int):
 		"""设置当前连接"""
-		if not isinstance(pink, int):
+		if not isinstance(index, int):
 			raise TypeError("pink必须是整数")
 
 		if not self.mysqlConnectionPool:
 			raise Exception("连接池中没有可用连接")
 
-		self._current_connection = self.mysqlConnectionPool[pink]
+		self._current_connection = self.mysqlConnectionPool[index]
 
-	def execute(self, sql, key, item=None):
-		""" 执行sql查询 """
+	def query(self, sql: str, key: str, index: int | None = None) -> str:
+		""" sql查询 """
 		if not self.current_connection:
 			raise Exception("当前没有可用的数据库连接")
-		result = self.current_connection.query(sql)
-		# return item is None and [dict(dt).get(key) for dt in result] or dict(result[item]).get(key)
-		return ",".join([dict(dt).get(key) for dt in result]) if item is None else dict(result[item]).get(key)
+
+		datas: list = self.current_connection.query(sql)
+
+		results = []
+		if index is None:
+			for data in datas:
+				result = dict(data).get(key)
+				results.append(result)
+			return ",".join(results)
+		else:
+			data = datas[index]
+			result = dict(data).get(key)
+			return result
+
+	# return item is None and [dict(dt).get(key) for dt in result] or dict(result[item]).get(key)
+	# return ",".join([dict(dt).get(key) for dt in datas]) if item is None else dict(datas[item]).get(key)
 
 	def __del__(self):
 		for connection in self.mysqlConnectionPool:
@@ -58,7 +71,7 @@ class MysqlReader:
 				pass
 
 
-def readMysql(sql, key, item=None):
+def readMysql(sql: str, key: str, index: int | None = None):
 	"""mysql查询"""
 	mysql = MysqlReader()
-	return mysql.execute(sql, key, item)
+	return mysql.query(sql, key, index)

@@ -4,35 +4,36 @@ from utils.logger import logger
 import asyncio
 
 
-def logFixture(func):
+def logWriter(function):
 	""" 日志记录 """
 
 	lock = asyncio.Lock()
 
-	@functools.wraps(func)
-	async def wrapper(method, url, sess=0, **kwargs):
-		response = await func(method, url, sess=sess, **kwargs)
+	@functools.wraps(function)
+	async def wrapper(method, url, sessionIndex: int = 0, **kwargs):
+		result = await function(method, url, sessionIndex, **kwargs)
 
 		async with lock:
 			logger.info(f"请求url:{url:.255s}")
 			logger.info(f"请求方式:{method}")
 			logger.info(f"请求参数:{json.dumps(kwargs, ensure_ascii=False):.255s}")
+			response = result[0]
 			content_type_maps = {
-				"application/json": lambda: json.dumps(response[0], ensure_ascii=False),
-				"text/html": lambda: response[0],
-				"text/plain": lambda: response[0]
+				"application/json": lambda: json.dumps(response, ensure_ascii=False),
+				"text/html": lambda: response,
+				"text/plain": lambda: response
 			}
-			response_content_type = response[1]
+			response_content_type = result[1]
 			if not response_content_type:
 				logger.info("响应结果:响应结果headers中无Content-Type")
-				return response
+				return result
 
 			if response_content_type in content_type_maps:
 				logger.info(f"响应结果:{content_type_maps[response_content_type]():.255s}")
 			else:
 				logger.info(f"响应结果:响应结果格式 {response_content_type} 暂不支持")
 
-			return response
+			return result
 
 	return wrapper
 

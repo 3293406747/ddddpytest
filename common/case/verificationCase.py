@@ -18,7 +18,7 @@ class CaseVerification(ABC):
 		return handler
 
 	@abstractmethod
-	def verify_case(self, case) -> str:
+	def verify_case(self, case: dict) -> dict:
 		pass
 
 
@@ -28,7 +28,7 @@ class VerifyMustKeys(CaseVerification):
 
 	REQUIRED_KEYS = ("casename", "request")
 
-	def verify_case(self, case):
+	def verify_case(self, case: dict) ->  dict:
 		new_case = copy.deepcopy(case)
 		for key in VerifyMustKeys.REQUIRED_KEYS:
 			if key not in new_case:
@@ -47,7 +47,7 @@ class VerifyRequestKeys(CaseVerification):
 	REQUIRED_KEYS = ("url", "method")
 	ALLOWED_KEYS = ("params", "data", "json", "files", "headers")
 
-	def verify_case(self, case):
+	def verify_case(self, case: dict) ->  dict:
 		request = case.pop("request")
 		for key in VerifyRequestKeys.REQUIRED_KEYS:
 			if key not in request:
@@ -71,7 +71,7 @@ class VerifyNotMustKeys(CaseVerification):
 
 	ALLOWED_KEYS = ("data_path", "data_sheet", "extract", "assertion", "session")
 
-	def verify_case(self, case):
+	def verify_case(self, case: dict) ->  dict:
 		unexpected_keys = set(case) - set(VerifyNotMustKeys.ALLOWED_KEYS)
 		if unexpected_keys:
 			msg = f"用例的一级关键字不能包含以下关键字：{', '.join(unexpected_keys)}"
@@ -87,7 +87,7 @@ class VerifyExtractKeys(CaseVerification):
 
 	ALLOWED_KEYS = ("request", "response")
 
-	def verify_case(self, case):
+	def verify_case(self, case: dict) ->  dict:
 		extract = case.get("extract")
 		if extract is None:
 			return case
@@ -114,7 +114,7 @@ class VerifyExtractKeys(CaseVerification):
 class VerifySessionKeys(CaseVerification):
 	"""session参数校验"""
 
-	def verify_case(self, case):
+	def verify_case(self, case: dict) ->  dict:
 		if case.get("session") and not isinstance(case.get("session"), int):
 			msg = f"用例的session关键字下必须整数格式。"
 			raise VerificationError(msg)
@@ -129,7 +129,7 @@ class VerifyAssertionKeys(CaseVerification):
 
 	ALLOWED_KEYS = ("contain", "uncontain", "equal", "unequal")
 
-	def verify_case(self, case):
+	def verify_case(self, case: dict) ->  dict:
 		assertion = case.get("assertion")
 		if assertion is None:
 			return case

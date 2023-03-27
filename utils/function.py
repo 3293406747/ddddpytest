@@ -27,7 +27,7 @@ def mock():
 
 def sqlSelect(sql, key, item=None):
 	""" sql查询 """
-	return readMysql(sql=sql, key=key, item=int(item) if item else None)
+	return readMysql(sql=sql, key=key, index=int(item) if item else None)
 
 
 def gen_date_time(step):
