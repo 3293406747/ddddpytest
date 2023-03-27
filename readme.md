@@ -43,8 +43,8 @@ pytest
 ## 示例
 
 ```python
-from common.read.readTestcase import readTestcase
-from common.request.autoRequest import autoRequest
+from common.read.testcase import readTestcase
+from common.request.automatic import autoRequest
 from script.conftest import parametrize
 
 

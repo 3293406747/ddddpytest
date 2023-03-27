@@ -1,12 +1,12 @@
 import asyncio
 import time
 import pytest
-from common.read.readConfig import readConfig
-from common.read.readTestcase import readTestcase
+from common.read.config import readConfig
+from common.read.testcase import readTestcase
 from common.reporter.reporter import ExcelReport
 from utils.sendEmail import send_email
-from common.request.autoRequest import autoRequest
-from common.session.sessionManager import asyncSession
+from common.request.automatic import autoRequest
+from common.session.manager import asyncSession
 from pathlib import Path
 
 loop = asyncio.new_event_loop()

@@ -3,67 +3,67 @@ import json
 from functools import partial
 from pathlib import Path
 from common.case.renderTemplate import renderTemplate
-from common.request.fixture import logFixture
-from common.session.sessionManager import asyncSession
+from common.request.fixture import logWriter
+from common.session.manager import asyncSession
 from utils.assertion import Assertion
 from utils.extract import Extract
 from utils.variablesManager import variables, environments
 
 
-async def autoRequest(caseinfo):
+async def autoRequest(caseinfo: dict):
 	""" 自动请求 """
 	# 合并变量池
-	mapping = {**variables.pool, **environments.pool}
+	variablesPoolByMerge = {**variables.pool, **environments.pool}
 	# 渲染请求
-	caseinfo["request"] = renderTemplate(caseinfo["request"], mapping)
+	request = caseinfo["request"]
+	request = renderTemplate(request, variablesPoolByMerge)
 	# 获取用例名称
 	name = caseinfo["casename"]
-	request = caseinfo["request"]
 	# 请求url
 	url = request.pop("url")
 	# 请求方法
 	method = request.pop("method")
 	# 获取session index
-	sess = caseinfo.get("session", 0)
+	sessionIndex = caseinfo.get("session", 0)
 	# 发送请求
-	response = await asyncioRequest(method=method, url=url, **caseinfo["request"], sess=sess)
+	result = await asyncioRequest(method, url, sessionIndex, **request)
 	# 从请求或响应中提取内容:
-	extractPool = getExtracts(caseinfo, response[0])
-
-	if response[1] in ["text/html", "text/plain"]:
-		response_result = response[0]
-	elif response[1] == "application/json":
-		response_result = json.dumps(response[0], ensure_ascii=False)
+	response = result[0]
+	extractPool = extract(caseinfo, response)
+	# 字符串格式响应结果
+	response_content_type = result[1]
+	if response_content_type in ["text/html", "text/plain"]:
+		response = response
+	elif response_content_type == "application/json":
+		response = json.dumps(response, ensure_ascii=False)
 	else:
-		response_result = "响应结果类型不支持"
-
+		response = "响应结果类型不支持"
+	# 字符串格式请求参数
+	if isinstance(request, str):
+		request = request
+	elif isinstance(request, dict):
+		request = json.dumps(request, ensure_ascii=False)
+	else:
+		request = "请求参数类型不支持"
 	# 合并变量池
-	mapping = {**mapping, **extractPool}
+	variablesPoolByMerge = {**variablesPoolByMerge, **extractPool}
 	# 断言
-	assert_result = assertion(caseinfo, response_result, mapping)
-
-	request_params = caseinfo["request"]
-	if isinstance(request_params, str):
-		request_params = request_params
-	elif isinstance(request_params, dict):
-		request_params = json.dumps(request_params, ensure_ascii=False)
-	else:
-		request_params = "请求参数类型不支持"
+	assert_result = assertion(caseinfo, response, variablesPoolByMerge)
 
 	result = {
 		"用例名称": name,
 		"请求url": url,
 		"请求方法": method,
-		"请求参数": request_params,
-		"响应结果类型": response[1],
-		"响应结果": response_result,
+		"请求参数": request,
+		"响应结果类型": response_content_type,
+		"响应结果": response,
 		"断言": assert_result
 	}
 
 	return result
 
 
-def getExtracts(caseinfo, response) -> dict:
+def extract(caseinfo, response) -> dict:
 	""" 提取内容 """
 	extractPool = {}
 	if caseinfo.get("extract") is None:
@@ -107,7 +107,7 @@ def assertion(caseinfo, response, mapping):
 		}
 		for item in value:
 			expect, actual = item.get("expect"), item.get("actual")
-			if isinstance(expect,str):
+			if isinstance(expect, str):
 				expect = expect.split(",")
 			if actual == "response":
 				if response != "响应结果类型不支持":
@@ -115,7 +115,7 @@ def assertion(caseinfo, response, mapping):
 				else:
 					raise TypeError("响应结果类型不支持")
 			elif method in ["equal", "unequal"]:
-				if isinstance(actual,str):
+				if isinstance(actual, str):
 					actual = actual.split(",")
 			msg = methods[method](expect, actual)
 
@@ -146,8 +146,8 @@ def read_files(files: dict) -> None:
 # 	""" 发送请求 """
 # 	return session(seek=sess).request(method=method, url=url, files=files, timeout=timeout, **kwargs)
 
-@logFixture
-async def asyncioRequest(method, url, sess=0, **kwargs):
+@logWriter
+async def asyncioRequest(method, url, sessionIndex=0, **kwargs):
 	params = copy.deepcopy(kwargs)
 
 	# 文件处理
@@ -156,7 +156,7 @@ async def asyncioRequest(method, url, sess=0, **kwargs):
 		read_files(files)
 		params["data"] = files
 
-	async with asyncSession.get_session(sess).request(method=method, url=url, **params) as response:
+	async with asyncSession.get_session(sessionIndex).request(method=method, url=url, **params) as response:
 		content_type = response.headers.get("Content-Type")
 		if not content_type:
 			result = await response.text()

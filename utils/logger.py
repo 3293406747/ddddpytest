@@ -3,7 +3,7 @@ logger日志
 """
 import sys, time
 from loguru import logger as logging
-from common.read.readConfig import readConfig
+from common.read.config import readConfig
 from utils.singleinstance import singleton
 
 
