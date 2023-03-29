@@ -63,25 +63,22 @@ async def autoRequest(caseinfo: dict):
 	return result
 
 
-def extract(caseinfo, response) -> dict:
-	""" 提取内容 """
-	extractPool = {}
-	if caseinfo.get("extract") is None:
-		return extractPool
+def extract(test_case: dict, http_response: str) -> dict:
+	""" 从请求或响应中提取内容 """
+	extracted_data = {}
+	if test_case.get("extract") is None:
+		return extracted_data
 
-	data = response
-
-	for method, value in caseinfo["extract"].items():
-		data = caseinfo["request"] if method == "request" else data
-		for key, pattern in value.items():
-			pattern_parts = str(pattern).split(",")
-			pattern = pattern_parts[0]
-			index = int(pattern_parts[1]) if len(pattern_parts) > 1 else None
-			extract_fn = partial(Extract.json if pattern.startswith("$") else Extract.match)
-			value = extract_fn(data, pattern, index)
-			extractPool[key] = value
-
-	return extractPool
+	for data_type, extract_config in test_case["extract"].items():
+		data_source = test_case["request"] if data_type == "request" else http_response
+		for extracted_key, extract_pattern in extract_config.items():
+			extract_parts = str(extract_pattern).split(",")
+			extract_pattern = extract_parts[0]
+			extract_index = int(extract_parts[1]) if len(extract_parts) > 1 else None
+			extract_func = partial(Extract.json if extract_pattern.startswith("$") else Extract.match)
+			extracted_value = extract_func(data_source, extract_pattern, extract_index)
+			extracted_data[extracted_key] = extracted_value
+	return extracted_data
 
 
 def assertion(caseinfo, response, mapping):
