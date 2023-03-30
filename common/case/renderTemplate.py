@@ -4,7 +4,7 @@ from string import Template
 from abc import ABC, abstractmethod
 
 
-def renderTemplate(template: dict | list, data_for_render: dict) -> dict:
+def render_template(template: dict | list, data_for_render: dict) -> dict:
 	""" 渲染模板 """
 	# 合并字典
 	# merge = variables.pool | environments.pool
