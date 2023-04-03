@@ -1,4 +1,4 @@
-from utils.mysql import Mysql
+from utils.mysql import Mysql, MysqlConfig
 from common.read.config import readConfig
 from utils.singleinstance import singleton
 
@@ -17,7 +17,7 @@ class MysqlReader:
 		self.mysqlConnectionPool: [Mysql] = []
 		self._current_connection: Mysql | None = None
 
-		mysql = Mysql(**config)
+		mysql = Mysql(MysqlConfig(**config))
 		self.add_connection(mysql)
 		self.current_connection = 0
 
@@ -47,17 +47,17 @@ class MysqlReader:
 		if not self.current_connection:
 			raise Exception("当前没有可用的数据库连接")
 
-		datas: list = self.current_connection.query(sql)
+		queried_data_list: list = self.current_connection.query(sql)
 
 		results = []
 		if index is None:
-			for data in datas:
-				result = dict(data).get(key)
+			for queried_data in queried_data_list:
+				result = dict(queried_data).get(key)
 				results.append(result)
 			return ",".join(results)
 		else:
-			data = datas[index]
-			result = dict(data).get(key)
+			queried_data = queried_data_list[index]
+			result = dict(queried_data).get(key)
 			return result
 
 	# return item is None and [dict(dt).get(key) for dt in result] or dict(result[item]).get(key)
@@ -66,7 +66,7 @@ class MysqlReader:
 	def __del__(self):
 		for connection in self.mysqlConnectionPool:
 			try:
-				connection.close()
+				connection.close_all_session()
 			except Exception:
 				pass
 

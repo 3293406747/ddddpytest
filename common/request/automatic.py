@@ -152,22 +152,22 @@ async def asyncio_request(method: str, url: str, session_index: int = 0, **kwarg
 	request_params = copy.deepcopy(kwargs)
 
 	# 文件处理
-	files = request_params.pop("files", None)
-	if files:
-		read_files(files)
-		request_params["data"] = files
+	files_data = request_params.pop("files", None)
+	if files_data:
+		read_files(files_data)
+		request_params["data"] = files_data
 
 	async with asyncSession.get_session(session_index).request(method=method, url=url, **request_params) as response:
-		content_type = response.headers.get("Content-Type")
-		if content_type is None:
-			result = await response.text()
-			return result, content_type
+		response_content_type = response.headers.get("Content-Type")
+		if response_content_type is None:
+			response_content = await response.text()
+			return response_content, response_content_type
 
-		content_type = content_type.split(";")[0].strip()
-		if content_type in ["text/html", "text/plain"]:
-			result = await response.text()
-		elif content_type == "application/json":
-			result = await response.json()
+		response_content_type = response_content_type.split(";")[0].strip()
+		if response_content_type in ["text/html", "text/plain"]:
+			response_content = await response.text()
+		elif response_content_type == "application/json":
+			response_content = await response.json()
 		else:
-			result = await response.read()
-		return result, content_type
+			response_content = await response.read()
+		return response_content, response_content_type
