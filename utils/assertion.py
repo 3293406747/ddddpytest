@@ -10,7 +10,7 @@ class Mode(metaclass=ABCMeta):
 	""" 抽象基类，定义 execute 方法 """
 
 	@abstractmethod
-	def excute(self, expect, actual) -> None:
+	def execute(self, expect, actual) -> None:
 		pass
 
 	@staticmethod
@@ -33,7 +33,7 @@ class Equal(Mode):
 	def __init__(self, flag=False):
 		self.flag = flag
 
-	def excute(self, expect, actual):
+	def execute(self, expect, actual):
 		expect, actual = self.format_param(expect), self.format_param(actual)  # 转换为列表
 		msg = self.check_len(expect, actual)  # 检查长度是否一致
 		if msg:
@@ -74,7 +74,7 @@ class Contain(Mode):
 	def __init__(self, flag=False):
 		self.flag = flag
 
-	def excute(self, expect, actual: str):
+	def execute(self, expect, actual: str):
 		if not isinstance(actual,str):
 			raise TypeError(f"{actual}必须是字符串类型")
 		expect = self.format_param(expect)  # 转换为列表
@@ -107,8 +107,8 @@ class AssertionStrategy:
 	def __init__(self, strategy: Mode):
 		self.strategy = strategy
 
-	def excute(self, expect, actual):
-		return self.strategy.excute(expect, actual)
+	def execute(self, expect, actual):
+		return self.strategy.execute(expect, actual)
 
 
 class Assertion:
@@ -123,25 +123,25 @@ class Assertion:
 	def equal(cls, expect, actual):
 		""" 相等断言 """
 		# return AssertionFactory.create(method="equal").excute(expect=expect, actual=actual, name=name)
-		return cls.equal_strategy.excute(expect=expect, actual=actual)
+		return cls.equal_strategy.execute(expect=expect, actual=actual)
 
 	@classmethod
 	def unequal(cls, expect, actual):
 		""" 不相等断言 """
 		# return AssertionFactory.create(method="unequal").excute(expect=expect, actual=actual, name=name)
-		return cls.not_equal_strategy.excute(expect=expect, actual=actual)
+		return cls.not_equal_strategy.execute(expect=expect, actual=actual)
 
 	@classmethod
 	def contian(cls, expect, actual):
 		""" 包含断言 """
 		# return AssertionFactory.create(method="contain").excute(expect=expect, actual=actual, name=name)
-		return cls.contain_strategy.excute(expect=expect, actual=actual)
+		return cls.contain_strategy.execute(expect=expect, actual=actual)
 
 	@classmethod
 	def uncontian(cls, expect, actual):
 		""" 不包含断言 """
 		# return AssertionFactory.create(method="uncontain").excute(expect=expect, actual=actual, name=name)
-		return cls.not_contain_strategy.excute(expect=expect, actual=actual)
+		return cls.not_contain_strategy.execute(expect=expect, actual=actual)
 
 # class AssertionFactory:
 # 	"""工厂类，根据传入的 method 创建相应的对象"""

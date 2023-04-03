@@ -26,7 +26,7 @@ def event_loop():
 @pytest.fixture(scope='session', autouse=True, params=readTestcase("setcookie.yaml"))
 def session(request):
 	async def close_session():
-		await asyncSession.close()
+		await asyncSession.close_all_session()
 
 	async def setup(case):
 		asyncSession.create_session()  # 创建session

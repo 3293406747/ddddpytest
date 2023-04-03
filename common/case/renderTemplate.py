@@ -9,19 +9,19 @@ def render_template(template: dict | list, data_for_render: dict) -> dict:
 	# 合并字典
 	# merge = variables.pool | environments.pool
 	# 第一次渲染 使用变量渲染
-	template = RenderTemplate(VariablesRenderStrategy()).render(template, data_for_render)
+	last_template = RenderTemplate(VariablesRenderStrategy()).render(template, data_for_render)
 	# 第二次渲染 使用python函数
-	template = RenderTemplate(FunctionRenderStrategy()).render(template)
+	last_template = RenderTemplate(FunctionRenderStrategy()).render(last_template)
 	# 第三次渲染 使用变量渲染
-	jsonTemplate = json.dumps(template, ensure_ascii=False)
-	template = Template(jsonTemplate).safe_substitute(data_for_render)
+	json_template = json.dumps(last_template, ensure_ascii=False)
+	last_template = Template(json_template).safe_substitute(data_for_render)
 	# 第四次渲染 使用python函数
-	jsonTemplate = json.dumps(template, ensure_ascii=False)
+	json_template = json.dumps(last_template, ensure_ascii=False)
 	match_function_regex = r"\{\{(.*?)\}\}"  # 匹配python函数
-	jsonTemplate = re.sub(match_function_regex, replace_function, jsonTemplate)
+	json_template = re.sub(match_function_regex, replace_function, json_template)
 	# 返回字典格式模板
-	template = json.loads(jsonTemplate)
-	return json.loads(template) if isinstance(template, str) else template
+	last_template = json.loads(json_template)
+	return json.loads(last_template) if isinstance(last_template, str) else last_template
 
 
 # 动态导入`utils.function`模块
@@ -47,7 +47,7 @@ def replace_function(function_chain: re.Match) -> str:
 class RenderStrategy(ABC):
 
 	@abstractmethod
-	def render(self, key: str | int, child_template: str | dict | list, template: dict | list) -> None:
+	def render(self, key: str | int, sub_template: str | dict | list, template: dict | list) -> None:
 		"""抽象渲染方法"""
 		pass
 
@@ -60,17 +60,17 @@ class VariablesRenderStrategy(RenderStrategy):
 		self.renderTemplate = RenderTemplate(self)
 		self.data_for_render = {}
 
-	def render(self, key: str | int, child_template: str | dict | list, template: dict | list) -> None:
+	def render(self, key: str | int, sub_template: str | dict | list, template: dict | list) -> None:
 		"""实现抽象渲染方法"""
-		if isinstance(child_template, str) and child_template.startswith("${") and child_template.endswith("}"):
+		if isinstance(sub_template, str) and sub_template.startswith("${") and sub_template.endswith("}"):
 			# 海象运算符
-			# if variable_value:= data_for_render.get(child_template[2:-1]):
-			variable_key = child_template[2:-1]
+			# if variable_value:= data_for_render.get(sub_template[2:-1]):
+			variable_key = sub_template[2:-1]
 			variable_value = self.data_for_render.get(variable_key)
 			if variable_value:
 				template[key] = variable_value
-		elif isinstance(child_template, (list, dict)):
-			template[key] = self.renderTemplate.render(child_template, self.data_for_render)
+		elif isinstance(sub_template, (list, dict)):
+			template[key] = self.renderTemplate.render(sub_template, self.data_for_render)
 
 
 class FunctionRenderStrategy(RenderStrategy):
@@ -80,14 +80,14 @@ class FunctionRenderStrategy(RenderStrategy):
 		# strategy为self
 		self.renderTemplate = RenderTemplate(self)
 
-	def render(self, key: str | int, child_template: str | dict | list, template: dict | list) -> None:
+	def render(self, key: str | int, sub_template: str | dict | list, template: dict | list) -> None:
 		"""实现抽象渲染方法"""
-		if isinstance(child_template, str) and child_template.startswith("{{") and child_template.endswith("}}"):
+		if isinstance(sub_template, str) and sub_template.startswith("{{") and sub_template.endswith("}}"):
 			match_function_regex = r"^\{\{(.+?)\}\}$"
-			function_chain = re.match(match_function_regex, child_template)
+			function_chain = re.match(match_function_regex, sub_template)
 			template[key] = replace_function(function_chain)
-		elif isinstance(child_template, (list, dict)):
-			template[key] = self.renderTemplate.render(child_template)
+		elif isinstance(sub_template, (list, dict)):
+			template[key] = self.renderTemplate.render(sub_template)
 
 
 class RenderTemplate:
@@ -101,9 +101,9 @@ class RenderTemplate:
 		if isinstance(template, str):
 			template = json.loads(template)
 		if isinstance(template, list):
-			for index, child_template in enumerate(template):
-				self.strategy.render(index, child_template, template)
+			for index, sub_template in enumerate(template):
+				self.strategy.render(index, sub_template, template)
 		elif isinstance(template, dict):
-			for key, child_template in template.items():
-				self.strategy.render(key, child_template, template)
+			for key, sub_template in template.items():
+				self.strategy.render(key, sub_template, template)
 		return template
