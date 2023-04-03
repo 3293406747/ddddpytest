@@ -112,10 +112,9 @@ def assertion(test_case: dict, http_response: str, mapping: dict) -> list:
 			expected, actual_value = assertion_result.get("expect"), assertion_result.get("actual")
 			expected = expected.split(",") if isinstance(expected, str) else expected
 			if actual_value == "response":
-				if http_response != "响应结果类型不支持":
-					actual_value = http_response
-				else:
-					raise TypeError("响应结果类型不支持")
+				# 与用户输入无关的程序内部错误可以使用assert而不是raise
+				assert http_response != "响应结果类型不支持", "响应结果类型不支持"
+				actual_value = http_response
 			elif assertion_method in ["equal", "unequal"]:
 				actual_value = actual_value.split(",") if isinstance(actual_value, str) else actual_value
 			msg = methods[assertion_method](expected, actual_value)
@@ -130,8 +129,6 @@ def read_files(input_files: dict) -> None:
 	if not isinstance(input_files, dict):
 		raise TypeError("参数 input_files 必须为字典类型")
 	for file_name, file_path in input_files.items():
-		if not isinstance(file_path, str):
-			raise TypeError("参数 file_path 必须为字符串类型")
 		file_abs_path = project_root / file_path
 		if not file_abs_path.exists():
 			raise FileNotFoundError(f"指定文件 {file_abs_path} 不存在")
