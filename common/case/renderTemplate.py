@@ -40,7 +40,7 @@ def replace_function(function_chain: re.Match) -> str:
 		parent_function = getattr(parent_function, name)(*args.split(",")) if args else getattr(parent_function, name)()
 
 	if not isinstance(parent_function, str):
-		raise TypeError(f"{parent_function}类型应为str，实际类型为{type(parent_function)}")
+		raise RenderTemplateError(f"{parent_function}类型应为str，实际类型为{type(parent_function)}")
 	return parent_function
 
 
@@ -107,3 +107,6 @@ class RenderTemplate:
 			for key, sub_template in template.items():
 				self.strategy.render(key, sub_template, template)
 		return template
+
+class RenderTemplateError(Exception):
+	pass

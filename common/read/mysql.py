@@ -12,7 +12,7 @@ class MysqlReader:
 		config = readConfig()["mysql"]
 		if not config:
 			msg = "config/local.yaml中未配置数据库连接"
-			raise Exception(msg)
+			raise MysqlReaderError(msg)
 
 		self.mysqlConnectionPool: [Mysql] = []
 		self._current_connection: Mysql | None = None
@@ -69,6 +69,10 @@ class MysqlReader:
 				connection.close_all_session()
 			except Exception:
 				pass
+
+
+class MysqlReaderError(Exception):
+	pass
 
 
 def readMysql(sql: str, key: str, index: int | None = None):

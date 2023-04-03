@@ -3,6 +3,8 @@
 """
 import json, re, jsonpath
 from abc import ABCMeta, abstractmethod
+
+
 # from functools import lru_cache
 
 
@@ -14,10 +16,10 @@ class Mode(metaclass=ABCMeta):
 		pass
 
 	def templet_method(self, data, pattern, index):
-		data = json.dumps(data, ensure_ascii=False) if isinstance(data, dict) else data		# 转换为json格式
-		result = self.extract(data, pattern)		# 提取
+		data = json.dumps(data, ensure_ascii=False) if isinstance(data, dict) else data  # 转换为json格式
+		result = self.extract(data, pattern)  # 提取
 		if result is None:
-			raise Exception(f"要提取的值{pattern}在{data}中不存在")
+			raise ExtractError(f"要提取的值{pattern}在{data}中不存在")
 		if index is not None:
 			result = result[index]
 		return result
@@ -30,7 +32,7 @@ class Json(Mode):
 		try:
 			obj = json.loads(data) if isinstance(data, str) else data
 		except Exception:
-			raise Exception(f"要提取的值{data}的数据格式不正确")
+			raise ExtractError(f"要提取的值{data}的数据格式不正确")
 		return jsonpath.jsonpath(obj=obj, expr=pattern)
 
 
@@ -44,7 +46,7 @@ class Match(Mode):
 class ExtractStrategy:
 	"""策略类，根据传入的 strategy 执行相应的策略"""
 
-	def __init__(self,strategy:Mode):
+	def __init__(self, strategy: Mode):
 		self.strategy = strategy
 
 	def excute(self, data, pattern, index):
@@ -58,17 +60,20 @@ class Extract:
 	match_extract_strategy = ExtractStrategy(Match())
 
 	@classmethod
-	def json(cls,data, pattern, index=None):
+	def json(cls, data, pattern, index=None):
 		""" json提取 """
 		# return ExtractFactory().create("json").templet_method(data=data, pattern=pattern, index=index)
-		return cls.json_extract_strategy.excute(data,pattern,index)
+		return cls.json_extract_strategy.excute(data, pattern, index)
 
 	@classmethod
-	def match(cls,data, pattern, index=None):
+	def match(cls, data, pattern, index=None):
 		""" 正则提取 """
 		# return ExtractFactory().create("match").templet_method(data=data, pattern=pattern, index=index)
 		return cls.match_extract_strategy.excute(data, pattern, index)
 
+
+class ExtractError(Exception):
+	pass
 
 # class ExtractFactory:
 # 	"""工厂类，根据传入的 method 创建相应的对象"""
