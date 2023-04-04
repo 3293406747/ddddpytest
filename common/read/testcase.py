@@ -1,11 +1,14 @@
-import json, yaml
 from abc import ABC, abstractmethod
+import json
 from string import Template
+import yaml
+
 from pathlib import Path
-from common.case.verificationCase import verification_case
-from utils.excelReader import excelReader
-from utils.yamlReader import yamlReader
-from utils.singleinstance import singleton
+
+from common.case.verify_case import verify_case
+from utils.read_excel import read_excel
+from utils.read_yaml import read_yaml
+from utils.single_instance import singleton
 
 TESTCASE_DIR = Path(__file__).resolve().parent.parent.parent.joinpath("testcase")
 DATA_DIR = Path(__file__).resolve().parent.parent.parent.joinpath("data")
@@ -39,10 +42,10 @@ class TestcaseReader(ABC):
 class YamlTestcaseReader(TestcaseReader):
 
 	def _read_testcase(self, filename: str, case_index: int, encoding: str) -> dict:
-		return yamlReader(TESTCASE_DIR.joinpath(filename), encoding)[case_index]
+		return read_yaml(TESTCASE_DIR.joinpath(filename), encoding)[case_index]
 
 	def _validate_testdata(self, test_case: dict) -> None:
-		verification_case(test_case)
+		verify_case(test_case)
 
 	def _merge_testcase_and_testdata(self, test_case: dict) -> list:
 		test_case_dir = test_case.pop("data_path", None)
@@ -51,7 +54,7 @@ class YamlTestcaseReader(TestcaseReader):
 
 		sheet = test_case.pop("data_sheet", None)
 		test_case_str = json.dumps(test_case, ensure_ascii=False)
-		test_data_list = excelReader(DATA_DIR.joinpath(test_case_dir), sheet)
+		test_data_list = read_excel(DATA_DIR.joinpath(test_case_dir), sheet)
 		return [yaml.safe_load(self._render_template(test_case_str, test_data)) for test_data in test_data_list]
 
 	@staticmethod
@@ -59,6 +62,6 @@ class YamlTestcaseReader(TestcaseReader):
 		return Template(template).safe_substitute(variables)
 
 
-def readTestcase(filename: str, case_index: int = 0, encoding: str = "utf-8") -> list:
+def read_case(filename: str, case_index: int = 0, encoding: str = "utf-8") -> list:
 	""" 读取测试用例 """
 	return YamlTestcaseReader().read(filename, case_index, encoding)

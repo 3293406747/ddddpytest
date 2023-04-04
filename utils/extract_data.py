@@ -49,7 +49,7 @@ class ExtractStrategy:
 	def __init__(self, strategy: Mode):
 		self.strategy = strategy
 
-	def excute(self, data, pattern, index):
+	def execute(self, data, pattern, index):
 		return self.strategy.templet_method(data, pattern, index)
 
 
@@ -63,13 +63,13 @@ class Extract:
 	def json(cls, data, pattern, index=None):
 		""" json提取 """
 		# return ExtractFactory().create("json").templet_method(data=data, pattern=pattern, index=index)
-		return cls.json_extract_strategy.excute(data, pattern, index)
+		return cls.json_extract_strategy.execute(data, pattern, index)
 
 	@classmethod
 	def match(cls, data, pattern, index=None):
 		""" 正则提取 """
 		# return ExtractFactory().create("match").templet_method(data=data, pattern=pattern, index=index)
-		return cls.match_extract_strategy.excute(data, pattern, index)
+		return cls.match_extract_strategy.execute(data, pattern, index)
 
 
 class ExtractError(Exception):

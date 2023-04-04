@@ -43,14 +43,14 @@ pytest
 ## 示例
 
 ```python
-from common.read.testcase import readTestcase
-from common.request.automatic import autoRequest
+from common.read.testcase import read_case
+from common.request.automatic import auto_request
 from script.conftest import parametrize
 
 
-@parametrize(readTestcase("method.yaml"))
+@parametrize(read_case("method.yaml"))
 async def test_get(case):
-	await autoRequest(case)
+	await auto_request(case)
 ```
 
 ```yaml

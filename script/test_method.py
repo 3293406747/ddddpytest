@@ -1,5 +1,5 @@
-from common.read.testcase import readTestcase
-from common.request.automatic import autoRequest
+from common.read.testcase import read_case
+from common.request.automatic import auto_request
 from functools import partial
 from script.conftest import parametrize
 
@@ -13,7 +13,7 @@ from script.conftest import parametrize
 # @allure.feature("测试method")
 class TestHttpbin:
 
-	rt = partial(readTestcase,"method.yaml")
+	rt = partial(read_case, "method.yaml")
 
 	# 读取用例文件
 	@parametrize(rt())
@@ -23,22 +23,22 @@ class TestHttpbin:
 		# # 用例名称
 		# allure.dynamic.title(case["casename"])
 		# 发送请求
-		return await autoRequest(case)
+		return await auto_request(case)
 
 	@parametrize(rt(1))
 	# @allure.story("post请求data传参")
 	async def test_postdata(self,case):
 		# allure.dynamic.title(case["casename"])
-		return await autoRequest(case)
+		return await auto_request(case)
 
 	@parametrize(rt(2))
 	# @allure.story("post请求json传参")
 	async def test_postjson(self,case):
 		# allure.dynamic.title(case["casename"])
-		return await autoRequest(case)
+		return await auto_request(case)
 
 	@parametrize(rt(3))
 	# @allure.story("post请求文件上传")
 	async def test_postfiles(self,case):
 		# allure.dynamic.title(case["casename"])
-		return await autoRequest(case)
+		return await auto_request(case)

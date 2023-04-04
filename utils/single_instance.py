@@ -8,8 +8,6 @@ import threading
 
 def singleton(cls:type):
 	"""单例模式装饰器"""
-	if not isinstance(cls,type):
-		raise TypeError
 	instance = None
 	lock = threading.Lock()		# 生成锁
 

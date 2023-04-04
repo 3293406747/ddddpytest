@@ -1,5 +1,5 @@
-from common.read.testcase import readTestcase
-from common.request.automatic import autoRequest
+from common.read.testcase import read_case
+from common.request.automatic import auto_request
 from script.conftest import parametrize
 
 
@@ -7,8 +7,8 @@ from script.conftest import parametrize
 # @allure.feature("测试data")
 class TestHttpbin:
 
-	@parametrize(readTestcase("data.yaml"))
+	@parametrize(read_case("data.yaml"))
 	# @allure.story("测试data")
 	async def test_data(self,case):
 		# allure.dynamic.title(case["casename"])
-		return await autoRequest(case)
+		return await auto_request(case)

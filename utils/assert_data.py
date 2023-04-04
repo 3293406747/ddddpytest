@@ -2,8 +2,8 @@
 断言
 """
 from abc import ABCMeta, abstractmethod
-import numbers
 from functools import partial
+import numbers
 
 
 class Mode(metaclass=ABCMeta):
@@ -111,37 +111,36 @@ class AssertionStrategy:
 		return self.strategy.execute(expect, actual)
 
 
-class Assertion:
+class AssertData:
 	""" 断言 """
 
-	equal_strategy = AssertionStrategy(Equal())
-	not_equal_strategy = AssertionStrategy(Equal(True))
-	contain_strategy = AssertionStrategy(Contain())
-	not_contain_strategy = AssertionStrategy(Contain(True))
+	def __init__(self):
+		self.equal_strategy = AssertionStrategy(Equal())
+		self.not_equal_strategy = AssertionStrategy(Equal(True))
+		self.contain_strategy = AssertionStrategy(Contain())
+		self.not_contain_strategy = AssertionStrategy(Contain(True))
 
-	@classmethod
-	def equal(cls, expect, actual):
+	def equal(self, expect, actual):
 		""" 相等断言 """
 		# return AssertionFactory.create(method="equal").excute(expect=expect, actual=actual, name=name)
-		return cls.equal_strategy.execute(expect=expect, actual=actual)
+		return self.equal_strategy.execute(expect=expect, actual=actual)
 
-	@classmethod
-	def unequal(cls, expect, actual):
+	def unequal(self, expect, actual):
 		""" 不相等断言 """
 		# return AssertionFactory.create(method="unequal").excute(expect=expect, actual=actual, name=name)
-		return cls.not_equal_strategy.execute(expect=expect, actual=actual)
+		return self.not_equal_strategy.execute(expect=expect, actual=actual)
 
-	@classmethod
-	def contian(cls, expect, actual):
+	def contian(self, expect, actual):
 		""" 包含断言 """
 		# return AssertionFactory.create(method="contain").excute(expect=expect, actual=actual, name=name)
-		return cls.contain_strategy.execute(expect=expect, actual=actual)
+		return self.contain_strategy.execute(expect=expect, actual=actual)
 
-	@classmethod
-	def uncontian(cls, expect, actual):
+	def uncontian(self, expect, actual):
 		""" 不包含断言 """
 		# return AssertionFactory.create(method="uncontain").excute(expect=expect, actual=actual, name=name)
-		return cls.not_contain_strategy.execute(expect=expect, actual=actual)
+		return self.not_contain_strategy.execute(expect=expect, actual=actual)
+
+assert_data = AssertData()
 
 # class AssertionFactory:
 # 	"""工厂类，根据传入的 method 创建相应的对象"""

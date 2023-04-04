@@ -1,6 +1,6 @@
-from utils.mysql import Mysql, MysqlConfig
 from common.read.config import readConfig
-from utils.singleinstance import singleton
+from utils.mysql_manager import MysqlManager, MysqlManagerConfig
+from utils.single_instance import singleton
 
 
 @singleton
@@ -14,14 +14,14 @@ class MysqlReader:
 			msg = "config/local.yaml中未配置数据库连接"
 			raise MysqlReaderError(msg)
 
-		self.mysqlConnectionPool: [Mysql] = []
-		self._current_connection: Mysql | None = None
+		self.mysqlConnectionPool: [MysqlManager] = []
+		self._current_connection: MysqlManager | None = None
 
-		mysql = Mysql(MysqlConfig(**config))
+		mysql = MysqlManager(MysqlManagerConfig(**config))
 		self.add_connection(mysql)
 		self.current_connection = 0
 
-	def add_connection(self, mysql: Mysql):
+	def add_connection(self, mysql: MysqlManager):
 		"""添加mysql连接"""
 		mysql.connect()
 		self.mysqlConnectionPool.append(mysql)
@@ -59,9 +59,6 @@ class MysqlReader:
 			queried_data = queried_data_list[index]
 			result = dict(queried_data).get(key)
 			return result
-
-	# return item is None and [dict(dt).get(key) for dt in result] or dict(result[item]).get(key)
-	# return ",".join([dict(dt).get(key) for dt in datas]) if item is None else dict(datas[item]).get(key)
 
 	def __del__(self):
 		for connection in self.mysqlConnectionPool:
