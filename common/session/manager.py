@@ -15,6 +15,9 @@ class AsyncSessionManager:
 	def get_session(self, index: int = 0) -> aiohttp.ClientSession:
 		return self.sessionPool[index]
 
+	def close_session(self,index: int = 0) -> None:
+		self.sessionPool[index].close()
+
 	async def close_all_session(self) -> None:
 		for session in self.sessionPool:
 			await session.close()
