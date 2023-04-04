@@ -68,8 +68,7 @@ class VariablesRenderStrategy(RenderStrategy):
 			# if variable_value:= data_for_render.get(sub_template[2:-1]):
 			variable_key = sub_template[2:-1]
 			variable_value = self.data_for_render.get(variable_key)
-			if variable_value:
-				template[key] = variable_value
+			if variable_value: template[key] = variable_value
 		elif isinstance(sub_template, (list, dict)):
 			template[key] = self.renderTemplate.render(sub_template, self.data_for_render)
 
@@ -99,8 +98,7 @@ class RenderTemplate:
 	def render(self, template: dict | list, data_for_render: dict | None = None) -> dict:
 		"""渲染方法"""
 		self.strategy.data_for_render = data_for_render
-		if isinstance(template, str):
-			template = json.loads(template)
+		if isinstance(template, str): template = json.loads(template)
 		if isinstance(template, list):
 			for index, sub_template in enumerate(template):
 				self.strategy.render(index, sub_template, template)
