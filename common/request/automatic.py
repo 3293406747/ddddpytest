@@ -1,11 +1,8 @@
-import copy
 import json
 from functools import partial
 
-from pathlib import Path
-
 from common.case.render_template import render_template
-from common.request.fixture import logWriter
+from common.request.fixture import logWriter, handle_files
 from common.session.manager import asyncSession
 from utils.assert_data import assert_data
 from utils.extract_data import Extract
@@ -13,19 +10,19 @@ from utils.logger_manager import logger
 from utils.variables_manager import variables, environments
 
 
-async def auto_request(test_case: dict) -> dict:
+async def auto_request(case: dict) -> dict:
 	""" 自动请求 """
 	# 合并变量池
 	merged_variables_pool = {**variables.pool, **environments.pool}
 
 	# 渲染请求
-	rendered_request = render_template(test_case["request"], merged_variables_pool)
+	rendered_request = render_template(case["request"], merged_variables_pool)
 
 	# 获取用例名称、请求url、请求方法、session index
-	name = test_case["casename"]
+	name = case["casename"]
 	url = rendered_request.pop("url")
 	method = rendered_request.pop("method")
-	sessionIndex = test_case.get("session", 0)
+	sessionIndex = case.get("session", 0)
 
 	# 发送请求
 	response, response_content_type = await asyncio_request(method, url, sessionIndex, **rendered_request)
@@ -35,13 +32,13 @@ async def auto_request(test_case: dict) -> dict:
 	response_formatted = _format_response(response, response_content_type)
 
 	# 提取内容
-	extracted_variables_pool = _extract(test_case, response_formatted)
+	extracted_variables_pool = _extract(case, response_formatted)
 
 	# 合并变量池
 	merged_variables_pool = {**merged_variables_pool, **extracted_variables_pool}
 
 	# 断言
-	assert_result = _assert(test_case, response_formatted, merged_variables_pool)
+	assert_result = _assert(case, response_formatted, merged_variables_pool)
 
 	# 组装结果
 	result = {
@@ -77,14 +74,14 @@ def _format_response(response: str | dict, response_content_type: str):
 		return "响应结果类型不支持"
 
 
-def _extract(test_case: dict, http_response: str) -> dict:
+def _extract(case: dict, http_response: str) -> dict:
 	""" 从请求或响应中提取内容 """
 	extracted_data = {}
-	if test_case.get("extract") is None:
+	if case.get("extract") is None:
 		return extracted_data
 
-	for data_type, extract_config in test_case["extract"].items():
-		data_source = test_case["request"] if data_type == "request" else http_response
+	for data_type, extract_config in case["extract"].items():
+		data_source = case["request"] if data_type == "request" else http_response
 		for extracted_key, extract_pattern in extract_config.items():
 			extract_parts = str(extract_pattern).split(",")
 			extract_pattern = extract_parts[0]
@@ -95,10 +92,10 @@ def _extract(test_case: dict, http_response: str) -> dict:
 	return extracted_data
 
 
-def _assert(test_case: dict, http_response: str, mapping: dict) -> list:
+def _assert(case: dict, http_response: str, mapping: dict) -> list:
 	""" 断言 """
 	assertions = []
-	assertions_config = test_case.get("assertion")
+	assertions_config = case.get("assertion")
 	if assertions_config is None:
 		return assertions
 
@@ -126,39 +123,12 @@ def _assert(test_case: dict, http_response: str, mapping: dict) -> list:
 	return assertions
 
 
-def read_files(input_files: dict) -> None:
-	"""读取文件"""
-	project_root = Path(__file__).resolve().parent.parent.parent
-	if not isinstance(input_files, dict):
-		raise TypeError("参数 input_files 必须为字典类型")
-	for file_name, file_path in input_files.items():
-		file_abs_path = project_root / file_path
-		if not file_abs_path.exists():
-			raise FileNotFoundError(f"指定文件 {file_abs_path} 不存在")
-		with open(file_abs_path, "rb") as f:
-			file_content = f.read()
-		input_files[file_name] = file_content
-
-
-# @allureFixture
-# @logFixture
-# def request(method, url, files=None, sess=None, timeout=10, name=None, **kwargs) -> requests.Response:
-# 	""" 发送请求 """
-# 	return session(seek=sess).request(method=method, url=url, files=files, timeout=timeout, **kwargs)
-
+# 尽量不使用装饰器 难定位分析bug
 @logWriter(logger)
+@handle_files
 async def asyncio_request(method: str, url: str, session_index: int = 0, **kwargs) -> tuple:
 	"""发送异步请求"""
-	request_params = copy.deepcopy(kwargs)
-
-	# todo(待处理): 文件处理使用装饰器
-	# 文件处理
-	files_data = request_params.pop("files", None)
-	if files_data:
-		read_files(files_data)
-		request_params["data"] = files_data
-
-	async with asyncSession.get_session(session_index).request(method=method, url=url, **request_params) as response:
+	async with asyncSession.get_session(session_index).request(method=method, url=url, **kwargs) as response:
 		response_content_type = response.headers.get("Content-Type")
 		if response_content_type is None:
 			response_content = await response.text()
@@ -172,3 +142,9 @@ async def asyncio_request(method: str, url: str, session_index: int = 0, **kwarg
 		else:
 			response_content = await response.read()
 		return response_content, response_content_type
+
+# @allureFixture
+# @logFixture
+# def request(method, url, files=None, sess=None, timeout=10, name=None, **kwargs) -> requests.Response:
+# 	""" 发送请求 """
+# 	return session(seek=sess).request(method=method, url=url, files=files, timeout=timeout, **kwargs)

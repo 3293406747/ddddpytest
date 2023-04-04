@@ -4,7 +4,7 @@ import time
 
 from functools import lru_cache
 
-from common.read.mysql import readMysql
+from common.read.mysql import read_mysql
 from utils.generate_mock_data import GenerateMockData
 
 
@@ -31,7 +31,7 @@ def mock():
 
 def sqlSelect(sql, key, item=None):
 	""" sql查询 """
-	return readMysql(sql=sql, key=key, index=int(item) if item else None)
+	return read_mysql(sql=sql, key=key, index=int(item) if item else None)
 
 
 def gen_date_time(step):

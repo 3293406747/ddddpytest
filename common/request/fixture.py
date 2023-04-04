@@ -1,7 +1,9 @@
+import copy
 import functools
 import json
 
 import asyncio
+from pathlib import Path
 
 
 def logWriter(logger):
@@ -43,6 +45,34 @@ def logWriter(logger):
 		return sub_wrapper
 
 	return wrapper
+
+def handle_files(asyncio_request):
+
+	@functools.wraps(asyncio_request)
+	async def wrapper(method, url, sessionIndex: int = 0, **kwargs):
+		request_params = copy.deepcopy(kwargs)
+		files_data = request_params.pop("files", None)
+		if files_data:
+			_read_files(files_data)
+			request_params["data"] = files_data
+
+		response_content, response_content_type = await asyncio_request(method, url, sessionIndex, **request_params)
+		return response_content,response_content_type
+
+	return wrapper
+
+def _read_files(input_files: dict) -> None:
+	"""读取文件"""
+	project_root = Path(__file__).resolve().parent.parent.parent
+	if not isinstance(input_files, dict):
+		raise TypeError("参数 input_files 必须为字典类型")
+	for file_name, file_path in input_files.items():
+		file_abs_path = project_root / file_path
+		if not file_abs_path.exists():
+			raise FileNotFoundError(f"指定文件 {file_abs_path} 不存在")
+		with open(file_abs_path, "rb") as f:
+			file_content = f.read()
+		input_files[file_name] = file_content
 
 # def allureFixture(func):
 # 	""" allure记录 """
