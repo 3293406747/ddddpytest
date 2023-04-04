@@ -1,4 +1,4 @@
-from common.read.testcase import read_case
+from common.read.case import read_case
 from common.request.automatic import auto_request
 from functools import partial
 from script.conftest import parametrize

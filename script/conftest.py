@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from common.read.config import readConfig
-from common.read.testcase import read_case
+from common.read.case import read_case
 from common.reporter.reporter import ExcelReport
 from common.request.automatic import auto_request
 from common.session.manager import asyncSession
