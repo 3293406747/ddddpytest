@@ -31,17 +31,17 @@ async def auto_request(test_case: dict) -> dict:
 	response, response_content_type = await asyncio_request(method, url, sessionIndex, **rendered_request)
 
 	# 格式化响应结果和请求参数为字符串
-	request_formatted = format_request(rendered_request)
-	response_formatted = format_response(response, response_content_type)
+	request_formatted = _format_request(rendered_request)
+	response_formatted = _format_response(response, response_content_type)
 
 	# 提取内容
-	extracted_variables_pool = extract(test_case, response_formatted)
+	extracted_variables_pool = _extract(test_case, response_formatted)
 
 	# 合并变量池
 	merged_variables_pool = {**merged_variables_pool, **extracted_variables_pool}
 
 	# 断言
-	assert_result = assertion(test_case, response_formatted, merged_variables_pool)
+	assert_result = _assert(test_case, response_formatted, merged_variables_pool)
 
 	# 组装结果
 	result = {
@@ -57,7 +57,7 @@ async def auto_request(test_case: dict) -> dict:
 	return result
 
 
-def format_request(request: str | dict):
+def _format_request(request: str | dict):
 	"""格式化请求参数为字符串"""
 	if isinstance(request, str):
 		return request
@@ -67,7 +67,7 @@ def format_request(request: str | dict):
 		return "请求参数类型不支持"
 
 
-def format_response(response: str | dict, response_content_type: str):
+def _format_response(response: str | dict, response_content_type: str):
 	"""格式化响应结果为字符串"""
 	if response_content_type in ["text/html", "text/plain"]:
 		return response
@@ -77,7 +77,7 @@ def format_response(response: str | dict, response_content_type: str):
 		return "响应结果类型不支持"
 
 
-def extract(test_case: dict, http_response: str) -> dict:
+def _extract(test_case: dict, http_response: str) -> dict:
 	""" 从请求或响应中提取内容 """
 	extracted_data = {}
 	if test_case.get("extract") is None:
@@ -95,7 +95,7 @@ def extract(test_case: dict, http_response: str) -> dict:
 	return extracted_data
 
 
-def assertion(test_case: dict, http_response: str, mapping: dict) -> list:
+def _assert(test_case: dict, http_response: str, mapping: dict) -> list:
 	""" 断言 """
 	assertions = []
 	assertions_config = test_case.get("assertion")
@@ -151,6 +151,7 @@ async def asyncio_request(method: str, url: str, session_index: int = 0, **kwarg
 	"""发送异步请求"""
 	request_params = copy.deepcopy(kwargs)
 
+	# todo(待处理): 文件处理使用装饰器
 	# 文件处理
 	files_data = request_params.pop("files", None)
 	if files_data:
