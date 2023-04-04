@@ -1,16 +1,19 @@
 import copy
 import json
 from functools import partial
+
 from pathlib import Path
-from common.case.renderTemplate import render_template
+
+from common.case.render_template import render_template
 from common.request.fixture import logWriter
 from common.session.manager import asyncSession
-from utils.assertion import Assertion
-from utils.extract import Extract
-from utils.variablesManager import variables, environments
+from utils.assert_data import assert_data
+from utils.extract_data import Extract
+from utils.logger_manager import logger
+from utils.variables_manager import variables, environments
 
 
-async def autoRequest(test_case: dict) -> dict:
+async def auto_request(test_case: dict) -> dict:
 	""" 自动请求 """
 	# 合并变量池
 	merged_variables_pool = {**variables.pool, **environments.pool}
@@ -99,8 +102,8 @@ def assertion(test_case: dict, http_response: str, mapping: dict) -> list:
 	if assertions_config is None:
 		return assertions
 
-	methods = {"equal": Assertion.equal, "unequal": Assertion.unequal, "contain": Assertion.contian,
-			   "uncontain": Assertion.uncontian}
+	methods = {"equal": assert_data.equal, "unequal": assert_data.unequal, "contain": assert_data.contian,
+			   "uncontain": assert_data.uncontian}
 	# 使用提取的内容和变量池进行渲染
 	assertions_config = render_template(assertions_config, mapping)
 	# 不懂啊 不知道为何有时候json.loads后还是str
@@ -143,7 +146,7 @@ def read_files(input_files: dict) -> None:
 # 	""" 发送请求 """
 # 	return session(seek=sess).request(method=method, url=url, files=files, timeout=timeout, **kwargs)
 
-@logWriter
+@logWriter(logger)
 async def asyncio_request(method: str, url: str, session_index: int = 0, **kwargs) -> tuple:
 	"""发送异步请求"""
 	request_params = copy.deepcopy(kwargs)

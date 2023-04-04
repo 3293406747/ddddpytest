@@ -1,42 +1,46 @@
 import functools
 import json
-from utils.logger import logger
+
 import asyncio
 
 
-def logWriter(asyncio_request):
+def logWriter(logger):
 	""" 日志记录 """
 
 	lock = asyncio.Lock()
 
-	@functools.wraps(asyncio_request)
-	async def wrapper(method, url, sessionIndex: int = 0, **kwargs):
-		response_content, response_content_type = await asyncio_request(method, url, sessionIndex, **kwargs)
+	def wrapper(asyncio_request):
 
-		async with lock:
-			logger.info(f"请求url:{url:.255s}")
-			logger.info(f"请求方式:{method}")
-			logger.info(f"请求参数:{json.dumps(kwargs, ensure_ascii=False):.255s}")
-			content_type_maps = {
-				"application/json": lambda: json.dumps(response_content, ensure_ascii=False),
-				"text/html": response_content,
-				"text/plain": response_content
-			}
+		@functools.wraps(asyncio_request)
+		async def sub_wrapper(method, url, sessionIndex: int = 0, **kwargs):
+			response_content, response_content_type = await asyncio_request(method, url, sessionIndex, **kwargs)
 
-			if not response_content_type:
-				logger.info("响应结果:响应结果headers中无Content-Type")
+			async with lock:
+				logger.info(f"请求url:{url:.255s}")
+				logger.info(f"请求方式:{method}")
+				logger.info(f"请求参数:{json.dumps(kwargs, ensure_ascii=False):.255s}")
+				content_type_maps = {
+					"application/json": lambda: json.dumps(response_content, ensure_ascii=False),
+					"text/html": response_content,
+					"text/plain": response_content
+				}
+
+				if not response_content_type:
+					logger.info("响应结果:响应结果headers中无Content-Type")
+					return response_content,response_content_type
+
+				if response_content_type in content_type_maps:
+					if callable(content_type_maps[response_content_type]):
+						response_content_str = content_type_maps[response_content_type]()
+					else:
+						response_content_str = content_type_maps[response_content_type]
+					logger.info(f"响应结果:{response_content_str:.255s}")
+				else:
+					logger.info(f"响应结果:响应结果格式 {response_content_type} 暂不支持")
+
 				return response_content,response_content_type
 
-			if response_content_type in content_type_maps:
-				if callable(content_type_maps[response_content_type]):
-					response_content_str = content_type_maps[response_content_type]()
-				else:
-					response_content_str = content_type_maps[response_content_type]
-				logger.info(f"响应结果:{response_content_str:.255s}")
-			else:
-				logger.info(f"响应结果:响应结果格式 {response_content_type} 暂不支持")
-
-			return response_content,response_content_type
+		return sub_wrapper
 
 	return wrapper
 

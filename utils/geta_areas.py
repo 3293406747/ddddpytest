@@ -5,7 +5,7 @@ from pathlib import Path
 def get_areas(searchCode):
 	"""根据身份证前6位获取所在地区"""
 
-	def AddToList(data):
+	def add_to_list(data):
 		"""移除数字和空格"""
 		data = re.sub('\d', '', data)
 		data = data.strip()
@@ -26,12 +26,12 @@ def get_areas(searchCode):
 		item = dataList[i]
 
 		if item[0:6] == searchCode:
-			AddToList(item)
+			add_to_list(item)
 			level = item.count(splitSign) - 1
 			continue
 
 		if item.count(splitSign) == level:
-			AddToList(item)
+			add_to_list(item)
 			level -= 1
 			continue
 

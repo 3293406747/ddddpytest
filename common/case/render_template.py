@@ -1,7 +1,8 @@
-import importlib
-import json, re
-from string import Template
 from abc import ABC, abstractmethod
+import importlib
+import json
+import re
+from string import Template
 
 
 def render_template(template: dict | list, data_for_render: dict) -> dict:

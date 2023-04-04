@@ -1,6 +1,6 @@
 import copy
 from abc import abstractmethod, ABC
-from utils.singleinstance import singleton
+from utils.single_instance import singleton
 
 
 class CaseVerification(ABC):
@@ -160,7 +160,7 @@ class CaseVerificationError(Exception):
 	pass
 
 
-def verification_case(case):
+def verify_case(case):
 	""" 校验用例格式 """
 	handler1 = VerifyMustKeys()
 	handler2 = VerifyRequestKeys()

@@ -1,7 +1,11 @@
-import base64, hashlib, time
-from utils.mock import Mock
-from common.read.mysql import readMysql
+import base64
+import hashlib
+import time
+
 from functools import lru_cache
+
+from common.read.mysql import readMysql
+from utils.generate_mock_data import GenerateMockData
 
 
 def md5(string: str) -> str:
@@ -22,7 +26,7 @@ def bearer(string) -> str:
 @lru_cache(maxsize=None)
 def mock():
 	""" 生成mock数据 """
-	return Mock()
+	return GenerateMockData()
 
 
 def sqlSelect(sql, key, item=None):

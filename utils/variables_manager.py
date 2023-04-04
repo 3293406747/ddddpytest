@@ -4,7 +4,9 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 import yaml
-from utils.singleinstance import singleton
+from utils.single_instance import singleton
+
+ENVIRONMENT_DIR = Path(__file__).resolve().parent.parent.joinpath('system', 'environment')
 
 
 class VariablesManager(ABC):
@@ -13,15 +15,19 @@ class VariablesManager(ABC):
 	def set(self, key, value):
 		pass
 
+	@abstractmethod
 	def get(self, key, default=None):
 		pass
 
+	@abstractmethod
 	def unset(self, key):
 		pass
 
+	@abstractmethod
 	def clear(self):
 		pass
 
+	@abstractmethod
 	def pool(self):
 		pass
 
@@ -55,9 +61,6 @@ class SystemVariablesManager(VariablesManager):
 		return self._pool
 
 
-ENVIRONMENT_DIR = Path(__file__).resolve().parent.parent.joinpath('system', 'environment')
-
-
 @singleton
 class FileVariablesManager(VariablesManager):
 	""" 文件变量 """
@@ -68,7 +71,7 @@ class FileVariablesManager(VariablesManager):
 		with self.file_path.open(encoding=self.encoding) as f:
 			self.__pool = yaml.safe_load(f) or {}
 
-	def set(self, key, value):
+	def set(self, key, value) -> None:
 		""" 设置变量 """
 		self.__pool[key] = value
 		with self.file_path.open(mode="a", encoding=self.encoding) as f:

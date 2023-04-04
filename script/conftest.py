@@ -1,13 +1,15 @@
 import asyncio
 import time
-import pytest
-from common.read.config import readConfig
-from common.read.testcase import readTestcase
-from common.reporter.reporter import ExcelReport
-from utils.sendEmail import send_email
-from common.request.automatic import autoRequest
-from common.session.manager import asyncSession
+
 from pathlib import Path
+import pytest
+
+from common.read.config import readConfig
+from common.read.testcase import read_case
+from common.reporter.reporter import ExcelReport
+from common.request.automatic import auto_request
+from common.session.manager import asyncSession
+from utils.send_email import send_email, SendEmailConfig
 
 # 避免使用全局变量
 _loop = asyncio.new_event_loop()
@@ -24,7 +26,7 @@ def event_loop():
 	_loop.close()
 
 
-@pytest.fixture(scope='session', autouse=True, params=readTestcase("setcookie.yaml"))
+@pytest.fixture(scope='session', autouse=True, params=read_case("setcookie.yaml"))
 def session(request):
 	async def close_session():
 		await asyncSession.close_all_session()
@@ -32,7 +34,7 @@ def session(request):
 	async def setup(case):
 		asyncSession.create_session()  # 创建session
 		asyncSession.create_session()
-		await autoRequest(case)  # 设置cookie
+		await auto_request(case)  # 设置cookie
 
 	_loop.run_until_complete(setup(request.param))
 	yield
@@ -86,17 +88,22 @@ def pytest_terminal_summary(terminalreporter):
 	if not email_config["flag"]:
 		return
 
-	filename_map = []
+	filename_list = []
 	if 'error' in terminalreporter.stats:
 		# 构造文本内容
 		text = email_config.pop("failed_text")
 		email_config.pop("success_text")
+
 		if str(_report_path):
-			filename_map.append(_report_path)
-		filename_map.append(_error_log_path)
+			filename_list.append(_report_path)
+		filename_list.append(_error_log_path)
 	else:
 		# 构造文本内容
 		text = email_config.pop("success_text")
 		email_config.pop("failed_text")
-		filename_map.append(_report_path)
-	send_email(text=text, filename_map=filename_map, **email_config)
+
+		filename_list.append(_report_path)
+
+	# 发送邮件
+	config = SendEmailConfig(text=text, filename_list=filename_list, **email_config)
+	send_email(config)

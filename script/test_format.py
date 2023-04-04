@@ -1,5 +1,5 @@
-from common.read.testcase import readTestcase
-from common.request.automatic import autoRequest
+from common.read.testcase import read_case
+from common.request.automatic import auto_request
 from functools import partial
 from script.conftest import parametrize
 
@@ -8,22 +8,22 @@ from script.conftest import parametrize
 # @allure.feature("测试返回格式")
 class TestHttpbin:
 
-	rt = partial(readTestcase,"format.yaml")
+	rt = partial(read_case, "format.yaml")
 
 	@parametrize(rt())
 	# @allure.story("返回html")
 	async def test_html(self,case):
 		# allure.dynamic.title(case["casename"])
-		return await autoRequest(case)
+		return await auto_request(case)
 
 	@parametrize(rt(1))
 	# @allure.story("返回png图片")
 	async def test_png(self,case):
 		# allure.dynamic.title(case["casename"])
-		return await autoRequest(case)
+		return await auto_request(case)
 
 	@parametrize(rt(2))
 	# @allure.story("返回jpeg图片")
 	async def test_jpeg(self,case):
 		# allure.dynamic.title(case["casename"])
-		return await autoRequest(case)
+		return await auto_request(case)
