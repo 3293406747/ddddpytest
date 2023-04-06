@@ -79,7 +79,7 @@ class GenerateMockData:
 		age = now.year - birth_year - ((now.month, now.day) < (birth_month, birth_day))
 
 		# 获取所在地名称
-		location = get_areas(district_code)		# todo: 紧耦合
+		location = get_areas(district_code)
 		if not location.endswith("市辖区"):
 			location = location.replace("市辖区", "")
 		location = location.replace("地区", "市") or "未知"
@@ -97,7 +97,7 @@ class GenerateMockData:
 	@staticmethod
 	def generate_credit_code():
 		""" 生成统一社会信用代码 """
-		creditIdentifier = CreditIdentifier()		# todo: 紧耦合
+		creditIdentifier = CreditIdentifier()
 		random_credit_code = creditIdentifier.gen_random_credit_code()
 		assert creditIdentifier.valid(random_credit_code["code"])
 		return random_credit_code["code"]

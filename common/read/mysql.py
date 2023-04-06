@@ -1,13 +1,22 @@
-from common.read.config import readConfig
+from abc import ABC, abstractmethod
+
+from common.read.config import read_config
 from utils.mysql_manager import MysqlManager, MysqlManagerConfig
 from utils.single_instance import singleton
 
 
+class SqlReader(ABC):
+
+	@abstractmethod
+	def query(self, sql: str, key: str, index: int | None = None) -> str:
+		pass
+
+
 @singleton
-class MysqlReader:
+class MysqlReader(SqlReader):
 	""" sql查询 """
 
-	def __init__(self,mysql: MysqlManager):
+	def __init__(self, mysql: MysqlManager):
 		self.mysql = mysql
 
 	def __enter__(self):
@@ -41,7 +50,7 @@ class MysqlReaderError(Exception):
 def read_mysql(sql: str, key: str, index: int | None = None):
 	"""sql查询"""
 	# 读取数据库配置文件
-	mysql_config =  readConfig()["mysql"]
+	mysql_config = read_config()["mysql"]
 	# if not (config := readConfig()["mysql"]):
 	if not mysql_config:
 		msg = "未配置数据库连接"

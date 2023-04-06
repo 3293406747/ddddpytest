@@ -5,7 +5,7 @@ import sys
 
 import loguru
 
-from common.read.config import readConfig
+from common.read.config import read_config
 from utils.single_instance import singleton
 
 
@@ -31,9 +31,9 @@ class Logger:
 			self.logger.add(**error_file_config)
 
 
-_console_config = readConfig()["logger"]["console"]
-_file_config = readConfig()["logger"]["file"]
-_error_file_config = readConfig()["logger"]["errorFile"]
+_console_config = read_config()["logger"]["console"]
+_file_config = read_config()["logger"]["file"]
+_error_file_config = read_config()["logger"]["errorFile"]
 
 logger = Logger(_console_config, _file_config, _error_file_config).logger
 

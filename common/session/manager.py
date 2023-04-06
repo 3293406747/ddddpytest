@@ -1,21 +1,42 @@
+from abc import ABC, abstractmethod
 import aiohttp
 
 
-class AsyncSessionManager:
+class SessionManager(ABC):
+	"""session管理器"""
+
+	@abstractmethod
+	def create_session(self, timeout: int = 10, *args, **kwargs):
+		"""创建session"""
+		pass
+
+	@abstractmethod
+	def get_session(self, index: int = 0, *args, **kwargs):
+		"""获取session"""
+		pass
+
+	@abstractmethod
+	def close_session(self, index: int = 0, *args, **kwargs):
+		"""关闭session"""
+		pass
+
+
+class AsyncSessionManager(SessionManager):
+	"""异步session管理器"""
 
 	def __init__(self):
 		self.sessionPool = []
 
-	def create_session(self, formated_timeout=10) -> aiohttp.ClientSession:
-		formated_timeout = aiohttp.ClientTimeout(total=formated_timeout)
+	def create_session(self, timeout: int = 10, *args, **kwargs) -> aiohttp.ClientSession:
+		formated_timeout = aiohttp.ClientTimeout(total=timeout)
 		session = aiohttp.ClientSession(timeout=formated_timeout)
 		self.sessionPool.append(session)
 		return session
 
-	def get_session(self, index: int = 0) -> aiohttp.ClientSession:
+	def get_session(self, index: int = 0, *args, **kwargs) -> aiohttp.ClientSession:
 		return self.sessionPool[index]
 
-	def close_session(self,index: int = 0) -> None:
+	def close_session(self, index: int = 0, *args, **kwargs) -> None:
 		self.sessionPool[index].close()
 
 	async def close_all_session(self) -> None:
