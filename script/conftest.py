@@ -43,12 +43,14 @@ def session(request):
 	# 生成报告
 	global _report_path
 	_report_path = _reports_dir.joinpath(f"report_{time.strftime('%H_%M_%S')}.xlsx")
-	report = ExcelReport(_report_path)
+	report = ExcelReport()
 	try:
 		for data in data_map:
 			report.write_to_container(data)
 	finally:
-		report.save()
+		report.pre_save()
+		report.save(_report_path)
+		report.close()
 		print("测试报告已生成,路径:\n", _report_path)
 		if report.failed_number != 0:
 			raise AssertionError("测试用例执行未全部通过")
