@@ -4,7 +4,7 @@ import time
 from pathlib import Path
 import pytest
 
-from common.read.config import readConfig
+from common.read.config import read_config
 from common.read.case import read_case
 from common.reporter.reporter import ExcelReport
 from common.request.automatic import auto_request
@@ -86,7 +86,7 @@ def pytest_exception_interact(node, call, report):
 
 # pytest hook
 def pytest_terminal_summary(terminalreporter):
-	email_config = readConfig()["email"]
+	email_config = read_config()["email"]
 	if not email_config["flag"]:
 		return
 

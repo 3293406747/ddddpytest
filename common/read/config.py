@@ -6,6 +6,6 @@ CONFIG_DIR = Path(__file__).resolve().parent.parent.parent.joinpath("system", "c
 
 
 @lru_cache(None)  # 缓存
-def readConfig(filename: str = "local.yaml", encoding: str = "utf-8") -> dict:
+def read_config(filename: str = "local.yaml", encoding: str = "utf-8") -> dict:
 	""" 读取配置文件 """
 	return read_yaml(CONFIG_DIR.joinpath(filename), encoding)

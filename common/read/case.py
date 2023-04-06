@@ -26,16 +26,11 @@ class TestcaseReader(ABC):
 		"""读取测试用例"""
 		pass
 
-	@abstractmethod
-	def _merge_testcase_and_testdata(self, test_case: dict) -> list:
-		"""合并测试用例和测试数据"""
-		pass
-
-	def read(self, filename: str, index: int = 0, encoding: str = "utf-8") -> list:
+	def read(self, filename: str, index: int = 0, encoding: str = "utf-8") -> dict:
 		"""读取测试用例"""
-		testcase = self._read_testcase(filename, index, encoding)
-		self._validate_testdata(testcase)
-		return self._merge_testcase_and_testdata(testcase)
+		case = self._read_testcase(filename, index, encoding)
+		self._validate_testdata(case)
+		return case
 
 
 @singleton
@@ -47,7 +42,8 @@ class YamlTestcaseReader(TestcaseReader):
 	def _validate_testdata(self, test_case: dict) -> None:
 		verify_case(test_case)
 
-	def _merge_testcase_and_testdata(self, test_case: dict) -> list:
+	def merge_testcase_and_testdata(self, test_case: dict) -> list:
+		"""合并测试用例和测试数据"""
 		test_case_dir = test_case.pop("data_path", None)
 		if test_case_dir is None:
 			return [test_case]
@@ -64,4 +60,6 @@ class YamlTestcaseReader(TestcaseReader):
 
 def read_case(filename: str, case_index: int = 0, encoding: str = "utf-8") -> list:
 	""" 读取测试用例 """
-	return YamlTestcaseReader().read(filename, case_index, encoding)
+	reader = YamlTestcaseReader()
+	case = reader.read(filename, case_index, encoding)
+	return reader.merge_testcase_and_testdata(case)
