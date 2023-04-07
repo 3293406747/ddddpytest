@@ -25,7 +25,7 @@ YAML和Excel文件用于测试数据的管理和测试报告的生成，最后�
 
 ## 部署
 
-1. 下载项目源码后，在根目录下找到**requirements.txt**文件，然后通过 pip 工具安装 requirements.txt 依赖，执行命令：
+1. 下载项目源码后，在根目录下找到**requirements_dev.txt**文件，然后通过 pip 工具安装项目运行依赖，执行命令：
 
 ```shell
 pip3 install -r requirements.txt
@@ -33,8 +33,10 @@ pip3 install -r requirements.txt
 
 [comment]: <> (- 下载并配置allure2，下载安装教程如下：https://blog.csdn.net/lixiaomei0623/article/details/120185069)
 
-2. 在**config/local.yaml**文件中配置数据库参数和邮件参数，运行**user.sql**初始化数据库。
-3. 之后运行**main.py**，或在Terminal窗口cd到项目根目录后执行命令：
+2. 在**debug/config/local.yaml**文件中配置数据库参数和邮件参数。
+3. 在**debug/db**目录中找到**user.sql**并运行初始化数据库。
+4. 在**debug/flask_app**目录中运行**api.py**启动服务。
+5. 之后运行**main.py**，或在Terminal窗口cd到项目根目录后执行命令：
 
 ```shell
 pytest
@@ -44,11 +46,11 @@ pytest
 
 ```python
 from common.read.case import read_case
-from common.request.automatic import auto_request
+from debug import auto_request
 from debug.script.conftest import parametrize
 
 
-@parametrize(read_case("method.yaml"))
+@parametrize(read_case("debug/testcase/method.yaml"))
 async def test_get(case):
 	await auto_request(case)
 ```
@@ -57,7 +59,7 @@ async def test_get(case):
 # method.yaml
 - casename: get请求
   request:
-    url: http://httpbin.org/get
+    url: http://127.0.0.1:5000/get
     method: GET
     params:
       foo1: bar1
