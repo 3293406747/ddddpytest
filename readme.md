@@ -28,7 +28,7 @@ YAML和Excel文件用于测试数据的管理和测试报告的生成，最后�
 1. 下载项目源码后，在根目录下找到**requirements_dev.txt**文件，然后通过 pip 工具安装项目运行依赖，执行命令：
 
 ```shell
-pip3 install -r requirements.txt
+pip3 install -r requirements_dev.txt
 ```
 
 [comment]: <> (- 下载并配置allure2，下载安装教程如下：https://blog.csdn.net/lixiaomei0623/article/details/120185069)
