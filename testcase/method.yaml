@@ -1,7 +1,7 @@
 -
   casename: get请求
   request:
-    url: http://httpbin.org/get
+    url: ${base_url}/get
     method: GET
     params:
       foo1: bar1
@@ -9,7 +9,7 @@
 -
   casename: post请求data传参
   request:
-    url: http://httpbin.org/post
+    url: ${base_url}/post
     method: POST
     data:
       foo1: bar1
@@ -17,7 +17,7 @@
 -
   casename: post请求json传参
   request:
-    url: http://httpbin.org/post
+    url: ${base_url}/post
     method: POST
     json:
       foo1: bar1
@@ -25,7 +25,7 @@
 -
   casename: post请求files传参
   request:
-    url: http://httpbin.org/post
+    url: ${base_url}/post
     method: POST
     files:
       file1: system/img/allure.png

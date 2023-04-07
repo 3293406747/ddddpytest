@@ -1,15 +1,15 @@
 -
   casename: html响应
   request:
-    url: http://httpbin.org/html
+    url: ${base_url}/html
     method: GET
 -
   casename: png图片
   request:
-    url: http://httpbin.org/image/png
+    url: ${base_url}/image/png
     method: GET
 -
   casename: jpeg图片
   request:
-    url: http://httpbin.org/image/jpeg
+    url: ${base_url}/image/jpeg
     method: GET
