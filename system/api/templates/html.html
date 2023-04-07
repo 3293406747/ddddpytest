@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>欢迎使用ddddpytest项目</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        p {
+            font-size: 18px;
+            line-height: 1.5;
+            color: #666;
+            margin-left: 20px;
+            margin-right: 20px;
+        }
+        img {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 50%;
+        }
+        .container {
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>欢迎使用ddddpytest项目</h1>
+        <p>ddddpytest是一个基于Python的测试框架，它可以帮助你轻松地编写和运行自动化测试用例。</p>
+        <img src="https://www.python.org/static/community_logos/python-logo-master-v3-TM.png" alt="Python logo">
+        <hr>
+        <p>本项目实现接口自动化的技术选型：<strong>Aiohttp+Pytest+Yaml+Excel+Smtplib</strong>。
+            其中Aiohttp用于发送和处理HTTP协议的请求接口，Pytest作为测试执行器，YAML和Excel文件用于测试数据的管理和测试报告的生成，最后使用Smtplib发送测试报告邮件。</p>
+        <h2>特征</h2>
+        <ul>
+          <li>采用协程方式发送请求，提高了测试用例执行效率</li>
+          <li>采用统一请求封装，session自动关联，支持多个session之间切换</li>
+          <li>采用关键字驱动设计，测试数据易于维护</li>
+          <li>自动渲染测试用例，自动处理请求中的files数据，并能自动提取请求和响应中的内容进行断言</li>
+          <li>项目运行时自动生成日志文件和测试报告，且自动发送测试报告邮件</li>
+          <li>Yaml文件可关联Excel文件，用于存储公共测试数据和测试数据</li>
+          <li>Yaml及Excel文件中可使用变量和调用Python函数，方便测试用例编写</li>
+          <li>支持使用Python变量和文件变量，增加测试用例的灵活性</li>
+          <li>支持MySQL数据库连接及操作，同时支持生成Mock数据，便于测试用例的编写</li>
+        </ul>
+        <p style="text-align:center;">
+            <a href="https://github.com/3293406747/ddddpytest" class="button">了解更多</a>
+        </p>
+    </div>
+</body>
+</html>
