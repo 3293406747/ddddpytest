@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+	<title>I欢迎使用ddddpytest项目</title>
+    <style>
+        body {
+            background-color: #f2f2f2;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        li {
+            display: inline;
+            margin-right: 20px;
+        }
+
+        a {
+            color: black;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+	<h1>欢迎使用ddddpytest项目</h1>
+	<ul>
+		<li><a href="{{ url_for('get_html') }}">/html</a></li>
+		<li><a href="{{ url_for('get_png') }}">/png</a></li>
+		<li><a href="{{ url_for('get_jpeg') }}">/jpeg</a></li>
+		<li><a href="{{ url_for('get_cookies') }}">/cookies</a></li>
+	</ul>
+</body>
+</html>
