@@ -4,7 +4,6 @@ logs
 reports
 .idea
 temp
-*.html
 *.log
 *.css
 *.js

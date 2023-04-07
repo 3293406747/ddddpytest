@@ -1,3 +1,3 @@
-base_url: http://httpbin.org
+base_url: http://127.0.0.1:5000   # http://httpbin.org
 envirenment: envirenment_value
 variable: variable_value
