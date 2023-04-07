@@ -1,6 +1,6 @@
 -
   casename: "${casename}"
-  data_path: data.xlsx
+  data_path: debug/testdata/data.xlsx
   data_sheet: Sheet1
   request:
     url: "${base_url}/get"

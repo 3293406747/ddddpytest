@@ -1,13 +1,13 @@
 from common.read.case import read_case
-from common.request.automatic import auto_request
+from debug import auto_request
 from functools import partial
-from script.conftest import parametrize
+from debug.script.conftest import parametrize
 
 
 # @allure.epic("ddddpytest接口自动化测试项目")
 # @allure.feature("测试cookie")
 class TestHttpbin:
-	rt = partial(read_case, "cookie.yaml")
+	rt = partial(read_case, "debug/testcase/cookie.yaml")
 
 	@parametrize(rt())
 	# @allure.story("session0获取cookie_1")

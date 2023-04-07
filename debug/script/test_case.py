@@ -1,7 +1,7 @@
 from common.read.case import read_case
-from common.request.automatic import auto_request
-from script.conftest import parametrize
-from utils.variables_manager import variables
+from debug import auto_request
+from debug.script.conftest import parametrize
+from debug import system_variables
 from functools import partial
 
 
@@ -9,7 +9,7 @@ from functools import partial
 # @allure.feature("测试case")
 class TestHttpbin:
 
-	rt = partial(read_case, "case.yaml")
+	rt = partial(read_case, "debug/testcase/case.yaml")
 
 	@parametrize(rt())
 	# @allure.story("使用内置变量")
@@ -21,7 +21,7 @@ class TestHttpbin:
 	# @allure.story("使用自定义变量")
 	async def test_variable(self,case):
 		# allure.dynamic.title(case["casename"])
-		variables.set("variable","variable_value")
+		system_variables.set("variable","variable_value")
 		return await auto_request(case)
 
 	@parametrize(rt(2))

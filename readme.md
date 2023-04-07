@@ -45,7 +45,7 @@ pytest
 ```python
 from common.read.case import read_case
 from common.request.automatic import auto_request
-from script.conftest import parametrize
+from debug.script.conftest import parametrize
 
 
 @parametrize(read_case("method.yaml"))

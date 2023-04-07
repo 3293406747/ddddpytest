@@ -1,14 +1,14 @@
 from common.read.case import read_case
-from common.request.automatic import auto_request
+from debug import auto_request
 from functools import partial
-from script.conftest import parametrize
+from debug.script.conftest import parametrize
 
 
 # @allure.epic("ddddpytest接口自动化测试项目")
 # @allure.feature("测试返回格式")
 class TestHttpbin:
 
-	rt = partial(read_case, "format.yaml")
+	rt = partial(read_case, "debug/testcase/format.yaml")
 
 	@parametrize(rt())
 	# @allure.story("返回html")

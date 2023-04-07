@@ -6,7 +6,7 @@ from pathlib import Path
 import yaml
 from utils.single_instance import singleton
 
-ENVIRONMENT_DIR = Path(__file__).resolve().parent.parent.joinpath('system', 'environment')
+PROJECT_DIR = Path(__file__).resolve().parent.parent
 
 
 class VariablesManager(ABC):
@@ -65,9 +65,9 @@ class SystemVariablesManager(VariablesManager):
 class FileVariablesManager(VariablesManager):
 	""" 文件变量 """
 
-	def __init__(self, file_name="local.yaml", encoding="utf-8"):
+	def __init__(self, file_name, encoding="utf-8"):
 		self.encoding = encoding
-		self.file_path = ENVIRONMENT_DIR.joinpath(file_name)
+		self.file_path = PROJECT_DIR.joinpath(file_name)
 		with self.file_path.open(encoding=self.encoding) as f:
 			self.__pool = yaml.safe_load(f) or {}
 
@@ -97,7 +97,3 @@ class FileVariablesManager(VariablesManager):
 	def pool(self) -> dict:
 		""" 获取所有变量 """
 		return self.__pool
-
-
-variables = SystemVariablesManager()
-environments = FileVariablesManager()

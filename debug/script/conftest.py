@@ -7,7 +7,7 @@ import pytest
 from common.read.config import read_config
 from common.read.case import read_case
 from common.reporter.reporter import ExcelReport
-from common.request.automatic import auto_request
+from debug import auto_request
 from common.session.manager import asyncSession
 from utils.send_email import send_email, SendEmailConfig
 
@@ -20,26 +20,28 @@ _report_path: Path
 _error_log_path: Path
 
 
-@pytest.fixture(scope='session', autouse=True)
+async def _setup(case):
+	asyncSession.create_session()  # 创建session
+	asyncSession.create_session()
+	await auto_request(case)  # 设置cookie
+
+
+@pytest.fixture(scope='package', autouse=True)
 def event_loop():
 	yield _loop
 	_loop.close()
 
 
-@pytest.fixture(scope='session', autouse=True, params=read_case("setcookie.yaml"))
+async def _close_session():
+	await asyncSession.close_all_session()
+
+
+@pytest.fixture(scope='package', autouse=True, params=read_case("debug/testcase/setcookie.yaml"))
 def session(request):
-	async def close_session():
-		await asyncSession.close_all_session()
-
-	async def setup(case):
-		asyncSession.create_session()  # 创建session
-		asyncSession.create_session()
-		await auto_request(case)  # 设置cookie
-
-	_loop.run_until_complete(setup(request.param))
+	_loop.run_until_complete(_setup(request.param))
 	yield
 	data_map = _loop.run_until_complete(asyncio.gather(*_tasks))
-	_loop.run_until_complete(close_session())
+	_loop.run_until_complete(_close_session())
 	# 生成报告
 	global _report_path
 	_report_path = _reports_dir.joinpath(f"report_{time.strftime('%H_%M_%S')}.xlsx")
@@ -86,7 +88,7 @@ def pytest_exception_interact(node, call, report):
 
 # pytest hook
 def pytest_terminal_summary(terminalreporter):
-	email_config = read_config()["email"]
+	email_config = read_config("debug/config/local.yaml")["email"]
 	if not email_config["flag"]:
 		return
 
