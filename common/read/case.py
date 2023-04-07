@@ -3,15 +3,11 @@ import json
 from string import Template
 import yaml
 
-from pathlib import Path
-
 from common.case.verify_case import verify_case
 from utils.read_excel import read_excel
 from utils.read_yaml import read_yaml
 from utils.single_instance import singleton
-
-TESTCASE_DIR = Path(__file__).resolve().parent.parent.parent.joinpath("testcase")
-DATA_DIR = Path(__file__).resolve().parent.parent.parent.joinpath("data")
+from utils.variables_manager import PROJECT_DIR
 
 
 class TestcaseReader(ABC):
@@ -37,7 +33,7 @@ class TestcaseReader(ABC):
 class YamlTestcaseReader(TestcaseReader):
 
 	def _read_testcase(self, filename: str, case_index: int, encoding: str) -> dict:
-		return read_yaml(TESTCASE_DIR.joinpath(filename), encoding)[case_index]
+		return read_yaml(PROJECT_DIR.joinpath(filename), encoding)[case_index]
 
 	def _validate_testdata(self, test_case: dict) -> None:
 		verify_case(test_case)
@@ -50,7 +46,7 @@ class YamlTestcaseReader(TestcaseReader):
 
 		sheet = test_case.pop("data_sheet", None)
 		test_case_str = json.dumps(test_case, ensure_ascii=False)
-		test_data_list = read_excel(DATA_DIR.joinpath(test_case_dir), sheet)
+		test_data_list = read_excel(PROJECT_DIR.joinpath(test_case_dir), sheet)
 		return [yaml.safe_load(self._render_template(test_case_str, test_data)) for test_data in test_data_list]
 
 	@staticmethod

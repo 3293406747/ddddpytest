@@ -1,22 +1,21 @@
+import asyncio
+import copy
 import json
 from functools import partial
+from pathlib import Path
 
 from common.case.render_template import render_template
-from common.request.fixture import logWriter, handle_files
 from common.session.manager import asyncSession
 from utils.assert_data import assert_data
 from utils.extract_data import Extract
-from utils.logger_manager import logger
-from utils.variables_manager import variables, environments
+
+_lock = asyncio.Lock()
 
 
-async def auto_request(case: dict) -> dict:
+async def auto_request(case: dict, variables_pool={}, logger=None) -> dict:
 	""" 自动请求 """
-	# 合并变量池
-	merged_variables_pool = {**variables.pool, **environments.pool}
-
 	# 渲染请求
-	rendered_request = render_template(case["request"], merged_variables_pool)
+	rendered_request = render_template(case["request"], variables_pool)
 
 	# 获取用例名称、请求url、请求方法、session index
 	name = case["casename"]
@@ -24,8 +23,15 @@ async def auto_request(case: dict) -> dict:
 	method = rendered_request.pop("method")
 	sessionIndex = case.get("session", 0)
 
+	# 文件处理
+	request_params = _handle_files(**rendered_request)
+
 	# 发送请求
-	response, response_content_type = await asyncio_request(method, url, sessionIndex, **rendered_request)
+	response, response_content_type = await asyncio_request(method, url, sessionIndex, **request_params)
+
+	# 记录日志
+	async with _lock:
+		_write_log(method, url, response, response_content_type, logger)
 
 	# 格式化响应结果和请求参数为字符串
 	request_formatted = _format_request(rendered_request)
@@ -35,7 +41,7 @@ async def auto_request(case: dict) -> dict:
 	extracted_variables_pool = _extract(case, response_formatted)
 
 	# 合并变量池
-	merged_variables_pool = {**merged_variables_pool, **extracted_variables_pool}
+	merged_variables_pool = {**variables_pool, **extracted_variables_pool}
 
 	# 断言
 	assert_result = _assert(case, response_formatted, merged_variables_pool)
@@ -123,9 +129,58 @@ def _assert(case: dict, http_response: str, mapping: dict) -> list:
 	return assertions
 
 
-# 尽量不使用装饰器 难定位分析bug
-@logWriter(logger)
-@handle_files
+def _write_log(method, url, response_content, response_content_type, logger=None, **kwargs):
+	if not logger:
+		return
+	logger.info(f"请求url:{url:.255s}")
+	logger.info(f"请求方式:{method}")
+	logger.info(f"请求参数:{json.dumps(kwargs, ensure_ascii=False):.255s}")
+	content_type_maps = {
+		"application/json": lambda: json.dumps(response_content, ensure_ascii=False),
+		"text/html": response_content,
+		"text/plain": response_content
+	}
+
+	if not response_content_type:
+		logger.info("响应结果:响应结果headers中无Content-Type")
+		return response_content, response_content_type
+
+	if response_content_type in content_type_maps:
+		if callable(content_type_maps[response_content_type]):
+			response_content_str = content_type_maps[response_content_type]()
+		else:
+			response_content_str = content_type_maps[response_content_type]
+		logger.info(f"响应结果:{response_content_str:.255s}")
+	else:
+		logger.info(f"响应结果:响应结果格式 {response_content_type} 暂不支持")
+
+
+def _handle_files(**kwargs):
+	request_params = copy.deepcopy(kwargs)
+	files_data = request_params.pop("files", None)
+	if files_data:
+		_read_files(files_data)
+		request_params["data"] = files_data
+	return request_params
+
+
+def _read_files(input_files: dict) -> None:
+	"""读取文件"""
+	project_root = Path(__file__).resolve().parent.parent.parent
+	if not isinstance(input_files, dict):
+		raise TypeError("参数 input_files 必须为字典类型")
+	for file_name, file_path in input_files.items():
+		file_abs_path = project_root / file_path
+		if not file_abs_path.exists():
+			raise FileNotFoundError(f"指定文件 {file_abs_path} 不存在")
+		with open(file_abs_path, "rb") as f:
+			file_content = f.read()
+		input_files[file_name] = file_content
+
+
+# 尽量不使用装饰器 难定位分析bug 耦合了，不知道如何解耦，不用了。
+# @logWriter(logger)
+# @handle_files
 async def asyncio_request(method: str, url: str, session_index: int = 0, **kwargs) -> tuple:
 	"""发送异步请求"""
 	async with asyncSession.get_session(session_index).request(method=method, url=url, **kwargs) as response:

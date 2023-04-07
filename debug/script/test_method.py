@@ -1,7 +1,7 @@
 from common.read.case import read_case
-from common.request.automatic import auto_request
+from debug import auto_request
 from functools import partial
-from script.conftest import parametrize
+from debug.script.conftest import parametrize
 
 
 # # 优先级 可以修饰方法，也可以修饰类
@@ -13,7 +13,7 @@ from script.conftest import parametrize
 # @allure.feature("测试method")
 class TestHttpbin:
 
-	rt = partial(read_case, "method.yaml")
+	rt = partial(read_case, "debug/testcase/method.yaml")
 
 	# 读取用例文件
 	@parametrize(rt())

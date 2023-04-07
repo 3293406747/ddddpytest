@@ -47,5 +47,5 @@
   assertion:
     equal:
       -
-        expect: "{{sqlSelect(select * from user,name,-1)}}"
+        expect: "{{sqlSelect(select * from user,name,debug/config/local.yaml,-1)}}"
         actual: "${name}"

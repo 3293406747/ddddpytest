@@ -29,12 +29,3 @@ class Logger:
 		# 文件错误日志
 		if error_file_config:
 			self.logger.add(**error_file_config)
-
-
-_console_config = read_config()["logger"]["console"]
-_file_config = read_config()["logger"]["file"]
-_error_file_config = read_config()["logger"]["errorFile"]
-
-logger = Logger(_console_config, _file_config, _error_file_config).logger
-
-logger.debug('日志启动成功')

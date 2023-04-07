@@ -47,10 +47,10 @@ class MysqlReaderError(Exception):
 	pass
 
 
-def read_mysql(sql: str, key: str, index: int | None = None):
+def read_mysql(sql: str, key: str, config_path: str, index: int | None = None):
 	"""sql查询"""
 	# 读取数据库配置文件
-	mysql_config = read_config()["mysql"]
+	mysql_config = read_config(config_path)["mysql"]
 	# if not (config := readConfig()["mysql"]):
 	if not mysql_config:
 		msg = "未配置数据库连接"

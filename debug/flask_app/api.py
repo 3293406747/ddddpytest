@@ -17,7 +17,6 @@ def get():
 @app.route('/post', methods=['POST'])
 def post():
 	request_content_type = request.headers['Content-Type'].split(";")[0].strip()
-	print(request_content_type)
 	if request_content_type == 'application/json':
 		return request.get_json(), 200
 	response = request.get_data()
