@@ -15,26 +15,29 @@ _lock = asyncio.Lock()
 async def auto_request(case: dict, variables_pool={}, logger=None) -> dict:
 	""" 自动请求 """
 	# 渲染请求
-	rendered_request = render_template(case["request"], variables_pool)
+	request_rendered = render_template(case["request"], variables_pool)
 
 	# 获取用例名称、请求url、请求方法、session index
-	name = case["casename"]
-	url = rendered_request.pop("url")
-	method = rendered_request.pop("method")
-	sessionIndex = case.get("session", 0)
+	request_name = case["casename"]
+	request_url = request_rendered.pop("url")
+	request_method = request_rendered.pop("method")
+	request_session_index = case.get("session", 0)
 
 	# 文件处理
-	request_params = _handle_files(**rendered_request)
+	request_params = _handle_files(**request_rendered)
 
 	# 发送请求
-	response, response_content_type = await asyncio_request(method, url, sessionIndex, **request_params)
+	response, response_content_type, response_status_code = await asyncio_request(request_method, request_url,
+																				  request_session_index,
+																				  **request_params)
 
 	# 记录日志
 	async with _lock:
-		_write_log(method, url, response, response_content_type, logger)
+		_write_log(request_name, request_method, request_url, response, response_content_type, response_status_code,
+				   logger)
 
 	# 格式化响应结果和请求参数为字符串
-	request_formatted = _format_request(rendered_request)
+	request_formatted = _format_request(request_rendered)
 	response_formatted = _format_response(response, response_content_type)
 
 	# 提取内容
@@ -48,10 +51,11 @@ async def auto_request(case: dict, variables_pool={}, logger=None) -> dict:
 
 	# 组装结果
 	result = {
-		"用例名称": name,
-		"请求url": url,
-		"请求方法": method,
+		"用例名称": request_name,
+		"请求url": request_url,
+		"请求方法": request_method,
 		"请求参数": request_formatted,
+		"响应状态码": response_status_code,
 		"响应结果类型": response_content_type,
 		"响应结果": response_formatted,
 		"断言": assert_result
@@ -129,30 +133,33 @@ def _assert(case: dict, http_response: str, mapping: dict) -> list:
 	return assertions
 
 
-def _write_log(method, url, response_content, response_content_type, logger=None, **kwargs):
+def _write_log(request_name, request_method, request_url, response_content, response_content_type, response_status_code,
+			   logger=None,
+			   **kwargs):
 	if not logger:
 		return
-	logger.info(f"请求url:{url:.255s}")
-	logger.info(f"请求方式:{method}")
+
+	logger.info(f"请求名称:{request_name:.255}")
+	logger.info(f"请求url:{request_url:.255s}")
+	logger.info(f"请求方式:{request_method}")
 	logger.info(f"请求参数:{json.dumps(kwargs, ensure_ascii=False):.255s}")
 	content_type_maps = {
 		"application/json": lambda: json.dumps(response_content, ensure_ascii=False),
 		"text/html": response_content,
 		"text/plain": response_content
 	}
-
+	logger.info(f"响应状态码:{response_status_code}")
+	logger.info(f"响应结果类型:{response_content_type}")
 	if not response_content_type:
-		logger.info("响应结果:响应结果headers中无Content-Type")
-		return response_content, response_content_type
-
-	if response_content_type in content_type_maps:
+		logger.info("响应结果: 响应结果headers中无Content-Type\n")
+	elif response_content_type in content_type_maps:
 		if callable(content_type_maps[response_content_type]):
 			response_content_str = content_type_maps[response_content_type]()
 		else:
 			response_content_str = content_type_maps[response_content_type]
-		logger.info(f"响应结果:{response_content_str:.255s}")
+		logger.info(f"响应结果: {response_content_str:.255s}\n")
 	else:
-		logger.info(f"响应结果:响应结果格式 {response_content_type} 暂不支持")
+		logger.info(f"响应结果: 响应结果格式 {response_content_type} 暂不支持\n")
 
 
 def _handle_files(**kwargs):
@@ -185,9 +192,10 @@ async def asyncio_request(method: str, url: str, session_index: int = 0, **kwarg
 	"""发送异步请求"""
 	async with asyncSession.get_session(session_index).request(method=method, url=url, **kwargs) as response:
 		response_content_type = response.headers.get("Content-Type")
+		response_status_code = response.status
 		if response_content_type is None:
 			response_content = await response.text()
-			return response_content, response_content_type
+			return response_content, response_content_type, response_status_code
 
 		response_content_type = response_content_type.split(";")[0].strip()
 		if response_content_type in ["text/html", "text/plain"]:
@@ -196,7 +204,7 @@ async def asyncio_request(method: str, url: str, session_index: int = 0, **kwarg
 			response_content = await response.json()
 		else:
 			response_content = await response.read()
-		return response_content, response_content_type
+		return response_content, response_content_type, response_status_code
 
 # @allureFixture
 # @logFixture
