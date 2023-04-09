@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 
 from common.read.config import read_config
 from utils.mysql_manager import MysqlManager, MysqlManagerConfig
-from utils.single_instance import singleton
 
 
 class SqlReader(ABC):
@@ -12,7 +11,6 @@ class SqlReader(ABC):
 		pass
 
 
-@singleton
 class MysqlReader(SqlReader):
 	""" sql查询 """
 

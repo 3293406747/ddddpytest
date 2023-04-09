@@ -4,7 +4,6 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 import yaml
-from utils.single_instance import singleton
 
 PROJECT_DIR = Path(__file__).resolve().parent.parent
 
@@ -32,7 +31,6 @@ class VariablesManager(ABC):
 		pass
 
 
-@singleton
 class SystemVariablesManager(VariablesManager):
 	""" 变量 """
 
@@ -61,7 +59,6 @@ class SystemVariablesManager(VariablesManager):
 		return self._pool
 
 
-@singleton
 class FileVariablesManager(VariablesManager):
 	""" 文件变量 """
 

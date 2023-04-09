@@ -1,16 +1,16 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 import json
 from string import Template
 import yaml
 
 from common.case.verify_case import verify_case
+from utils.metaclass import SingletonABCMeta
 from utils.read_excel import read_excel
 from utils.read_yaml import read_yaml
-from utils.single_instance import singleton
 from utils.variables_manager import PROJECT_DIR
 
 
-class TestcaseReader(ABC):
+class TestcaseReader(metaclass=SingletonABCMeta):
 
 	@abstractmethod
 	def _validate_testdata(self, test_case: dict) -> None:
@@ -29,7 +29,6 @@ class TestcaseReader(ABC):
 		return case
 
 
-@singleton
 class YamlTestcaseReader(TestcaseReader):
 
 	def _read_testcase(self, filename: str, case_index: int, encoding: str) -> dict:

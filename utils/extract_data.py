@@ -2,13 +2,12 @@
 提取内容
 """
 import json, re, jsonpath
-from abc import ABCMeta, abstractmethod
+from abc import abstractmethod
+
+from utils.metaclass import SingletonABCMeta
 
 
-# from functools import lru_cache
-
-
-class Mode(metaclass=ABCMeta):
+class Mode(metaclass=SingletonABCMeta):
 	""" 抽象基类，定义 extract 方法和模板方法 """
 
 	@abstractmethod

@@ -5,19 +5,15 @@ import sys
 
 import loguru
 
-from common.read.config import read_config
-from utils.single_instance import singleton
 
-
-@singleton
 class Logger:
 	""" 日志管理 """
 
 	def __init__(self,
-		console_config: dict | None = None,
-		file_config: dict | None = None,
-		error_file_config: dict | None = None
-	) -> None:
+				 console_config: dict | None = None,
+				 file_config: dict | None = None,
+				 error_file_config: dict | None = None
+				 ) -> None:
 		self.logger = loguru.logger
 		self.logger.remove()
 		# 控制台日志
