@@ -27,6 +27,8 @@ def render_template(template: dict | list, data_for_render: dict) -> dict:
 
 # 动态导入`utils.function`模块
 utils_function = importlib.import_module("utils.function")
+
+
 # utils_function = __import__("utils.function",fromlist=True)
 
 
@@ -106,6 +108,7 @@ class RenderTemplate:
 			for key, sub_template in template.items():
 				self.strategy.render(key, sub_template, template)
 		return template
+
 
 class RenderTemplateError(Exception):
 	pass

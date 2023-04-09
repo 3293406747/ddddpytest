@@ -1,12 +1,14 @@
 """
 断言
 """
-from abc import ABCMeta, abstractmethod
+from abc import abstractmethod
 from functools import partial
 import numbers
 
+from utils.metaclass import SingletonABCMeta
 
-class Mode(metaclass=ABCMeta):
+
+class Mode(metaclass=SingletonABCMeta):
 	""" 抽象基类，定义 execute 方法 """
 
 	@abstractmethod
@@ -16,7 +18,7 @@ class Mode(metaclass=ABCMeta):
 	@staticmethod
 	def format_param(target) -> list:
 		"""转换为列表"""
-		if isinstance(target, (str,numbers.Number)):
+		if isinstance(target, (str, numbers.Number)):
 			return [target]
 		elif isinstance(target, (tuple, set)):
 			return list(target)
@@ -75,7 +77,7 @@ class Contain(Mode):
 		self.flag = flag
 
 	def execute(self, expect, actual: str):
-		if not isinstance(actual,str):
+		if not isinstance(actual, str):
 			raise TypeError(f"{actual}必须是字符串类型")
 		expect = self.format_param(expect)  # 转换为列表
 		assert_fn = partial(self.assert_not_contain if self.flag else self.assert_contain)
@@ -139,6 +141,7 @@ class AssertData:
 		""" 不包含断言 """
 		# return AssertionFactory.create(method="uncontain").excute(expect=expect, actual=actual, name=name)
 		return self.not_contain_strategy.execute(expect=expect, actual=actual)
+
 
 assert_data = AssertData()
 

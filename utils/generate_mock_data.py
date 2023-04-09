@@ -9,18 +9,18 @@ from datetime import datetime
 from faker import Faker
 
 from utils.geta_areas import get_areas
-from utils.single_instance import singleton
+from utils.single_instance import SingletonMeta
 from utils.sucreditcode import CreditIdentifier
 
 
-@singleton
-class GenerateMockData:
+class GenerateMockData(metaclass=SingletonMeta):
 	""" 生成mock数据 """
 
 	def __init__(self):
 		self._faker = Faker(locale='zh-CN')
 
-		self.emails = ('126.com', 'sina.com', 'qq.com', '163.com', 'gmail.com', 'outlook.com', 'hostmail.com', 'aliyun.com')
+		self.emails = (
+		'126.com', 'sina.com', 'qq.com', '163.com', 'gmail.com', 'outlook.com', 'hostmail.com', 'aliyun.com')
 
 		self._attrset = {
 			'name': 'name',
@@ -32,7 +32,8 @@ class GenerateMockData:
 			'word': 'word',
 			'card': 'card',
 			'province': 'province',
-			'email': lambda: GenerateMockData().generate_random_string(random.randint(6, 16)) + "@" + random.choice(self.emails),
+			'email': lambda: GenerateMockData().generate_random_string(random.randint(6, 16)) + "@" + random.choice(
+				self.emails),
 			'address': lambda: re.sub(r"[a-zA-Z]\w\s\d{3}", "", self._faker.address()) + "号",
 			'company': lambda: self._faker.province().rstrip('省') + self._faker.company(),
 		}
@@ -101,5 +102,3 @@ class GenerateMockData:
 		random_credit_code = creditIdentifier.gen_random_credit_code()
 		assert creditIdentifier.valid(random_credit_code["code"])
 		return random_credit_code["code"]
-
-
