@@ -23,7 +23,7 @@ class ExcelReport(Report):
 		self.wb = openpyxl.Workbook()
 		self.ws = self.wb.active
 
-		columns_title = ('用例名称', '请求url', '请求方式', '请求参数', '响应结果类型', '响应结果', '断言方式', '预期结果', '实际结果', '断言结果')
+		columns_title = ('用例名称', '请求url', '请求方式', '请求参数', '响应状态码', '响应结果类型', '响应结果', '断言方式', '预期结果', '实际结果', '断言结果')
 		self.ws.append(columns_title)
 
 		self.failed_number = 0
