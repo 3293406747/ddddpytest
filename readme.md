@@ -2,6 +2,16 @@
 
 # 带带弟弟pytest
 
+---
+<div>
+    <a href="https://github.com/3293406747/ddddpytest/stargazers" target="_blank">
+    <img alt="GitHub stars" src="https://img.shields.io/github/stars/3293406747/ddddpytest"></a>
+    <a href="https://github.com/3293406747/ddddpytest/blob/master/LICENSE" target="_blank">
+    <img alt="License" src="https://img.shields.io/github/license/3293406747/ddddpytest"></a>
+    <a href="https://t.me/qingtest" target="_blank">
+    <img alt="telegram" src="https://img.shields.io/badge/chat-telegram-blueviolet?style=flat-square&logo=Telegram"></a>
+</div>
+
 本项目实现接口自动化的技术选型：**Aiohttp+Pytest+Yaml+Excel+Smtplib** 。 其中Aiohttp用于发送和处理HTTP协议的请求接口，Pytest作为测试执行器，
 YAML和Excel文件用于测试数据的管理和测试报告的生成，最后使用Smtplib发送测试报告邮件。
 
