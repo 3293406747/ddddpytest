@@ -84,7 +84,7 @@ ORGANIZATION_CHECK_CODE_DICT = {
 class CreditIdentifier(object):
     @staticmethod
     def get_random_address():
-        with open(Path(Path(__file__).parent,"data","address.json"),encoding="utf-8") as reader:
+        with open(Path(Path(__file__).parent, "data", "address.json"), encoding="utf-8") as reader:
             address = json.load(reader)
         nums_province = len(address)
         province = address[random.randint(0, nums_province - 1)]
