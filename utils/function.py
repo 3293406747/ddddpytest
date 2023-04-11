@@ -5,7 +5,7 @@ import time
 from functools import lru_cache
 
 from common.read.mysql import read_mysql
-from utils.generate_mock_data import GenerateMockData
+from utils.generate_mock_data.generate_mock_data import GenerateMockData
 
 
 def md5(string: str) -> str:

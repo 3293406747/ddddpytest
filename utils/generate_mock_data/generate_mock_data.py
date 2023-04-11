@@ -8,9 +8,9 @@ from datetime import datetime
 
 from faker import Faker
 
-from utils.geta_areas import get_areas
+from utils.generate_mock_data.geta_areas import get_areas
 from utils.single_instance import SingletonMeta
-from utils.sucreditcode import CreditIdentifier
+from utils.generate_mock_data.sucreditcode import CreditIdentifier
 
 
 class GenerateMockData(metaclass=SingletonMeta):
