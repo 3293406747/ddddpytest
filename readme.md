@@ -5,7 +5,7 @@
 <div>
     <a href="https://github.com/3293406747/ddddpytest/stargazers" target="_blank">
     <img alt="GitHub stars" src="https://img.shields.io/github/stars/3293406747/ddddpytest"></a>
-    <a href="https://github.com/3293406747/ddddpytest/blob/master/LICENSE" target="_blank">
+    <a href="https://github.com/3293406747/ddddpytest/blob/main/LICENSE" target="_blank">
     <img alt="License" src="https://img.shields.io/github/license/3293406747/ddddpytest"></a>
     <a href="https://t.me/qingtest" target="_blank">
     <img alt="telegram" src="https://img.shields.io/badge/chat-telegram-blueviolet?style=flat-square&logo=Telegram"></a>
@@ -19,7 +19,7 @@ YAML和Excel文件用于测试数据的管理和测试报告的生成，最后�
 - 采用协程方式发送请求，提高了测试用例执行效率
 - 采用统一请求封装，session自动关联，支持多个session之间切换
 - 采用关键字驱动设计，测试数据易于维护
-- 自动渲染测试用例，自动处理请求中的files数据，并能自动提取请求和响应中的内容进行断言
+- 自动渲染测试用例，自动处理请求中的文件，并能自动提取请求和响应中的内容进行断言
 - 项目运行时自动生成日志文件和测试报告，且自动发送测试报告邮件
 - Yaml文件可关联Excel文件，用于存储公共测试数据和测试数据
 - Yaml及Excel文件中可使用变量和调用Python函数，方便测试用例编写
