@@ -7,3 +7,4 @@ temp
 *.log
 *.css
 *.js
+.benchmarks
