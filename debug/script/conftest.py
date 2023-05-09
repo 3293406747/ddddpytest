@@ -12,9 +12,9 @@ from common.session.manager import asyncSession
 from utils.send_email import send_email, SendEmailConfig
 
 # 避免使用全局变量
-_loop = asyncio.new_event_loop()
-_reports_dir = Path(__file__).resolve().parent.parent.joinpath("reports").joinpath(time.strftime('%Y-%m-%d'))
-_reports_dir.mkdir(parents=True, exist_ok=True)
+LOOP = asyncio.new_event_loop()
+REPORTS_DIR = Path(__file__).resolve().parent.parent.joinpath("reports").joinpath(time.strftime('%Y-%m-%d'))
+REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 _tasks = []
 _report_path: Path
 _error_log_path: Path
@@ -28,8 +28,8 @@ async def _setup(case):
 
 @pytest.fixture(scope='package', autouse=True)
 def event_loop():
-	yield _loop
-	_loop.close()
+	yield LOOP
+	LOOP.close()
 
 
 async def _close_session():
@@ -38,13 +38,13 @@ async def _close_session():
 
 @pytest.fixture(scope='package', autouse=True, params=read_case("debug/testcase/setcookie.yaml"))
 def session(request):
-	_loop.run_until_complete(_setup(request.param))
+	LOOP.run_until_complete(_setup(request.param))
 	yield
-	data_map = _loop.run_until_complete(asyncio.gather(*_tasks))
-	_loop.run_until_complete(_close_session())
+	data_map = LOOP.run_until_complete(asyncio.gather(*_tasks))
+	LOOP.run_until_complete(_close_session())
 	# 生成报告
 	global _report_path
-	_report_path = _reports_dir.joinpath(f"report_{time.strftime('%H_%M_%S')}.xlsx")
+	_report_path = REPORTS_DIR.joinpath(f"report_{time.strftime('%H_%M_%S')}.xlsx")
 	report = ExcelReport()
 	try:
 		for data in data_map:
@@ -62,9 +62,9 @@ def parametrize(params=None):
 	def asyncio_append_to_tasks(func):
 		def wapper(*args, **kwargs):
 			if params:
-				[_tasks.append(_loop.create_task(func(*args, param, **kwargs))) for param in params]
+				[_tasks.append(LOOP.create_task(func(*args, param, **kwargs))) for param in params]
 			else:
-				_tasks.append(_loop.create_task(func(*args, **kwargs)))
+				_tasks.append(LOOP.create_task(func(*args, **kwargs)))
 
 		return wapper
 
@@ -76,7 +76,7 @@ def pytest_exception_interact(node, call, report):
 	if report.failed:
 		exc_info = call.excinfo
 		global _error_log_path
-		_error_log_path = _reports_dir.joinpath(f"error_log_{time.strftime('%H_%M_%S')}.log")
+		_error_log_path = REPORTS_DIR.joinpath(f"error_log_{time.strftime('%H_%M_%S')}.log")
 		with open(_error_log_path, 'w') as f:
 			f.write(f'测试用例执行异常\n')
 			f.write(f'报错位置: {node.nodeid}\n')
