@@ -28,10 +28,6 @@ YAML和Excel文件用于测试数据的管理和测试报告的生成，最后�
 
 :loudspeaker:项目开发环境：win11+python3.10
 
-## 测试报告
-
-![report](system/img/excel_report.png)
-
 ## 部署
 
 1. 下载项目源码后，在根目录下找到**requirements_dev.txt**文件，然后通过 pip 工具安装项目运行依赖，执行命令：
