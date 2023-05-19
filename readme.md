@@ -36,8 +36,6 @@ YAML和Excel文件用于测试数据的管理和测试报告的生成，最后�
 pip3 install -r requirements_dev.txt
 ```
 
-[comment]: <> (- 下载并配置allure2，下载安装教程如下：https://blog.csdn.net/lixiaomei0623/article/details/120185069)
-
 2. 在**debug/config/local.yaml**文件中配置数据库参数和邮件参数。
 3. 在**debug/db**目录中找到**user.sql**并运行初始化数据库。
 4. 在**debug/flask_app**目录中运行**api.py**启动服务。
