@@ -69,11 +69,6 @@ async def test_get(case):
       foo2: bar2
 ```
 
-## 高级使用
-
-1. 用例文件编写规则详见[yaml用例编写规则.md](system/doc/yaml用例编写规则.md)
-2. 项目使用可参考[项目使用](system/doc/项目使用.md)
-
 ## 支持
 
 1. 如果喜欢ddddpytest，欢迎在GitHub上进行Star。
